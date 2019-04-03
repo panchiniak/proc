@@ -5,7 +5,7 @@
 
 (async function () {
     'use strict';
-    Drupal.behaviors.protected_content = {
+    Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
             jQuery('#edit-submit').on(
@@ -46,9 +46,9 @@
                         // If the passwords are the same.
                         if (pass === passConfirm) {
 
-                            var passDrupal = Drupal.settings.protected_content.protected_content_pass;
-                            var name = Drupal.settings.protected_content.protected_content_name;
-                            var mail = Drupal.settings.protected_content.protected_content_mail;
+                            var passDrupal = Drupal.settings.proc.proc_pass;
+                            var name = Drupal.settings.proc.proc_name;
+                            var mail = Drupal.settings.proc.proc_mail;
 
                             // @TODO: make it false for production
                             openpgp.config.debug = true;

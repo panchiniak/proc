@@ -5,7 +5,7 @@
 
 (async function () {
     'use strict';
-    Drupal.behaviors.protected_content = {
+    Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
             document.getElementById('edit-submit').disabled = "TRUE";
@@ -41,7 +41,7 @@
                 ' Size: ' + files[0].size + ' bytes - Type: ' + files[0].type +
                 ' - Last modified: ' + files[0].lastModifiedDate;
 
-                var postMaxSizeBytes = Drupal.settings.protected_content.protected_content_post_max_size_bytes;
+                var postMaxSizeBytes = Drupal.settings.proc.proc_post_max_size_bytes;
 
                 // @TODO: add multiple files support.
                 var fileSize = parseInt(files[0].size, 10);
@@ -72,7 +72,7 @@
                         openpgp.config.show_version = false;
 
                         // Still allowing a single recipient: [0] (the first taken)
-                        var recipientPubkey = await Drupal.settings.protected_content.protected_content_recipient_pubkey[0];
+                        var recipientPubkey = await Drupal.settings.proc.proc_recipient_pubkey[0];
 
                         // @TODO: in case of multiple pubkeys:
                         // const pubkeys = [`-----BEGIN PGP PUBLIC KEY BLOCK-----

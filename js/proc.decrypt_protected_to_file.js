@@ -5,15 +5,15 @@
 
 (async function () {
     'use strict';
-    Drupal.behaviors.protected_content = {
+    Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
             // @TODO: replace var by let whenever possible
-            var passDrupal = Drupal.settings.protected_content.protected_content_pass;
-            var privkey = Drupal.settings.protected_content.protected_content_privkey;
-            var cipherText = Drupal.settings.protected_content.protected_content_cipher;
-            var sourceFileName = Drupal.settings.protected_content.protected_content_source_file_name;
-            var sourceFileSize = Drupal.settings.protected_content.protected_content_source_file_size;
+            var passDrupal = Drupal.settings.proc.proc_pass;
+            var privkey = Drupal.settings.proc.proc_privkey;
+            var cipherText = Drupal.settings.proc.proc_cipher;
+            var sourceFileName = Drupal.settings.proc.proc_source_file_name;
+            var sourceFileSize = Drupal.settings.proc.proc_source_file_size;
 
             jQuery('#decryption-link').on(
                 'click', async function () {
