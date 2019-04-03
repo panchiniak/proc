@@ -1,0 +1,216 @@
+<?php
+
+/**
+ * @file
+ * Provide pgp encryption for files.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function proc_permission() {
+  return array(
+    'register protected content keys' => array(
+      'title' => t('Register Protected Content Keys'),
+      'description' => t('Allow user to access Protected Content Keys registration page.'),
+    ),
+    'new protected file' => array(
+      'title' => t('Create new Protected File'),
+      'description' => t('Allow user to access Create New Protected File page.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function proc_menu() {
+  $items = array();
+  $items['protected-content/key-pair/new'] = array(
+    'title' => 'Register my Protected Content key',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('proc_gnerate_keys'),
+    'access arguments' => array('register protected content keys'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'inc/proc.forms.inc',
+  );
+  $items['protected-content/file/new'] = array(
+    'title' => 'New file',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('proc_encrypt_file'),
+    'access arguments' => array('new protected file'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'inc/proc.forms.inc',
+  );
+  $items['protected-content/file/open'] = array(
+    'title' => 'Open Protected Content',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('proc_decrypt_to_file'),
+    'access callback' => '_proc_recipient',
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'inc/proc.forms.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function proc_views_api() {
+  return array(
+    'api' => '3.0',
+    'path' => drupal_get_path('module', 'proc') . '/inc',
+  );
+}
+
+/**
+ * Helper to check the library, optionally uses libraries API.
+ */
+function _proc_lib_info($existing = array(), $path = FALSE) {
+  // @TODO: check this
+  static $lib;
+
+  $path = ($path) ? $path : variable_get('proc_library_path', libraries_get_path('openpgpjs'));
+  if (!isset($lib)) {
+    $lib = $existing;
+    if (function_exists('libraries_detect')) {
+      $lib = libraries_detect("openpgpjs");
+    }
+    else {
+      $lib['installed'] = FALSE;
+      $file = $path . '/openpgp.min.js';
+      if (is_readable($file)) {
+        $data = drupal_substr(file_get_contents($file), 0, 128);
+        $matches = array();
+        if (preg_match('/v(([0-9]\.?)+)/', $data, $matches)) {
+          $lib['installed'] = TRUE;
+          $lib['version'] = $matches[1];
+        }
+        else {
+          $lib['error'] = 'not supported';
+          $lib['error message'] = t('Library version not found.');
+        }
+      }
+    }
+  }
+  return $lib;
+}
+
+/**
+ * Helper to check the library version.
+ */
+function _proc_is_lib_supported() {
+  static $lib;
+  if (!isset($lib)) {
+    $lib = _proc_lib_info();
+  }
+  $path = drupal_get_path('module', 'proc') . '/' . 'proc' . '.info';
+  $info = drupal_parse_info_file($path);
+  $cryptographic_lib_version = str_replace('OpenPGP.js v', '', $info['criptographic_library']);
+
+  if ($cryptographic_lib_version == $lib['version']) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Helper to load the library.
+ */
+function _proc_lib_load() {
+  $lib = array('loaded' => FALSE);
+  if (function_exists('libraries_load')) {
+    $lib = libraries_load('openpgpjs');
+  }
+  else {
+    $lib = _proc_lib_info($lib);
+    if ($lib['installed']) {
+      // @TODO: consider to get this file directly from github and check it agains file sum hash
+      drupal_add_js(variable_get('proc_library_path', libraries_get_path('openpgpjs')) . '/openpgp.min.js');
+      $lib['loaded'] = TRUE;
+    }
+  }
+  return $lib;
+}
+
+/**
+ * Helper function to get current user privkey.
+ */
+function _proc_get_keys($user_id) {
+
+  $result = db_select('proc_keys', 'er')
+    ->fields('er', ['encrypted_private_key', 'uid', 'kid', 'public_key'])
+    ->condition('uid', $user_id, '=')
+    ->orderBy('kid', 'DESC')
+    ->range(0, 1)
+    ->execute()
+    ->fetchAll();
+
+  return $result;
+}
+
+/**
+ * Helper function to get cipher text.
+ */
+function _proc_get_cipher($cid) {
+  global $user;
+
+  $result = db_select('proc_cipher_texts', 'ci')
+    ->fields('ci', [
+      'cid',
+      'recipient_uid',
+      'cipher_text',
+      'source_file_name',
+      'source_file_size',
+    ])
+  // @TODO: will be changed for multiple recipients and custom entity.
+    ->condition('recipient_uid', $user->uid, '=')
+    ->condition('cid', $cid, '=')
+    ->range(0, 1)
+    ->execute()
+    ->fetchAll();
+
+  return $result;
+}
+
+/**
+ * Helper function to check if current user is recipient of cipher text.
+ */
+function _proc_recipient() {
+  $argument = arg(3);
+  if (isset($argument)) {
+    $argument = check_plain($argument);
+    $cid = (int) $argument;
+    $cipher = _proc_get_cipher($cid);
+    if (!empty($cipher)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function proc_libraries_info() {
+  $libs = array();
+
+  $libs['openpgpjs'] = array(
+    'name' => 'OpenPGP.js',
+    'vendor url' => 'http://openpgpjs.org/',
+    'download url' => 'https://github.com/openpgpjs/openpgpjs/releases/tag/v4.4.5',
+    'version arguments' => array(
+      'file' => 'openpgp.min.js',
+      'pattern' => '/v(([0-9]\.?)+)/',
+      'lines' => 1,
+      'cols' => 128,
+    ),
+    'files' => array(
+      'js' => array('openpgp.min.js'),
+    ),
+  );
+
+  return $libs;
+}

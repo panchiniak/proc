@@ -1,0 +1,11 @@
+name = "Protected Content"
+description = "Client side encryption for content"
+core = 7.x
+package = Cryptography
+
+#@TODO: upgrade to the latest version for production
+criptographic_library = "OpenPGP.js v4.4.5"
+criptographic_library_url = "https://github.com/openpgpjs/openpgpjs/releases/tag/v4.4.5"
+
+test_dependencies[] = libraries
+files[] = tests/proc.test
