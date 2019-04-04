@@ -4,7 +4,7 @@ This module adds end-to-end encryption for content.
 
 Installation
 ------------
-Install as usual and make sure to have openpgpjs.min.js at you openpgpjs lib
+Install as usual and make sure to have openpgpjs.min.js at your openpgpjs lib
 folder.
 
 How to use
