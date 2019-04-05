@@ -75,7 +75,7 @@ function _proc_decrypt_to_file($form, &$form_state) {
 /**
  * Encryption form for files.
  */
-function _proc_encrypt_file($form, &$form_state, $type, $arg2 = NULL) {
+function _proc_encrypt_file($form, &$form_state) {
   global $user;
   $uids_arg = arg(3);
 
@@ -85,6 +85,7 @@ function _proc_encrypt_file($form, &$form_state, $type, $arg2 = NULL) {
 
   if (!isset($uids_arg)) {
     drupal_set_message(t("You must chose an enabled recipient by filling in the URL the recipient user's identification"), 'error');
+    // @TODO: send user back to recipient's list if any.
     return;
   }
 
@@ -250,6 +251,23 @@ function _proc_gnerate_keys($form, &$form_state) {
 }
 
 /**
+ * Helper function to check if user agent in unsuported.
+ */
+function _proc_browser_supported(){
+  $path = drupal_get_path('module', 'proc') . '/' . 'proc' . '.info';
+  $info = drupal_parse_info_file($path);
+  $unsuported_browsers_array = str_getcsv($info['unsuported_browsers_csv']);
+
+  foreach ($unsuported_browsers_array as $unsuported_browser){
+    if (strpos($_SERVER['HTTP_USER_AGENT'], $unsuported_browser) !== false){
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+
+/**
  * Submit function for public key submission.
  */
 function _proc_gnerate_keys_submit($form, &$form_state) {
@@ -275,8 +293,13 @@ function _proc_gnerate_keys_submit($form, &$form_state) {
     drupal_set_message(t("Your password can't be recovered. You must remember it. If you create new keys all previously Protected Content sent to you will be forever lost (and there is nothing we can do about that)."), 'info');
   }
   else {
-    drupal_set_message(t('Sorry. Your public key has not been saved to the database. Plese try again later.'), 'error');
-    // @TODO: add watchdog on keys generation errors.
+    if (!_proc_browser_supported()){
+      drupal_set_message(t('Key generation error. It looks like you are using some unsupported browser. Please try again using another one.'), 'error');
+    }
+    else{
+      drupal_set_message(t('Sorry. Your public key has not been saved to the database. You might need to close tabs in your browser to release memory.'), 'error');
+    }
+    watchdog('proc', 'Error on key generation/storage. User agent: %user-agent', array('%user-agent' => $_SERVER['HTTP_USER_AGENT']), WATCHDOG_ERROR);
   }
 
   cache_clear_all(NULL, 'cache_form', TRUE);

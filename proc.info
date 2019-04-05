@@ -6,6 +6,7 @@ package = Cryptography
 #@TODO: upgrade to the latest version for production
 criptographic_library = "OpenPGP.js v4.4.5"
 criptographic_library_url = "https://github.com/openpgpjs/openpgpjs/releases/tag/v4.4.5"
+unsuported_browsers_csv = "Edge,Internet Explorer"
 
 test_dependencies[] = libraries
 files[] = tests/proc.test

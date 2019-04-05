@@ -27,7 +27,7 @@ function proc_permission() {
 function proc_menu() {
   $items = array();
   $items['protected-content/key-pair/new'] = array(
-    'title' => 'Register my Protected Content key',
+    'title' => 'Register my Protected Content Key',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_gnerate_keys'),
     'access arguments' => array('register protected content keys'),
