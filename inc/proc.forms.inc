@@ -185,7 +185,7 @@ function _proc_encrypt_file($form, &$form_state, $type, $arg2 = NULL) {
 /**
  * Generation form for the keys.
  */
-function proc_gnerate_keys($form, &$form_state) {
+function _proc_gnerate_keys($form, &$form_state) {
   global $user;
 
   if (empty($form_state['values'])) {
@@ -252,7 +252,7 @@ function proc_gnerate_keys($form, &$form_state) {
 /**
  * Submit function for public key submission.
  */
-function proc_gnerate_keys_submit($form, &$form_state) {
+function _proc_gnerate_keys_submit($form, &$form_state) {
   global $user;
   // Prepare the form values for submission.
   $record = new stdClass();
