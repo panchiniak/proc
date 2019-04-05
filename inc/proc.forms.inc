@@ -256,7 +256,7 @@ function _proc_gnerate_keys($form, &$form_state) {
 function _proc_browser_supported(){
   $path = drupal_get_path('module', 'proc') . '/' . 'proc' . '.info';
   $info = drupal_parse_info_file($path);
-  $unsuported_browsers_array = str_getcsv($info['unsuported_browsers_csv']);
+  $unsuported_browsers_array = str_getcsv($info['yellow_flag_browsers_csv']);
 
   foreach ($unsuported_browsers_array as $unsuported_browser){
     if (strpos($_SERVER['HTTP_USER_AGENT'], $unsuported_browser) !== false){
