@@ -37,7 +37,7 @@ function proc_menu() {
   $items['protected-content/file/new'] = array(
     'title' => 'New file',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('proc_encrypt_file'),
+    'page arguments' => array('_proc_encrypt_file'),
     'access arguments' => array('new protected file'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
@@ -45,7 +45,7 @@ function proc_menu() {
   $items['protected-content/file/open'] = array(
     'title' => 'Open Protected Content',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('proc_decrypt_to_file'),
+    'page arguments' => array('_proc_decrypt_to_file'),
     'access callback' => '_proc_recipient',
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',

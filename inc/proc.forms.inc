@@ -5,18 +5,13 @@
  */
 
 /**
- * Encryption keys generation form.
+ * Retrieval of file from its cipher text.
  */
-function proc_decrypt_to_file($form, &$form_state) {
+function _proc_decrypt_to_file($form, &$form_state) {
   global $user;
 
   $cid_arg = arg(3);
 
-  // If there is no user id defined encrypt the sender her/himself.
-  if (!isset($cid_arg)) {
-    drupal_set_message(t('You must choose a Protected Content by filling in the URL its identification.'), 'error');
-    return;
-  }
   // @TODO: make it READABLE
   if (isset($cid_arg) and check_url($cid_arg)) {
     // Check URL and plain text.
@@ -78,9 +73,9 @@ function proc_decrypt_to_file($form, &$form_state) {
 }
 
 /**
- * Generation form for the keys.
+ * Encryption form for files.
  */
-function proc_encrypt_file($form, &$form_state, $type, $arg2 = NULL) {
+function _proc_encrypt_file($form, &$form_state, $type, $arg2 = NULL) {
   global $user;
   $uids_arg = arg(3);
 
@@ -290,7 +285,7 @@ function proc_gnerate_keys_submit($form, &$form_state) {
 /**
  * Submit function for public key submission.
  */
-function proc_encrypt_file_submit($form, &$form_state) {
+function _proc_encrypt_file_submit($form, &$form_state) {
   global $user;
   global $base_url;
 
