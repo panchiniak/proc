@@ -54,6 +54,22 @@ function proc_menu() {
 }
 
 /**
+ * Helper to load the cryptoigraphic library settings from info file
+ */
+function _proc_get_cryptolib_settings(){
+  $crypto_lib_settings = array();
+
+  $path = drupal_get_path('module', 'proc') . '/' . 'proc' . '.info';
+  $info = drupal_parse_info_file($path);
+  $crypto_lib_settings['versionstring'] = $info['crypto_library_versionstring'];
+  $crypto_lib_settings['url'] $info['crypto_library_url'];
+  $crypto_lib_folder['folder'] $info['crypto_library_folder'];
+  $crypto_lib_folder['vendor'] $info['crypto_library_vendor'];
+
+  return $crypto_lib_folder;
+}
+
+/**
  * Implements hook_views_api().
  */
 function proc_views_api() {
@@ -64,73 +80,11 @@ function proc_views_api() {
 }
 
 /**
- * Helper to check the library, optionally uses libraries API.
- */
-function _proc_lib_info($existing = array(), $path = FALSE) {
-  // @TODO: check this
-  static $lib;
-
-  $path = ($path) ? $path : variable_get('proc_library_path', libraries_get_path('openpgpjs'));
-  if (!isset($lib)) {
-    $lib = $existing;
-    if (function_exists('libraries_detect')) {
-      $lib = libraries_detect("openpgpjs");
-    }
-    else {
-      $lib['installed'] = FALSE;
-      $file = $path . '/openpgp.min.js';
-      if (is_readable($file)) {
-        $data = drupal_substr(file_get_contents($file), 0, 128);
-        $matches = array();
-        if (preg_match('/v(([0-9]\.?)+)/', $data, $matches)) {
-          $lib['installed'] = TRUE;
-          $lib['version'] = $matches[1];
-        }
-        else {
-          $lib['error'] = 'not supported';
-          $lib['error message'] = t('Library version not found.');
-        }
-      }
-    }
-  }
-  return $lib;
-}
-
-/**
- * Helper to check the library version.
- */
-function _proc_is_lib_supported() {
-  static $lib;
-  if (!isset($lib)) {
-    $lib = _proc_lib_info();
-  }
-  $path = drupal_get_path('module', 'proc') . '/' . 'proc' . '.info';
-  $info = drupal_parse_info_file($path);
-  $cryptographic_lib_version = str_replace('OpenPGP.js v', '', $info['criptographic_library']);
-
-  if ($cryptographic_lib_version == $lib['version']) {
-    return TRUE;
-  }
-  else {
-    return FALSE;
-  }
-}
-
-/**
  * Helper to load the library.
  */
-function _proc_lib_load() {
-  $lib = array('loaded' => FALSE);
+function _proc_lib_load() {  
   if (function_exists('libraries_load')) {
-    $lib = libraries_load('openpgpjs');
-  }
-  else {
-    $lib = _proc_lib_info($lib);
-    if ($lib['installed']) {
-      // @TODO: consider to get this file directly from github and check it agains file sum hash
-      drupal_add_js(variable_get('proc_library_path', libraries_get_path('openpgpjs')) . '/openpgp.min.js');
-      $lib['loaded'] = TRUE;
-    }
+    $lib = libraries_load($folder = _proc_get_cryptolib_settings()['folder']);
   }
   return $lib;
 }
@@ -197,20 +151,19 @@ function _proc_recipient() {
 function proc_libraries_info() {
   $libs = array();
 
-  $libs['openpgpjs'] = array(
+  $crypto_info = _proc_get_cryptolib_settings();
+
+  $libs[$crypto_info['folder']] = array(
     'name' => 'OpenPGP.js',
-    'vendor url' => 'http://openpgpjs.org/',
-    'download url' => 'https://github.com/openpgpjs/openpgpjs/releases/tag/v4.4.5',
+    'vendor url' => $crypto_info['vendor'],
+    'download url' => $crypto_info['url'],
     'version arguments' => array(
       'file' => 'openpgp.min.js',
-      'pattern' => '/v(([0-9]\.?)+)/',
-      'lines' => 1,
-      'cols' => 128,
+      'pattern' => '/OpenPGP\.js v4\.4\.5/',
     ),
     'files' => array(
       'js' => array('openpgp.min.js'),
     ),
   );
-
   return $libs;
 }
