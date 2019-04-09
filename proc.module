@@ -62,9 +62,9 @@ function _proc_get_cryptolib_settings(){
   $path = drupal_get_path('module', 'proc') . '/' . 'proc' . '.info';
   $info = drupal_parse_info_file($path);
   $crypto_lib_settings['versionstring'] = $info['crypto_library_versionstring'];
-  $crypto_lib_settings['url'] $info['crypto_library_url'];
-  $crypto_lib_folder['folder'] $info['crypto_library_folder'];
-  $crypto_lib_folder['vendor'] $info['crypto_library_vendor'];
+  $crypto_lib_settings['url'] = $info['crypto_library_url'];
+  $crypto_lib_folder['folder'] = $info['crypto_library_folder'];
+  $crypto_lib_folder['vendor'] = $info['crypto_library_vendor'];
 
   return $crypto_lib_folder;
 }
