@@ -60,13 +60,13 @@ function _proc_get_cryptolib_settings(){
   $crypto_lib_settings = array();
 
   $path = drupal_get_path('module', 'proc') . '/' . 'proc' . '.info';
-  $info = drupal_parse_info_file($path);
+  $info = drupal_parse_info_file($path);  
   $crypto_lib_settings['versionstring'] = $info['crypto_library_versionstring'];
   $crypto_lib_settings['url'] = $info['crypto_library_url'];
-  $crypto_lib_folder['folder'] = $info['crypto_library_folder'];
-  $crypto_lib_folder['vendor'] = $info['crypto_library_vendor'];
+  $crypto_lib_settings['folder'] = $info['crypto_library_folder'];
+  $crypto_lib_settings['vendor'] = $info['crypto_library_vendor'];
 
-  return $crypto_lib_folder;
+  return $crypto_lib_settings;
 }
 
 /**
@@ -82,7 +82,7 @@ function proc_views_api() {
 /**
  * Helper to load the library.
  */
-function _proc_lib_load() {  
+function _proc_lib_load() {
   if (function_exists('libraries_load')) {
     $lib = libraries_load($folder = _proc_get_cryptolib_settings()['folder']);
   }
@@ -149,21 +149,22 @@ function _proc_recipient() {
  * Implements hook_libraries_info().
  */
 function proc_libraries_info() {
-  $libs = array();
+  $lib = array();
 
   $crypto_info = _proc_get_cryptolib_settings();
+  $version_patern = str_replace(".","\.",$crypto_info['crypto_library_versionstring']);
 
-  $libs[$crypto_info['folder']] = array(
+  $lib[$crypto_info['folder']] = array(
     'name' => 'OpenPGP.js',
     'vendor url' => $crypto_info['vendor'],
     'download url' => $crypto_info['url'],
     'version arguments' => array(
-      'file' => 'openpgp.min.js',
-      'pattern' => '/OpenPGP\.js v4\.4\.5/',
+      'file' => $crypto_info['folder'] . '.min.js',
+      'pattern' => '/v(([0-9]\.?)+)/',
     ),
     'files' => array(
-      'js' => array('openpgp.min.js'),
+      'js' => array($crypto_info['folder'] . '.min.js'),
     ),
   );
-  return $libs;
+  return $lib;
 }

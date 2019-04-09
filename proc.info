@@ -3,10 +3,10 @@ description = "Client side encryption for content"
 core = 7.x
 package = Cryptography
 
-#@TODO: upgrade to the latest version for production
-criptographic_library_versionstring = "OpenPGP.js v4.4.5"
-criptographic_library_url = "https://github.com/openpgpjs/openpgpjs/releases/tag/v4.4.5"
-criptographic_library_folder = "openpgpjs"
+crypto_library_versionstring = "OpenPGP.js v4.4.5"
+crypto_library_vendor = "https://openpgpjs.org"
+crypto_library_url = "https://github.com/openpgpjs/openpgpjs/releases/tag/v4.4.5"
+crypto_library_folder = "openpgpjs"
 yellow_flag_browsers_csv = "Edge,Internet Explorer"
 
 dependencies[] = libraries
