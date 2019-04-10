@@ -77,6 +77,7 @@ function _proc_decrypt_to_file($form, &$form_state) {
  */
 function _proc_encrypt_file($form, &$form_state) {
   global $user;
+  // @TODO: use menu_get_item() instead.
   $uids_arg = arg(3);
 
   // Get post_max_size to set dynamically maximum file size.
@@ -114,7 +115,9 @@ function _proc_encrypt_file($form, &$form_state) {
       }
     }
   }
-  _proc_lib_load();
+  // @TODO: add error handling to _proc_lib_load()
+  $result = _proc_lib_load();
+
   drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.encrypt_file.js');
 
   if (empty($recipient_pubkeys)) {
@@ -265,7 +268,6 @@ function _proc_browser_supported(){
   }
   return TRUE;
 }
-
 
 /**
  * Submit function for public key submission.

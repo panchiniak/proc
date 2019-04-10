@@ -65,6 +65,7 @@ function _proc_get_cryptolib_settings(){
   $crypto_lib_settings['url'] = $info['crypto_library_url'];
   $crypto_lib_settings['folder'] = $info['crypto_library_folder'];
   $crypto_lib_settings['vendor'] = $info['crypto_library_vendor'];
+  $crypto_lib_settings['file'] = $info['crypto_library_file'];
 
   return $crypto_lib_settings;
 }
@@ -149,22 +150,24 @@ function _proc_recipient() {
  * Implements hook_libraries_info().
  */
 function proc_libraries_info() {
-  $lib = array();
+  $libs = array();
 
   $crypto_info = _proc_get_cryptolib_settings();
-  $version_patern = str_replace(".","\.",$crypto_info['crypto_library_versionstring']);
 
-  $lib[$crypto_info['folder']] = array(
-    'name' => 'OpenPGP.js',
+  $libs[$crypto_info['folder']] = array(
+    'name' => $crypto_info['versionstring'],
     'vendor url' => $crypto_info['vendor'],
     'download url' => $crypto_info['url'],
     'version arguments' => array(
-      'file' => $crypto_info['folder'] . '.min.js',
+      'file' => $crypto_info['file'],
       'pattern' => '/v(([0-9]\.?)+)/',
+      'lines' => 1,
+      'cols' => 23,
     ),
     'files' => array(
-      'js' => array($crypto_info['folder'] . '.min.js'),
+      'js' => array($crypto_info['file']),
     ),
   );
-  return $lib;
+
+  return $libs;
 }

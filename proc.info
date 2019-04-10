@@ -8,6 +8,7 @@ crypto_library_vendor = "https://openpgpjs.org"
 crypto_library_url = "https://github.com/openpgpjs/openpgpjs/releases/tag/v4.4.5"
 crypto_library_folder = "openpgpjs"
 yellow_flag_browsers_csv = "Edge,Internet Explorer"
+crypto_library_file = "openpgp.min.js"
 
 dependencies[] = libraries
 test_dependencies[] = libraries
