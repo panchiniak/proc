@@ -1,6 +1,6 @@
 /**
  * @file
- * Duplicate of europa script.
+ * Decrypts cipher texts into a file given a correct privkey passphrase.
  */
 
 (async function () {
@@ -20,7 +20,6 @@
 
                     var secretPass = jQuery('input[name=pass]')[0].value;
 
-                    // Var passphrase = passDrupal + secretPass;.
                     var secretPassString = new String(secretPass);
                     var passphrase = passDrupal.concat(secretPassString);
                     const privKeyObj = (await openpgp.key.readArmored(privkey)).keys[0];
@@ -30,6 +29,10 @@
                             // @TODO: rephrase openpgpjs default error messages to allow for translations.
                             // @TODO: add to error log
                             jQuery("form#-proc-decrypt-to-file").prepend('<div class="messages error">' + err + '</div>');
+                            if (jQuery("a#decryption-link")[0].href){
+                                const fileUrl = jQuery("a#decryption-link")[0].href;
+                                URL.revokeObjectURL(fileUrl);
+                            }
                         }
                     );
 
@@ -47,7 +50,7 @@
                     const link = document.getElementById('decryption-link');
                     link.href = objectURL;
                     link.href = URL.createObjectURL(blob);
-
+                    
                     // Check if file generated is the same size of source file.
                     if (blob.size.toString() === sourceFileSize) {
                         link.download = sourceFileName;
