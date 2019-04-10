@@ -10,10 +10,9 @@
 function _proc_decrypt_to_file($form, &$form_state) {
   global $user;
 
-  // @TODO: use menu_get_item() instead.
-  $cid_arg = arg(3);
+  $cid_arg = menu_get_item()['map'][3];
 
-  // @TODO: make it READABLE
+  // @TODO: make it READABLE and REUSABLE
   if (isset($cid_arg) and check_url($cid_arg)) {
     // Check URL and plain text.
     $cid_csv = check_plain($cid_arg);
@@ -78,8 +77,8 @@ function _proc_decrypt_to_file($form, &$form_state) {
  */
 function _proc_encrypt_file($form, &$form_state) {
   global $user;
-  // @TODO: use menu_get_item() instead.
-  $uids_arg = arg(3);
+
+  $uids_arg = menu_get_item()['map'][3];
 
   // Get post_max_size to set dynamically maximum file size.
   $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
