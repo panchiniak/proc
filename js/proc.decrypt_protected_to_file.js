@@ -29,7 +29,7 @@
                         function (err) {
                             // @TODO: rephrase openpgpjs default error messages to allow for translations.
                             // @TODO: add to error log
-                            jQuery("form#protected-content-decrypt-to-file").prepend('<div class="messages error">' + err + '</div>');
+                            jQuery("form#-proc-decrypt-to-file").prepend('<div class="messages error">' + err + '</div>');
                         }
                     );
 
@@ -55,7 +55,7 @@
                     else {
                         // @TODO: use t
                         // @TODO: add to error log
-                        jQuery("form#protected-content-decrypt-to-file").prepend('<div class="messages error">Error: size mismatch.</div>');
+                        jQuery("form#-proc-decrypt-to-file").prepend('<div class="messages error">Error: size mismatch.</div>');
                     }
                 }
             );
