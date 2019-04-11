@@ -107,7 +107,7 @@ function _proc_get_keys($user_id) {
 }
 
 /**
- * Helper function to get cipher text.
+ * Helper function to get given cipher text that belongs to current user.
  */
 function _proc_get_cipher($cid) {
   global $user;
@@ -120,7 +120,7 @@ function _proc_get_cipher($cid) {
       'source_file_name',
       'source_file_size',
     ])
-  // @TODO: will be changed for multiple recipients and custom entity.
+  // @TODO: will be changed for multiple recipients.
     ->condition('recipient_uid', $user->uid, '=')
     ->condition('cid', $cid, '=')
     ->range(0, 1)
@@ -134,9 +134,10 @@ function _proc_get_cipher($cid) {
  * Helper function to check if current user is recipient of cipher text.
  */
 function _proc_recipient() {
+  // @TODO: replace by menu_get_object once we hava a cipher object.
   $argument = arg(3);
-  if (isset($argument)) {
-    $argument = check_plain($argument);
+
+  if (isset($argument) && is_numeric($argument)) {
     $cid = (int) $argument;
     $cipher = _proc_get_cipher($cid);
     if (!empty($cipher)) {

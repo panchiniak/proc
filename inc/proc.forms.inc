@@ -5,35 +5,12 @@
  */
 
 /**
- * Retrieval of file from its cipher text.
+ * Retrieval of a file from its cipher text.
  */
 function _proc_decrypt_to_file($form, &$form_state) {
   global $user;
 
-  $cid_arg = menu_get_item()['map'][3];
-
-  // @TODO: make it READABLE and REUSABLE
-  if (isset($cid_arg) and check_url($cid_arg)) {
-    // Check URL and plain text.
-    $cid_csv = check_plain($cid_arg);
-    if (isset($cid_csv)) {
-      $cids = str_getcsv($cid_csv);
-      if (isset($cids)) {
-        $cid_ciphers = array();
-        foreach ($cids as $cid) {
-          $cid = (int) $cid;
-          if (($cid != 0) and is_int($cid)) {
-            // @TODO: allow multiple recipients
-            $cid_cipher = _proc_get_cipher($cid)[0];
-            if (isset($cid_cipher)) {
-              // $recipient_pubkeys[$uid] = $recipient_pubkey;.
-              $cid_ciphers[] = $cid_cipher;
-            }
-          }
-        }
-      }
-    }
-  }
+  $cid_cipher = _proc_get_cipher((int) $form_state['build_info']['args'][0])[0];
 
   _proc_lib_load();
   drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.decrypt_protected_to_file.js');
