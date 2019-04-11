@@ -32,7 +32,7 @@
                             if (jQuery("a#decryption-link")[0].href){
                                 const fileUrl = jQuery("a#decryption-link")[0].href;
                                 URL.revokeObjectURL(fileUrl);
-                                jQuery("a#decryption-link")[0].href = '#';
+                                jQuery("a#decryption-link").removeAttr("href");
                             }
                         }
                     );
