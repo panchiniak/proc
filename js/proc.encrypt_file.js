@@ -18,7 +18,7 @@
 
             function handleFileSelect(evt) {
 
-                document.getElementById('edit-submit').value = "Processing...";
+                document.getElementById('edit-submit').value = Drupal.t('Processing...');
 
                 var files = evt.target.files;
                 var output = [];
@@ -125,7 +125,7 @@
                         jQuery('input[name=generation_timespan]')[0].value = total;
 
                         document.getElementById('edit-submit').removeAttribute("disabled");
-                        document.getElementById('edit-submit').value = "Save";
+                        document.getElementById('edit-submit').value = Drupal.t('Save');
                     }
                 }
             }

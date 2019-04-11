@@ -61,10 +61,11 @@ function _proc_encrypt_file($form, &$form_state) {
   $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
   $post_max_size_bytes = $post_max_size * 1000000;
 
+  $disable_upload = FALSE;
   if (!isset($uids_arg)) {
-    drupal_set_message(t("You must chose an enabled recipient by filling in the URL the recipient user's identification"), 'error');
-    // @TODO: send user back to recipient's list if any.
-    return;
+    drupal_set_message(t("You must chose an enabled recipient by filling in the URL the recipient user's identification. Recipient must have had registered a Protected Content Key."), 'error');
+    // @TODO: allow drupal_goto user back to recipient's list if any.
+    $disable_upload = TRUE;
   }
 
   $recipient_pubkeys = array();
@@ -118,6 +119,7 @@ function _proc_encrypt_file($form, &$form_state) {
   $form['upload'] = array(
     '#name' => 'files[]',
     '#type' => 'file',
+    '#disabled' => $disable_upload,
   );
 
   $form['pc-upload-description'] = array(

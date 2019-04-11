@@ -28,16 +28,16 @@ function proc_menu() {
   $items = array();
   // @TODO: replace by protected-content/key-pair/add
   $items['protected-content/key-pair/new'] = array(
-    'title' => 'Register my Protected Content Key',
+    'title' => t('Add Protected Content Key'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_gnerate_keys'),
     'access arguments' => array('register protected content keys'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   );
-  // @TODO: replace by protected-content/cipher/add
+  // @TODO: replace by protected-content/cipher/<uid/s>/add
   $items['protected-content/file/new'] = array(
-    'title' => 'New file',
+    'title' => t('Add file'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_encrypt_file'),
     'access arguments' => array('new protected file'),
@@ -46,7 +46,7 @@ function proc_menu() {
   );
   // @TODO: replace by protected-content/cipher/<cid>/view
   $items['protected-content/file/open'] = array(
-    'title' => 'Open Protected Content',
+    'title' => t('View Protected Content'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_decrypt_to_file'),
     'access callback' => '_proc_recipient',
