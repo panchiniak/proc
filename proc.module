@@ -94,7 +94,7 @@ function _proc_lib_load() {
 }
 
 /**
- * Helper function to get current user privkey.
+ * Helper function to get proc_keys data.
  */
 function _proc_get_keys($user_id) {
 

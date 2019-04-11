@@ -71,8 +71,8 @@
                         openpgp.config.show_comment = false;
                         openpgp.config.show_version = false;
 
-                        // Still allowing a single recipient: [0] (the first taken)
-                        var recipientPubkey = await Drupal.settings.proc.proc_recipient_pubkey[0];
+                        // Still allowing a single recipient: [0] (the first taken)                        
+                        var recipientPubkey = await Drupal.settings.proc.proc_recipient_pubkey;                        
 
                         // @TODO: in case of multiple pubkeys:
                         // const pubkeys = [`-----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -80,7 +80,7 @@
                         // -----END PGP PUBLIC KEY BLOCK-----`,
                         // `-----BEGIN PGP PUBLIC KEY BLOCK-----
                         // ...
-                        // -----END PGP PUBLIC KEY BLOCK-----`
+                        // -----END PGP PUBLIC KEY BLOCK-----`]
                         // pubkeys = pubkeys.map(async (key) => {
                         // return (await openpgp.key.readArmored(key)).keys[0]
                         // });

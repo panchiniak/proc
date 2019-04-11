@@ -50,12 +50,36 @@ function _proc_decrypt_to_file($form, &$form_state) {
 }
 
 /**
- * Encryption form for files.
+ * Helper function for retrieval of pubkeys
+ */
+function _proc_get_pubkeys($users){
+  $pubkeys = array();
+  foreach ($users as $recipient){
+    $pubkeys[$recipient] = _proc_get_keys($recipient)[0]->public_key;
+  }  
+  return $pubkeys;
+}
+
+/**
+ * Helper function for encryption of files.
  */
 function _proc_encrypt_file($form, &$form_state) {
   global $user;
 
   $uids_arg = menu_get_item()['map'][3];
+
+  if (isset($uids_arg)){
+    $uids_arg = check_plain($uids_arg);
+    $csv_values = str_getcsv($uids_arg);
+    $uids = array();
+    foreach ($csv_values as $csv_value){
+      if (is_numeric($csv_value) && $csv_value = (int) $csv_value){
+        $uids[] = $csv_value;
+      }
+    }
+  }
+  
+  $recipients_pubkeys = _proc_get_pubkeys($uids);
 
   // Get post_max_size to set dynamically maximum file size.
   $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
@@ -67,41 +91,18 @@ function _proc_encrypt_file($form, &$form_state) {
     // @TODO: allow drupal_goto user back to recipient's list if any.
     $disable_upload = TRUE;
   }
-
-  $recipient_pubkeys = array();
-  // If there is no user id defined encrypt the sender her/himself.
-  if (!isset($uids_arg)) {
-    $recipient_pubkeys[$user->uid] = _proc_get_keys($user->uid)[0]->public_key;
-  }
-  if (isset($uids_arg) and check_url($uids_arg)) {
-
-    // Check URL and plain text.
-    $uids_csv = check_plain($uids_arg);
-    if (isset($uids_csv)) {
-      $uids = str_getcsv($uids_csv);
-      if (isset($uids)) {
-        foreach ($uids as $uid) {
-          $uid = (int) $uid;
-          if (($uid != 0) and is_int($uid)) {
-            $recipient_pubkey = _proc_get_keys($uid)[0]->public_key;
-            if (isset($recipient_pubkey)) {
-              // $recipient_pubkeys[$uid] = $recipient_pubkey;.
-              $recipient_pubkeys[] = $recipient_pubkey;
-            }
-          }
-        }
-      }
-    }
-  }
   // @TODO: add error handling to _proc_lib_load()
   $result = _proc_lib_load();
 
   drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.encrypt_file.js');
+  
+  $recipient_pubkeys = array_pop(array_reverse($recipients_pubkeys));
 
   if (empty($recipient_pubkeys)) {
-    drupal_set_message(t('Sorry. The slected recipient is not registered to receive Protected Content.'), 'error');
-    drupal_goto('protected-content/people/send-file');
-  }
+    drupal_set_message(t('Sorry. A slected recipient is not registered to receive Protected Content.'), 'error');
+    // @TODO: also here allow drupal_goto user back to recipient's list if any.
+    $disable_upload = TRUE;
+  }  
 
   drupal_add_js(
         array(
@@ -111,6 +112,7 @@ function _proc_encrypt_file($form, &$form_state) {
             'proc_mail' => $user->mail,
             'proc_name' => $user->name,
             'proc_recipient_pubkey' => $recipient_pubkeys,
+            //'proc_recipients_pubkeys' => $recipient_pubkeys,
             'proc_post_max_size_bytes' => $post_max_size_bytes,
           ),
         ), 'setting'
