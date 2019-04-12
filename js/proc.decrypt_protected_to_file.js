@@ -59,6 +59,7 @@
                   else {
                       // @TODO: use t
                       // @TODO: add to error log
+
                       jQuery("form#-proc-decrypt-to-file").prepend('<div class="messages error">Error: size mismatch.</div>');
                   }
                 }
