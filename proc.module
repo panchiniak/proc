@@ -22,6 +22,16 @@ function proc_permission() {
 }
 
 /**
+ * Implements hook_help().
+ */
+function proc_help($path) {
+  switch ($path) {
+    case "admin/help#proc":
+      return '<p>' . t('Protected Content (proc) provides end-to-end/client side encryption for content.') . '</p>';
+  }
+}
+
+/**
  * Implements hook_menu().
  */
 function proc_menu() {
