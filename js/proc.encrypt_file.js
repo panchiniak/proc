@@ -3,7 +3,7 @@
  * Provides encryption of file given a public PGP armored key.
  */
 
-(async function () {
+(function () {
     'use strict';
     Drupal.behaviors.proc = {
         attach: function (context, settings) {

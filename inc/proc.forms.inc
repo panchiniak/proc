@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Forms for Protected Content module.

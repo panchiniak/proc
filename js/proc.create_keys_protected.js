@@ -3,7 +3,7 @@
  * Public and private keys generation, symmetric encryption and storage.
  */
 
-(async function () {
+(function () {
     'use strict';
     Drupal.behaviors.proc = {
         attach: function (context, settings) {

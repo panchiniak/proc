@@ -3,7 +3,7 @@
  * Decrypts cipher texts into a file given a correct privkey passphrase.
  */
 
-(async function () {
+(function () {
     'use strict';
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
