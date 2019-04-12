@@ -25,10 +25,10 @@ function proc_permission() {
  * Implements hook_menu().
  */
 function proc_menu() {
-  $items = array();
+
   // @TODO: replace by protected-content/key-pair/add
   $items['protected-content/key-pair/new'] = array(
-    'title' => t('Add Protected Content Key'),
+    'title' => 'Add Protected Content Key',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_gnerate_keys'),
     'access arguments' => array('register protected content keys'),
@@ -37,7 +37,7 @@ function proc_menu() {
   );
   // @TODO: replace by protected-content/cipher/<uid/s>/add
   $items['protected-content/file/new'] = array(
-    'title' => t('Add file'),
+    'title' => 'Add file',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_encrypt_file'),
     'access arguments' => array('new protected file'),
@@ -46,7 +46,7 @@ function proc_menu() {
   );
   // @TODO: replace by protected-content/cipher/<cid>/view
   $items['protected-content/file/open'] = array(
-    'title' => t('View Protected Content'),
+    'title' => 'View Protected Content',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_decrypt_to_file'),
     'access callback' => '_proc_recipient',
@@ -57,13 +57,13 @@ function proc_menu() {
 }
 
 /**
- * Helper to load the cryptoigraphic library settings from info file
+ * Helper to load the cryptoigraphic library settings from info file.
  */
-function _proc_get_cryptolib_settings(){
+function _proc_get_cryptolib_settings() {
   $crypto_lib_settings = array();
 
-  $path = drupal_get_path('module', 'proc') . '/' . 'proc' . '.info';
-  $info = drupal_parse_info_file($path);  
+  $path = drupal_get_path('module', 'proc') . '/proc.info';
+  $info = drupal_parse_info_file($path);
   $crypto_lib_settings['versionstring'] = $info['crypto_library_versionstring'];
   $crypto_lib_settings['url'] = $info['crypto_library_url'];
   $crypto_lib_settings['folder'] = $info['crypto_library_folder'];
@@ -88,7 +88,7 @@ function proc_views_api() {
  */
 function _proc_lib_load() {
   if (function_exists('libraries_load')) {
-    $lib = libraries_load($folder = _proc_get_cryptolib_settings()['folder']);
+    $lib = libraries_load(_proc_get_cryptolib_settings()['folder']);
   }
   return $lib;
 }

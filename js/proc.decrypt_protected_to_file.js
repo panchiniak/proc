@@ -29,11 +29,11 @@
                             // @TODO: rephrase openpgpjs default error messages to allow for translations.
                             // @TODO: add to error log
                             jQuery("form#-proc-decrypt-to-file").prepend('<div class="messages error">' + err + '</div>');
-                            if (jQuery("a#decryption-link")[0].href){
-                                const fileUrl = jQuery("a#decryption-link")[0].href;
-                                URL.revokeObjectURL(fileUrl);
-                                jQuery("a#decryption-link").removeAttr("href");
-                            }
+                          if (jQuery("a#decryption-link")[0].href) {
+                              const fileUrl = jQuery("a#decryption-link")[0].href;
+                              URL.revokeObjectURL(fileUrl);
+                              jQuery("a#decryption-link").removeAttr("href");
+                          }
                         }
                     );
 
@@ -51,19 +51,19 @@
                     const link = document.getElementById('decryption-link');
                     link.href = objectURL;
                     link.href = URL.createObjectURL(blob);
-                    
+
                     // Check if file generated is the same size of source file.
-                    if (blob.size.toString() === sourceFileSize) {
-                        link.download = sourceFileName;
-                    }
-                    else {
-                        // @TODO: use t
-                        // @TODO: add to error log
-                        jQuery("form#-proc-decrypt-to-file").prepend('<div class="messages error">Error: size mismatch.</div>');
-                    }
+                  if (blob.size.toString() === sourceFileSize) {
+                      link.download = sourceFileName;
+                  }
+                  else {
+                      // @TODO: use t
+                      // @TODO: add to error log
+                      jQuery("form#-proc-decrypt-to-file").prepend('<div class="messages error">Error: size mismatch.</div>');
+                  }
                 }
             );
 
         }
-    }
+  }
 })(jQuery);

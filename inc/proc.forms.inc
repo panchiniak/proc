@@ -50,13 +50,13 @@ function _proc_decrypt_to_file($form, &$form_state) {
 }
 
 /**
- * Helper function for retrieval of pubkeys
+ * Helper function for retrieval of pubkeys.
  */
-function _proc_get_pubkeys($users){
+function _proc_get_pubkeys($users) {
   $pubkeys = array();
-  foreach ($users as $recipient){
+  foreach ($users as $recipient) {
     $pubkeys[$recipient] = _proc_get_keys($recipient)[0]->public_key;
-  }  
+  }
   return $pubkeys;
 }
 
@@ -68,17 +68,17 @@ function _proc_encrypt_file($form, &$form_state) {
 
   $uids_arg = menu_get_item()['map'][3];
 
-  if (isset($uids_arg)){
+  if (isset($uids_arg)) {
     $uids_arg = check_plain($uids_arg);
     $csv_values = str_getcsv($uids_arg);
     $uids = array();
-    foreach ($csv_values as $csv_value){
-      if (is_numeric($csv_value) && $csv_value = (int) $csv_value){
+    foreach ($csv_values as $csv_value) {
+      if (is_numeric($csv_value) && $csv_value = (int) $csv_value) {
         $uids[] = $csv_value;
       }
     }
   }
-  
+
   $recipients_pubkeys = _proc_get_pubkeys($uids);
 
   // Get post_max_size to set dynamically maximum file size.
@@ -92,17 +92,17 @@ function _proc_encrypt_file($form, &$form_state) {
     $disable_upload = TRUE;
   }
   // @TODO: add error handling to _proc_lib_load()
-  $result = _proc_lib_load();
+  _proc_lib_load();
 
   drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.encrypt_file.js');
-  
+
   $recipient_pubkeys = array_pop(array_reverse($recipients_pubkeys));
 
   if (empty($recipient_pubkeys)) {
     drupal_set_message(t('Sorry. A slected recipient is not registered to receive Protected Content.'), 'error');
     // @TODO: also here allow drupal_goto user back to recipient's list if any.
     $disable_upload = TRUE;
-  }  
+  }
 
   drupal_add_js(
         array(
@@ -112,7 +112,7 @@ function _proc_encrypt_file($form, &$form_state) {
             'proc_mail' => $user->mail,
             'proc_name' => $user->name,
             'proc_recipient_pubkey' => $recipient_pubkeys,
-            //'proc_recipients_pubkeys' => $recipient_pubkeys,
+            // 'proc_recipients_pubkeys' => $recipient_pubkeys,.
             'proc_post_max_size_bytes' => $post_max_size_bytes,
           ),
         ), 'setting'
@@ -237,13 +237,13 @@ function _proc_gnerate_keys($form, &$form_state) {
 /**
  * Helper function to check if user agent in unsuported.
  */
-function _proc_browser_supported(){
-  $path = drupal_get_path('module', 'proc') . '/' . 'proc' . '.info';
+function _proc_browser_supported() {
+  $path = drupal_get_path('module', 'proc') . '/proc.info';
   $info = drupal_parse_info_file($path);
   $unsuported_browsers_array = str_getcsv($info['yellow_flag_browsers_csv']);
 
-  foreach ($unsuported_browsers_array as $unsuported_browser){
-    if (strpos($_SERVER['HTTP_USER_AGENT'], $unsuported_browser) !== false){
+  foreach ($unsuported_browsers_array as $unsuported_browser) {
+    if (strpos($_SERVER['HTTP_USER_AGENT'], $unsuported_browser) !== FALSE) {
       return FALSE;
     }
   }
@@ -276,10 +276,10 @@ function _proc_gnerate_keys_submit($form, &$form_state) {
     drupal_set_message(t("Your password can't be recovered. You must remember it. If you create new keys all previously Protected Content sent to you will be forever lost (and there is nothing we can do about that)."), 'info');
   }
   else {
-    if (!_proc_browser_supported()){
+    if (!_proc_browser_supported()) {
       drupal_set_message(t('Key generation error. It looks like you are using some unsupported browser. Please try again using another one.'), 'error');
     }
-    else{
+    else {
       drupal_set_message(t('Sorry. Your public key has not been saved to the database. You might need to close tabs in your browser to release memory.'), 'error');
     }
     watchdog('proc', 'Error on key generation/storage. User agent: %user-agent', array('%user-agent' => $_SERVER['HTTP_USER_AGENT']), WATCHDOG_ERROR);
@@ -315,12 +315,17 @@ function _proc_encrypt_file_submit($form, &$form_state) {
     $record_result = drupal_write_record('proc_cipher_texts', $record);
   }
 
-  // @TODO: replace hardcoded part of address by a CONSTANT.
-  $exclusive_access_link = $base_url . '/' . 'protected-content/file/open/' . $record->cid;
-
   if ($record_result == 1) {
-    // @TODO: remove concatenation in message
-    drupal_set_message(t('Success. Please share with the recipient the Exclusive Access Link for your Protected Content: ') . l($exclusive_access_link, $exclusive_access_link));
+    $success_encryption_message = t(
+      'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
+      array(
+         // @TODO: replace hardcoded part of address by a CONSTANT.
+        '@exclusive-access-link' => url('protected-content/file/open/' . $record->cid),
+        '@full-exclusive-access-link' => url($base_url . '/protected-content/file/open/' . $record->cid),
+      )
+    );
+    drupal_set_message($success_encryption_message);
+
     drupal_set_message(t('Only the recipient chosen will be able to access this Protected Content.'), 'info');
     // @TODO: add here a protectected file post creation hook to allow other module to send notifications
     // make visible the recipient and sender users in the hook.
