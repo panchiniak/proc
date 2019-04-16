@@ -68,8 +68,8 @@
                   }
                     // False for production.
                     openpgp.config.debug = true;
-                    openpgp.config.show_comment = false;
-                    openpgp.config.show_version = false;
+                    openpgp.config.show_comment = true;
+                    openpgp.config.show_version = true;
 
                     // Still allowing a single recipient: [0] (the first taken)
                     var recipientPubkey = await Drupal.settings.proc.proc_recipient_pubkey;
@@ -103,10 +103,10 @@
                         compression: openpgp.enums.compression.zip
                       };
 
-                    // console.log(options);
                     var startSeconds = new Date().getTime() / 1000;
 
                     const encrypted = await openpgp.encrypt(options);
+
                     const ciphertext = encrypted.data;
                     // Warning: Readable Stream expires if used twice.
                     const cipherPlaintext = await openpgp.stream.readToEnd(ciphertext);

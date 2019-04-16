@@ -176,7 +176,7 @@ function proc_libraries_info() {
       'file' => $crypto_info['file'],
       'pattern' => '/v(([0-9]\.?)+)/',
       'lines' => 1,
-      'cols' => 23,
+      'cols' => 24,
     ),
     'files' => array(
       'js' => array($crypto_info['file']),
