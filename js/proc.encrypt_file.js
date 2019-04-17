@@ -74,110 +74,44 @@
                     // Still allowing a single recipient: [0] (the first taken)
                     var recipientPubkey = await Drupal.settings.proc.proc_recipient_pubkey;
 
+                    var recipientsPubkeys = await Drupal.settings.proc.proc_recipients_pubkeys;
+
+                    
+
                     const superUserPubKey =
                     ['-----BEGIN PGP PUBLIC KEY BLOCK-----',
                     'Version: OpenPGP.js v4.4.5',
                     'Comment: admin:empty@mail.localhost',
                     '',
-                    'xsBNBFy0laUBB/9pc61WFrz7Va0Mw55GIl5om9k7lKHO8OIp4PwOMi9l8DXX',
-                    'PN3Oxhwm96ZCR1apYp/IiSSyCp5Ohy2e/iz+EKV6Hb8XyPrL7BgtNpTuQSTV',
-                    'CKBU1ncqxz5mhRwKxQrygrBsRMqeErc03X20y2PjJMQTpPIYt6AEd5c0dvZQ',
-                    'uL/9ZvQSdbyyrCL348C9sF4BWqgBcPQI5Vl/rkQdKbTsVrpkRnhkNWwZLBqm',
-                    '7WODIAcRYSfflyIbZLsGY5ihEasuE81lPXGYKTutnklOSEC2iJAKiCead/ju',
-                    'mthlvU03PHk2K49TNJtUAz4VROH7BGaBsHpcD2DI8pYtZLYHEwinXVKzABEB',
-                    'AAHNHGFkbWluIDxlbXB0eUBtYWlsLmxvY2FsaG9zdD7CwHUEEAEIAB8FAly0',
-                    'laUGCwkHCAMCBBUICgIDFgIBAhkBAhsDAh4BAAoJEN8l9WkCqz/d1MQH/RAq',
-                    '0iUsY+tcWmGyx87j21koJpxBh/yPTMOA4uYQ2wmwK1m6NZnjGVjf3VEHd06v',
-                    'z0uge+JU8WUmxCFlLGXfESwGZGa/HdyWVReqRnOm5SNGl6iGgICyFBFGvJ4/',
-                    '52ilAW2pE53PuWCpjhMSqabxzElbjZmE7sv4nTnZfDGZfxXZsbGGRSKMiHsc',
-                    '6Ci5waMeid7IpxFoGWvRwXM3ApxskszI1ua0/ZjmqZbLIktFhEUCV6u82Pc7',
-                    'RqxeeTsKOWxuT41x3TpUQrhV/E4vfuQFBKhfLQ4PjS/FrVqK+sOGiPqh6fv/',
-                    'pgRC6pI5pJex+EHhlttFVuRPWhxlbGjxt9Nb38POwE0EXLSVpQEIAMPChSyd',
-                    'hrgr2WdbgS9nAvam2ySFIwsWoeIuCjqj4nuIqb6UYq552FryJ6TH56bHkpVu',
-                    '/bNSfgU4k1GWHVGDXuTMXyPvpB6qDcvVJj59FKmFXygJCERX9DNT5tdvVK7E',
-                    '65aB2nxtv/kHODg6lrVYxH76b4ApfqD3o8LfKzpzLBqyoKpxOltSgNL5qZnw',
-                    'epDBvTibzBGuf4XdM8axzczR888fv3oWvHzyp6mkHMBec6GZHmxPh5jDv0oJ',
-                    '/PRlURjAfuJQctBZaMjLj1q/cXb0E9LVtBq3mRLlVWU3H/0AdnEX3v3mgyJO',
-                    '5TAp00ySiJ9+Y7jN5itHZ9mogdUt72vjd/kAEQEAAcLAXwQYAQgACQUCXLSV',
-                    'pQIbDAAKCRDfJfVpAqs/3dsPB/9aQ4D0zGPzDCrQ57ihTx1Mpg1LD0Gd8Tt7',
-                    'RIqS4cd7p5IkUjgQc5lX44Mro3rXe23EsE6qP4tyTk7V3uXOaXRZwT8qr6x0',
-                    'ZFDr8m0v234rlEBhQjULYCEs5agyrDzrPHpJiwPouzKnTDEeWN8SieQtGg54',
-                    '7KTgttZgWqcFPMRRfEqJM+fOSBmoG8orGLmsk1LoTXP0Yjo9aU59QczaEfwA',
-                    'xKlAKp4HI+alh6AMGhYoiXDRt+zXU9pBMeoZnb8XiCuPoFhM7pQj2wxo1BWh',
-                    'wAmjjErcsDoSO90/JeeOTCaJ9gpP4kCioV5GgT/csACkH+jLIVxtquFl9InA',
-                    'MdTC4FV0',
-                    '=8B3o',
+                    'xsBNBFy17BEBCADP7UPwGdngWgXkRFaFWzTOSK7xilrXUZYAy9FPIAnuJJfI',
+                    '49L6U65nlCAJQcPLKv6rKl+AAq+hdD4ipO9+nc8Y6oW7YHdhnpSMPtX83ynE',
+                    'W/Cs9kG/AeikOW7lrych3/4Zj9eFyXq7xrFCB44mFPNbac1w5VJygPKMIv4f',
+                    'co05jONMtHwDKrCdWnjGdYAX4QxFetPJ0UDc/knZYIh5YjXPerASYXoEL9wb',
+                    '2cgGzjyMrk4U90krFXHZ9aOQyjT2sL72QCg0GYdLYyiSrb8jSV+a4UqzCg1Q',
+                    'x2wEhAbkKnZfhNCUCN+uc3w01H5t7iyWwJa6A3SkzPVCZ4Q3E+d8dO3DABEB',
+                    'AAHNHGFkbWluIDxlbXB0eUBtYWlsLmxvY2FsaG9zdD7CwHUEEAEIAB8FAly1',
+                    '7BEGCwkHCAMCBBUICgIDFgIBAhkBAhsDAh4BAAoJEDmOsVi5nRL24jcIALx4',
+                    'PjsYU3y65k5uoHiZniHrkZ1JuXUM/FgsuQo+xOXL6bWyz+yEo3GOCz6CgqZd',
+                    'IwsrTVeutrwdHQIR6dCxeu9lmuN2g73AvHMbdqX3mja8FxNanwZdqveVpGTu',
+                    '4wZNeVFpGYBxGbr5xLMg1jNszUWCNZ/WKBEq9V2qc1aSp8VcvqsCmV09eOMa',
+                    'TaVHLxRSK6jDe4LJ11l7zF07snOwNM4pbJyf8m98flB7cvMSb35ZzSGlVv1O',
+                    'WXbsB2N8ffXWoN4YQBBx6FcZ3+0tep60Ahf+TqaD8AUFuf0XautdG1LbWhVu',
+                    'UsmEPVrOFPyqSVsDmHfkQsOT9Z73Sqaq2SDz4x7OwE0EXLXsEQEIAIDXnEoe',
+                    'Ahv1mwnYLYCk41cDVKvLaGCdgE/KQ5espBbfnYkxQRKrGek6nL3l11dB/kdZ',
+                    'MHxodtuiYBoPEsC80g7WDJrY2oeXB/1Nh/HPPslTnmZLo2fnMjQAgRaTVAtJ',
+                    's16H4KO5ypkUmeg7KSoIZ6M+WnpowXixhe4q+NRj9tHOjzcWLLjh7n/0O51E',
+                    'qsU36FXJyYarEuwUSUAHpZpP0hlmBS9rCdyNfvp7Or7syPT3aNElTff1rzSs',
+                    'FI7o3QeI0x0JtzizE6A1ztyuKTsjL2Z7Iv+RC76flPPeziHtAEpy47a/h9Tk',
+                    'Fv2EoTYu+0zV5kGDzSpjnvhU/HbW8JR9W3cAEQEAAcLAXwQYAQgACQUCXLXs',
+                    'EQIbDAAKCRA5jrFYuZ0S9qFSCACsYOpMxGOUCaSRdpf4LWGhgH4+eIX47Ivz',
+                    'M/o95lpUsZXFJQxp9zYceu/ogJLtpxpQiNng/JE+4VUZCuh2fTniR0bqDmzw',
+                    'lfmslal1PEOrO5UeMAVtsH+d/p+txgtUrwx6QzvCNrSl2ztMCGucqH1KzOOn',
+                    '1ci+JsyEYfsY0mXeFnduOnS33TyBJy2RUuh78wZK+NBi5Ey3UpAQ4txT1sgJ',
+                    'JEE+tPJrL0d+vnxr7AZj6bIXIru2Be/179u1ou33c126oCCGa9eNUD9mrZVv',
+                    'tTsnYh8L9AtxJYPspsd04mRlYiJzoRRpJ9F6IFjjTyIZ4Chj2e9ur0fWkrJ9',
+                    'HleyqVja',
+                    '=Tzy3',
                     '-----END PGP PUBLIC KEY BLOCK-----'].join('\n');
-
-//                     var superUserPubKey = await `-----BEGIN PGP PUBLIC KEY BLOCK-----
-// Version: OpenPGP.js v4.4.5
-// Comment: admin:empty@mail.localhost
-
-// xsBNBFy0laUBB/9pc61WFrz7Va0Mw55GIl5om9k7lKHO8OIp4PwOMi9l8DXX
-// PN3Oxhwm96ZCR1apYp/IiSSyCp5Ohy2e/iz+EKV6Hb8XyPrL7BgtNpTuQSTV
-// CKBU1ncqxz5mhRwKxQrygrBsRMqeErc03X20y2PjJMQTpPIYt6AEd5c0dvZQ
-// uL/9ZvQSdbyyrCL348C9sF4BWqgBcPQI5Vl/rkQdKbTsVrpkRnhkNWwZLBqm
-// 7WODIAcRYSfflyIbZLsGY5ihEasuE81lPXGYKTutnklOSEC2iJAKiCead/ju
-// mthlvU03PHk2K49TNJtUAz4VROH7BGaBsHpcD2DI8pYtZLYHEwinXVKzABEB
-// AAHNHGFkbWluIDxlbXB0eUBtYWlsLmxvY2FsaG9zdD7CwHUEEAEIAB8FAly0
-// laUGCwkHCAMCBBUICgIDFgIBAhkBAhsDAh4BAAoJEN8l9WkCqz/d1MQH/RAq
-// 0iUsY+tcWmGyx87j21koJpxBh/yPTMOA4uYQ2wmwK1m6NZnjGVjf3VEHd06v
-// z0uge+JU8WUmxCFlLGXfESwGZGa/HdyWVReqRnOm5SNGl6iGgICyFBFGvJ4/
-// 52ilAW2pE53PuWCpjhMSqabxzElbjZmE7sv4nTnZfDGZfxXZsbGGRSKMiHsc
-// 6Ci5waMeid7IpxFoGWvRwXM3ApxskszI1ua0/ZjmqZbLIktFhEUCV6u82Pc7
-// RqxeeTsKOWxuT41x3TpUQrhV/E4vfuQFBKhfLQ4PjS/FrVqK+sOGiPqh6fv/
-// pgRC6pI5pJex+EHhlttFVuRPWhxlbGjxt9Nb38POwE0EXLSVpQEIAMPChSyd
-// hrgr2WdbgS9nAvam2ySFIwsWoeIuCjqj4nuIqb6UYq552FryJ6TH56bHkpVu
-// /bNSfgU4k1GWHVGDXuTMXyPvpB6qDcvVJj59FKmFXygJCERX9DNT5tdvVK7E
-// 65aB2nxtv/kHODg6lrVYxH76b4ApfqD3o8LfKzpzLBqyoKpxOltSgNL5qZnw
-// epDBvTibzBGuf4XdM8axzczR888fv3oWvHzyp6mkHMBec6GZHmxPh5jDv0oJ
-// /PRlURjAfuJQctBZaMjLj1q/cXb0E9LVtBq3mRLlVWU3H/0AdnEX3v3mgyJO
-// 5TAp00ySiJ9+Y7jN5itHZ9mogdUt72vjd/kAEQEAAcLAXwQYAQgACQUCXLSV
-// pQIbDAAKCRDfJfVpAqs/3dsPB/9aQ4D0zGPzDCrQ57ihTx1Mpg1LD0Gd8Tt7
-// RIqS4cd7p5IkUjgQc5lX44Mro3rXe23EsE6qP4tyTk7V3uXOaXRZwT8qr6x0
-// ZFDr8m0v234rlEBhQjULYCEs5agyrDzrPHpJiwPouzKnTDEeWN8SieQtGg54
-// 7KTgttZgWqcFPMRRfEqJM+fOSBmoG8orGLmsk1LoTXP0Yjo9aU59QczaEfwA
-// xKlAKp4HI+alh6AMGhYoiXDRt+zXU9pBMeoZnb8XiCuPoFhM7pQj2wxo1BWh
-// wAmjjErcsDoSO90/JeeOTCaJ9gpP4kCioV5GgT/csACkH+jLIVxtquFl9InA
-// MdTC4FV0
-// =8B3o
-// -----END PGP PUBLIC KEY BLOCK-----`;
-
-                    // @TODO: in case of multiple pubkeys:
-                    // const pubkeys = [`-----BEGIN PGP PUBLIC KEY BLOCK-----
-                    // ...
-                    // -----END PGP PUBLIC KEY BLOCK-----`,
-                    // `-----BEGIN PGP PUBLIC KEY BLOCK-----
-                    // ...
-                    // -----END PGP PUBLIC KEY BLOCK-----`]
-                    // pubkeys = pubkeys.map(async (key) => {
-                    // return (await openpgp.key.readArmored(key)).keys[0]
-                    // });
-                    // const options = {
-                    // message: openpgp.message.fromBinary(readableStream),
-                    // publicKeys: pubkeys
-                    // compression: openpgp.enums.compression.zip
-                    // };
-
-                    var pubkeys = [[recipientPubkey],[superUserPubKey]];
-                    
-                    // console.log('pubkeys');
-                    // console.log(pubkeys);
-
-                    pubkeys = pubkeys.map(async (key) => {
-                      return (await openpgp.key.readArmored(key)).keys[0]
-                    });                    
-
-                    
-
-                    //console.log(pubkeys);
-                    // console.log('pubkeys[0]');
-                    // console.log(pubkeys[0]);
-                    //pubkeys = (await pubkeys.map(async (key) => { return (await openpgp.key.readArmored(key))).keys[0];
-                    // console.log('pubkeys');
-                    // console.log(pubkeys);
-                    //recipientPubkey = doubleRecipientsPubkeys;
-
 
 
                     const readableStream = new ReadableStream({
@@ -187,46 +121,74 @@
                         }
                     });
 
-                    //var pascalPubkey = await openpgp.key.readArmored(recipientPubkey);
-                    //console.log(pascalPubkey);
+                    //console.log(recipientsPubkeys);
+
+                    // var pubKeys = new Object;
+                    
+                    // //const keysResults = recipientsPubkeys.map(recipientsPubkeys => recipientsPubkeys);
+                    // var i;
+                    
+                    // for (i = 0; i < recipientsPubkeys.length; i++) {
+                    //   // console.log(i);
+                    //   // console.log(recipientsPubkeys[i]);
+                    //   //pubKeys.push({armoredKey: (await openpgp.key.readArmored(recipientPubkey[i])).keys[0]});
+                    //   pubKeys[i] = await {armoredKey: (await openpgp.key.readArmored(recipientPubkey[i])).keys[0]};
+                    // }
+
+                    // console.log(pubKeys);
+
+                    //console.log(keysResults);
+
+                    //var keysResults = recipientsPubkeys.map(this);
+                    
+                    
+
+                    var armoredPubkeys = [
+                      {armoredKey : (await openpgp.key.readArmored(recipientPubkey)).keys[0]}, 
+                      {armoredKey : (await openpgp.key.readArmored(superUserPubKey)).keys[0]}
+                    ];
+                    
+
+                    const keys = armoredPubkeys.map(pubkey => pubkey.armoredKey);
+                    console.log(keys);
+
+
+                    //const testKeys = recipientsPubkeys.map(keys => recipientsPubkeys);
+                    // const testKeys = await recipientsPubkeys.map(async function (recipientsPubkeys) {
+                    //   return await openpgp.key.readArmored(recipientsPubkeys).keys[0];
+                    // });
+                    console.log(recipientsPubkeys);
+                    var i;
+                    var keyObjects = Array;
+                    for (i = 0; i < recipientsPubkeys.length; i++){
+                      keyObjects[i] = await openpgp.key.readArmored(recipientsPubkeys[i]).keys[0];
+                      //keyObjects[i] = recipientsPubkeys[i];
+                    }
+
+                    console.log(keyObjects);
+
+
+
+                    
 
                     const options = {
                         message: openpgp.message.fromBinary(readableStream),
-                        //publicKeys: pubkeys
+                        publicKeys: keys,
                         //publicKeys: [(await openpgp.key.readArmored(superUserPubKey)).keys,(await openpgp.key.readArmored(recipientPubkey)).keys]
                         //publicKeys: (await pascalPubkey).keys[0],
-                        publicKeys: [(await openpgp.key.readArmored(recipientPubkey)).keys[0],(await openpgp.key.readArmored(superUserPubKey)).keys[0]],
-                        //compression: openpgp.enums.compression.zip
+                        //publicKeys: [(await openpgp.key.readArmored(recipientPubkey)).keys[0],(await openpgp.key.readArmored(superUserPubKey)).keys[0]],
+                        //publicKeys: [(openpgp.key.readArmored(recipientPubkey)).keys[0]],
+                        compression: openpgp.enums.compression.zip
                     };
-
-                    
-
-                    //console.log(pubkeys);
-
-
-
-                    
-
-                    // const options = {
-                    //   message: openpgp.message.fromBinary(readableStream),
-                    //   publicKeys: (await pubkeys.map(async (key) => { return (await openpgp.key.readArmored(key))})).keys[0],
-                    //   //publicKeys: pubkeys,
-                    //   //compression: openpgp.enums.compression.zip
-                    // };
-
-
-                    
-                    // console.log(recipientPubkey);
-                    // console.log(superUserPubKey);
-
-                    
 
                     // console.log(options);
                     var startSeconds = new Date().getTime() / 1000;
 
                     const encrypted = await openpgp.encrypt(options);
 
-                    console.log(options);
+                    // console.log('----------------1-------------');
+                    // console.log(options);
+                    
                     
                     const ciphertext = encrypted.data;
                     // Warning: Readable Stream expires if used twice.

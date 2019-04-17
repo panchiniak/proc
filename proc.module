@@ -135,6 +135,7 @@ function _proc_get_cipher($cid) {
     ])
   // @TODO: will be changed for multiple recipients.
     ->condition('recipient_uid', $user->uid, '=')
+    //->condition('recipient_uid', '44', '=')
     ->condition('cid', $cid, '=')
     ->range(0, 1)
     ->execute()
@@ -147,13 +148,14 @@ function _proc_get_cipher($cid) {
  * Helper function to check if current user is recipient of cipher text.
  */
 function _proc_recipient() {
+  global $user;
   // @TODO: replace by menu_get_object once we hava a cipher object.
   $argument = arg(3);
 
   if (isset($argument) && is_numeric($argument)) {
     $cid = (int) $argument;
     $cipher = _proc_get_cipher($cid);
-    if (!empty($cipher)) {
+    if (!empty($cipher) or ($user->uid == 1)) {
       return TRUE;
     }
   }

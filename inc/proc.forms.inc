@@ -12,12 +12,16 @@ function _proc_decrypt_to_file($form, &$form_state) {
   global $user;
 
   $cid_cipher = _proc_get_cipher((int) $form_state['build_info']['args'][0])[0];
+  
+  dpm($cid_cipher);
 
   _proc_lib_load();
   drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.decrypt_protected_to_file.js');
 
   // Get current user encrypted privkey.
   $privkey = _proc_get_keys($user->uid)[0]->encrypted_private_key;
+  // $privkey = _proc_get_keys(1)[0]->encrypted_private_key;
+  dpm($privkey);
 
   drupal_add_js(
         array(
@@ -56,7 +60,7 @@ function _proc_decrypt_to_file($form, &$form_state) {
 function _proc_get_pubkeys($users) {
   $pubkeys = array();
   foreach ($users as $recipient) {
-    $pubkeys[$recipient] = _proc_get_keys($recipient)[0]->public_key;
+    $pubkeys[] = _proc_get_keys($recipient)[0]->public_key;
   }
   return $pubkeys;
 }
@@ -81,6 +85,8 @@ function _proc_encrypt_file($form, &$form_state) {
   }
 
   $recipients_pubkeys = _proc_get_pubkeys($uids);
+
+  $recipients_pubkeys_saved = $recipients_pubkeys;
 
   // Get post_max_size to set dynamically maximum file size.
   $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
@@ -113,7 +119,7 @@ function _proc_encrypt_file($form, &$form_state) {
             'proc_mail' => $user->mail,
             'proc_name' => $user->name,
             'proc_recipient_pubkey' => $recipient_pubkeys,
-            // 'proc_recipients_pubkeys' => $recipient_pubkeys,.
+            'proc_recipients_pubkeys' => $recipients_pubkeys_saved,
             'proc_post_max_size_bytes' => $post_max_size_bytes,
           ),
         ), 'setting'
