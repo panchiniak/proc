@@ -112,7 +112,7 @@ function _proc_get_keys($user_id) {
     ->fields('er', ['encrypted_private_key', 'uid', 'kid', 'public_key'])
     ->condition('uid', $user_id, '=')
     ->orderBy('kid', 'DESC')
-    ->range(0, 1)
+    //->range(0, 1)
     ->execute()
     ->fetchAll();
 

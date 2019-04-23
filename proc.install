@@ -86,6 +86,12 @@ function proc_schema() {
         'size' => 'medium',
         'unsigned' => TRUE,
       ),
+      'recipients_uids' => array(
+        'description' => 'Serialized user IDs of recipients from the users table.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
       'created' => array(
         'description' => 'Timestamp when cipher text was recorded.',
         'type' => 'int',

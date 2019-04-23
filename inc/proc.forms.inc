@@ -83,10 +83,17 @@ function _proc_encrypt_file($form, &$form_state) {
       }
     }
   }
+  // Check uniqueness
+  $uids = array_unique($uids);
 
-  $recipients_pubkeys = _proc_get_pubkeys($uids);
+  $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));
 
-  $recipients_pubkeys_saved = $recipients_pubkeys;
+  //dpm(drupal_json_encode($recipients_pubkeys));
+
+  // dpm('array_filter($recipients_pubkeys)');
+  // dpm(array_filter($recipients_pubkeys));
+
+  //$recipients_pubkeys_saved = $recipients_pubkeys;
 
   // Get post_max_size to set dynamically maximum file size.
   $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
@@ -103,6 +110,7 @@ function _proc_encrypt_file($form, &$form_state) {
 
   drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.encrypt_file.js');
 
+  // @TODO: change this to allow multiple pubkeys.
   $recipient_pubkeys = array_pop(array_reverse($recipients_pubkeys));
 
   if (empty($recipient_pubkeys)) {
@@ -119,7 +127,8 @@ function _proc_encrypt_file($form, &$form_state) {
             'proc_mail' => $user->mail,
             'proc_name' => $user->name,
             'proc_recipient_pubkey' => $recipient_pubkeys,
-            'proc_recipients_pubkeys' => $recipients_pubkeys_saved,
+            'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
+            //'proc_recipients_pubkeys' => $recipients_pubkeys_saved,
             'proc_post_max_size_bytes' => $post_max_size_bytes,
           ),
         ), 'setting'
@@ -305,10 +314,22 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   // @TODO: add support for multiple recipients
   $recipient_uid = check_plain($form_state['build_info']['args'][0]);
 
+  dpm($form_state['build_info']['args'][0]);
+
+  $recipients_uids = array();
+  $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);
+  // At this moment UIDs have been alredy checked.
+  // @TODO: consider to drupal_check_token to assure form data integrity.
+  $recipients_uids = serialize($recipients_uids);
+
+
   // Prepare the form values for submission.
   $record = new stdClass();
   $record->sender_uid = $user->uid;
   $record->recipient_uid = $recipient_uid;
+  
+  $record->recipients_uids = $recipients_uids;
+
   $record->created = time();
   $record->cipher_text = $form_state['values']['cipher_text'];
   $record->cipher_generation_timestamp = $form_state['values']['generation_timestamp'];
