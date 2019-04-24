@@ -71,9 +71,6 @@
                     openpgp.config.show_comment = false;
                     openpgp.config.show_version = false;
 
-                    // Still allowing a single recipient: [0] (the first taken)
-                    //var recipientPubkey = await Drupal.settings.proc.proc_recipient_pubkey;
-
                     var recipientsPubkeys = await Drupal.settings.proc.proc_recipients_pubkeys;
                     recipientsPubkeys = JSON.parse(recipientsPubkeys);
 
@@ -84,7 +81,7 @@
                         }
                     });
 
-                    var recipientsKeys = new Array();
+                    let recipientsKeys = new Array();
                     recipientsPubkeys.forEach(async function(entry) {
                       recipientsKeys.push((await openpgp.key.readArmored(entry)).keys[0]);
                     });
@@ -105,7 +102,6 @@
                     const ciphertext = encrypted.data;
                     // Warning: Readable Stream expires if used twice.
                     const cipherPlaintext = await openpgp.stream.readToEnd(ciphertext);
-                    console.log(cipherPlaintext);
 
                     var endSeconds = new Date().getTime() / 1000;
                     var total = endSeconds - startSeconds;
