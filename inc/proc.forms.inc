@@ -85,6 +85,7 @@ function _proc_encrypt_file($form, &$form_state) {
   }
   // Check uniqueness
   $uids = array_unique($uids);
+  $uids_csv = implode(',', $uids);
 
   $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));
 
@@ -180,6 +181,10 @@ function _proc_encrypt_file($form, &$form_state) {
       ),
     ),
   );
+  
+  // Sanitize form state
+  $form_state['build_info']['args'][0] = $uids_csv;
+
   return $form;
 }
 
@@ -314,7 +319,7 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   // @TODO: add support for multiple recipients
   $recipient_uid = check_plain($form_state['build_info']['args'][0]);
 
-  dpm($form_state['build_info']['args'][0]);
+  //dpm($form_state['build_info']['args'][0]);
 
   $recipients_uids = array();
   $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);
