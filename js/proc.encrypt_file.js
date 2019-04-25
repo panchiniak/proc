@@ -67,7 +67,7 @@
                       fileByteArray.push(array[i]);
                   }
                     // False for production.
-                    openpgp.config.debug = true;
+                    openpgp.config.debug = false;
                     openpgp.config.show_comment = false;
                     openpgp.config.show_version = false;
 
@@ -81,13 +81,23 @@
                         }
                     });
 
-                    let recipientsKeys = new Array();
+                    const recipientsKeys = new Array();
                     recipientsPubkeys.forEach(async function(entry) {
                       recipientsKeys.push((await openpgp.key.readArmored(entry)).keys[0]);
                     });
 
+                    // @TODO: consider to use map below instead of forEach above
+                    // Promise.all(recipientsPubkeys.map(async function (entry) {
+                    // return (await openpgp.key.readArmored(entry)).keys[0];
+                    // })).then(values => {
+                    // recipientsPubkeys = values.map(async function (entry){
+                    // return await (recipientsPubkeys.push(entry));
+                    // });
+                    // });
+
                     // @TODO: manage to faultlessly remove unsused armoredPubkeys.
-                    var armoredPubkeys = [{armoredKey : (await openpgp.key.readArmored(recipientsPubkeys[0])).keys[0]}];
+                    // or use it to implement default recipient optional setting.
+                    var armoredPubkeys = (await openpgp.key.readArmored(recipientsPubkeys[0])).keys[0];
 
                     const options = {
                         message: openpgp.message.fromBinary(readableStream),
