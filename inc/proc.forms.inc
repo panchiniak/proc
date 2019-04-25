@@ -12,16 +12,12 @@ function _proc_decrypt_to_file($form, &$form_state) {
   global $user;
 
   $cid_cipher = _proc_get_cipher((int) $form_state['build_info']['args'][0])[0];
-  
-  dpm($cid_cipher);
 
   _proc_lib_load();
   drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.decrypt_protected_to_file.js');
 
   // Get current user encrypted privkey.
   $privkey = _proc_get_keys($user->uid)[0]->encrypted_private_key;
-  // $privkey = _proc_get_keys(1)[0]->encrypted_private_key;
-  dpm($privkey);
 
   drupal_add_js(
         array(
@@ -88,13 +84,6 @@ function _proc_encrypt_file($form, &$form_state) {
   $uids_csv = implode(',', $uids);
 
   $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));
-
-  //dpm(drupal_json_encode($recipients_pubkeys));
-
-  // dpm('array_filter($recipients_pubkeys)');
-  // dpm(array_filter($recipients_pubkeys));
-
-  //$recipients_pubkeys_saved = $recipients_pubkeys;
 
   // Get post_max_size to set dynamically maximum file size.
   $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
@@ -318,8 +307,6 @@ function _proc_encrypt_file_submit($form, &$form_state) {
 
   // @TODO: add support for multiple recipients
   $recipient_uid = check_plain($form_state['build_info']['args'][0]);
-
-  //dpm($form_state['build_info']['args'][0]);
 
   $recipients_uids = array();
   $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);

@@ -21,21 +21,6 @@
               document.getElementById('edit-submit').value = Drupal.t('Processing...');
 
               var files = evt.target.files;
-              var output = [];
-
-              // @TODO: add multiple files support.
-            for (var i = 0, f; f = files[i]; i++) {
-                output.push(
-                    '<li><strong>',
-                    escape(f.name),
-                    '</strong> (',
-                    f.type || 'n/a', ') - ',
-                    f.size,
-                    ' bytes, last modified: ',
-                    f.lastModified,
-                    '</li>'
-                );
-            }
 
               jQuery('label[for=edit-pc-upload-description]')[0].innerText =
               ' Size: ' + files[0].size + ' bytes - Type: ' + files[0].type +
