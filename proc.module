@@ -132,10 +132,9 @@ function _proc_get_cipher($cid) {
       'cipher_text',
       'source_file_name',
       'source_file_size',
+      'recipients_uids',
     ])
-  // @TODO: will be changed for multiple recipients.
-    ->condition('recipient_uid', $user->uid, '=')
-    //->condition('recipient_uid', '44', '=')
+    ->condition('recipients_uids', '%"' . db_like($user->uid) . '"%', 'LIKE')
     ->condition('cid', $cid, '=')
     ->range(0, 1)
     ->execute()
