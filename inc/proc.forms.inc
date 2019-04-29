@@ -8,10 +8,11 @@
 /**
  * Retrieval of a file from its cipher text.
  */
-function _proc_decrypt_to_file($form, &$form_state) {
+function _proc_decrypt_to_file($form, &$form_state, $cid) {
+
   global $user;
 
-  $cid_cipher = _proc_get_cipher((int) $form_state['build_info']['args'][0])[0];
+  $cid_cipher = _proc_get_cipher((int) $cid)[0];
 
   _proc_lib_load();
   drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.decrypt_protected_to_file.js');
@@ -64,14 +65,12 @@ function _proc_get_pubkeys($users) {
 /**
  * Helper function for encryption of files.
  */
-function _proc_encrypt_file($form, &$form_state) {
+function _proc_encrypt_file($form, &$form_state, $uids) {
   global $user;
 
-  $uids_arg = menu_get_item()['map'][3];
-
-  if (isset($uids_arg)) {
-    $uids_arg = check_plain($uids_arg);
-    $csv_values = str_getcsv($uids_arg);
+  if (isset($uids)) {
+    $uids = check_plain($uids);
+    $csv_values = str_getcsv($uids);
     $uids = array();
     foreach ($csv_values as $csv_value) {
       if (is_numeric($csv_value) && $csv_value = (int) $csv_value) {
@@ -90,7 +89,7 @@ function _proc_encrypt_file($form, &$form_state) {
   $post_max_size_bytes = $post_max_size * 1000000;
 
   $disable_upload = FALSE;
-  if (!isset($uids_arg)) {
+  if (!isset($uids)) {
     drupal_set_message(t("You must chose an enabled recipient by filling in the URL the recipient user's identification. Recipient must have had registered a Protected Content Key."), 'error');
     // @TODO: allow drupal_goto user back to recipient's list if any.
     $disable_upload = TRUE;

@@ -46,19 +46,19 @@ function proc_menu() {
     'file' => 'inc/proc.forms.inc',
   );
   // @TODO: replace by protected-content/cipher/<uid/s>/add
-  $items['protected-content/file/new'] = array(
+  $items['protected-content/file/new/%'] = array(
     'title' => 'Add file',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_encrypt_file'),
+    'page arguments' => array('_proc_encrypt_file', 3),
     'access arguments' => array('new protected file'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   );
   // @TODO: replace by protected-content/cipher/<cid>/view
-  $items['protected-content/file/open'] = array(
+  $items['protected-content/file/open/%'] = array(
     'title' => 'View Protected Content',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_decrypt_to_file'),
+    'page arguments' => array('_proc_decrypt_to_file', 3),
     'access callback' => '_proc_recipient',
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
