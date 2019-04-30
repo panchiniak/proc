@@ -60,6 +60,7 @@ function proc_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_decrypt_to_file', 3),
     'access callback' => '_proc_recipient',
+    'access arguments' => array(3),
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   );
@@ -146,14 +147,13 @@ function _proc_get_cipher($cid) {
 /**
  * Helper function to check if current user is recipient of cipher text.
  */
-function _proc_recipient() {
+function _proc_recipient($cid) {
   global $user;
-  // @TODO: replace by menu_get_object once we hava a cipher object.
-  $argument = arg(3);
 
-  if (isset($argument) && is_numeric($argument)) {
-    $cid = (int) $argument;
+  if (isset($cid) && is_numeric($cid)) {
+    $cid = (int) $cid;
     $cipher = _proc_get_cipher($cid);
+    // @TODO: add 'bypass cipher access control' restricted permission
     if (!empty($cipher) or ($user->uid == 1)) {
       return TRUE;
     }
