@@ -9,31 +9,36 @@
  * Retrieval of a file from its cipher text.
  */
 function _proc_decrypt_to_file($form, &$form_state, $cid) {
-
   global $user;
 
   $cid_cipher = _proc_get_cipher((int) $cid)[0];
 
   _proc_lib_load();
-  drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.decrypt_protected_to_file.js');
 
   // Get current user encrypted privkey.
   $privkey = _proc_get_keys($user->uid)[0]->encrypted_private_key;
 
-  drupal_add_js(
-        array(
-          'proc' => array(
-            'proc_uid' => $user->uid,
-            'proc_pass' => $user->pass,
-            'proc_mail' => $user->mail,
-            'proc_name' => $user->name,
-            'proc_privkey' => $privkey,
-            'proc_cipher' => $cid_cipher->cipher_text,
-            'proc_source_file_name' => $cid_cipher->source_file_name,
-            'proc_source_file_size' => $cid_cipher->source_file_size,
-          ),
-        ), 'setting'
-    );
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'proc') . '/js/proc.decrypt_protected_to_file.js' => array(
+    'type' => 'file',
+    ),
+  );
+
+  $form['#attached']['js'][] = array(
+    'data' => array(
+      'proc' => array(
+        'proc_uid' => $user->uid,
+        'proc_pass' => $user->pass,
+        'proc_mail' => $user->mail,
+        'proc_name' => $user->name,
+        'proc_privkey' => $privkey,
+        'proc_cipher' => $cid_cipher->cipher_text,
+        'proc_source_file_name' => $cid_cipher->source_file_name,
+        'proc_source_file_size' => $cid_cipher->source_file_size,
+    )),
+    'type' => 'setting',
+  );
+
   $form['pass'] = array(
     '#type' => 'password',
     '#title' => t('Protected Content Password'),
@@ -97,8 +102,6 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   // @TODO: add error handling to _proc_lib_load()
   _proc_lib_load();
 
-  drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.encrypt_file.js');
-
   // @TODO: change this to allow multiple pubkeys.
   $recipient_pubkeys = array_pop(array_reverse($recipients_pubkeys));
 
@@ -108,20 +111,26 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
     $disable_upload = TRUE;
   }
 
-  drupal_add_js(
-        array(
-          'proc' => array(
-            'proc_uid' => $user->uid,
-            'proc_pass' => $user->pass,
-            'proc_mail' => $user->mail,
-            'proc_name' => $user->name,
-            'proc_recipient_pubkey' => $recipient_pubkeys,
-            'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
-            //'proc_recipients_pubkeys' => $recipients_pubkeys_saved,
-            'proc_post_max_size_bytes' => $post_max_size_bytes,
-          ),
-        ), 'setting'
-    );
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'proc') . '/js/proc.encrypt_file.js' => array(
+    'type' => 'file',
+    ),
+  );
+
+  $form['#attached']['js'][] = array(
+    'data' => array(
+      'proc' => array(
+        'proc_uid' => $user->uid,
+        'proc_pass' => $user->pass,
+        'proc_mail' => $user->mail,
+        'proc_name' => $user->name,
+        'proc_recipient_pubkey' => $recipient_pubkeys,
+        'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
+        'proc_post_max_size_bytes' => $post_max_size_bytes,
+     )
+    ),
+    'type' => 'setting',
+  );
 
   $form['upload'] = array(
     '#name' => 'files[]',
@@ -197,18 +206,23 @@ function _proc_gnerate_keys($form, &$form_state) {
   };
   _proc_lib_load();
 
-  drupal_add_js(drupal_get_path('module', 'proc') . '/js/proc.create_keys_protected.js');
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'proc') . '/js/proc.create_keys_protected.js' => array(
+    'type' => 'file',
+    ),
+  );
 
-  drupal_add_js(
-        array(
-          'proc' => array(
-            'proc_uid' => $user->uid,
-            'proc_pass' => $user->pass,
-            'proc_mail' => $user->mail,
-            'proc_name' => $user->name,
-          ),
-        ), 'setting'
-    );
+  $form['#attached']['js'][] = array(
+    'data' => array(
+      'proc' => array(
+        'proc_uid' => $user->uid,
+        'proc_pass' => $user->pass,
+        'proc_mail' => $user->mail,
+        'proc_name' => $user->name,
+      )
+    ),
+    'type' => 'setting',
+  );
 
   $form['pass_fields'] = array(
     '#type' => 'password_confirm',
