@@ -3,7 +3,7 @@
  * Provides encryption of file given a public PGP armored key.
  */
 
-(function () {
+(function ($) {
     'use strict';
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
@@ -22,7 +22,7 @@
 
               var files = evt.target.files;
 
-              jQuery('label[for=edit-pc-upload-description]')[0].innerText =
+              $('label[for=edit-pc-upload-description]')[0].innerText =
               ' Size: ' + files[0].size + ' bytes - Type: ' + files[0].type +
               ' - Last modified: ' + files[0].lastModifiedDate;
 
@@ -36,7 +36,7 @@
               var dynamicMaximumSize = postMaxSizeBytesInt / 4;
 
             if (fileSize > dynamicMaximumSize) {
-                jQuery("form#emnies-rsc-encrypt-file").prepend('<div class="messages error">Sorry. Dynamic maximum file size exceed. Please add a file smaller than ' + dynamicMaximumSize + ' bytes</div>');
+                $("form#emnies-rsc-encrypt-file").prepend('<div class="messages error">Sorry. Dynamic maximum file size exceed. Please add a file smaller than ' + dynamicMaximumSize + ' bytes</div>');
                 return;
             }
 
@@ -101,15 +101,15 @@
                     var endSeconds = new Date().getTime() / 1000;
                     var total = endSeconds - startSeconds;
 
-                    jQuery('input[name=cipher_text]')[0].value = cipherPlaintext;
-                    jQuery('input[name=source_file_name]')[0].value = files[0].name;
-                    jQuery('input[name=source_file_size]')[0].value = files[0].size;
-                    jQuery('input[name=source_file_type]')[0].value = files[0].type;
-                    jQuery('input[name=source_file_last_change]')[0].value = files[0].lastModified;
+                    $('input[name=cipher_text]')[0].value = cipherPlaintext;
+                    $('input[name=source_file_name]')[0].value = files[0].name;
+                    $('input[name=source_file_size]')[0].value = files[0].size;
+                    $('input[name=source_file_type]')[0].value = files[0].type;
+                    $('input[name=source_file_last_change]')[0].value = files[0].lastModified;
                     // @TODO: store fingerprint data structured instead of concatenating.
-                    jQuery('input[name=browser_fingerprint]')[0].value = navigator.userAgent + ', (' + screen.width + ' x ' + screen.height + ')';
-                    jQuery('input[name=generation_timestamp]')[0].value = startSeconds;
-                    jQuery('input[name=generation_timespan]')[0].value = total;
+                    $('input[name=browser_fingerprint]')[0].value = navigator.userAgent + ', (' + screen.width + ' x ' + screen.height + ')';
+                    $('input[name=generation_timestamp]')[0].value = startSeconds;
+                    $('input[name=generation_timespan]')[0].value = total;
 
                     document.getElementById('edit-submit').removeAttribute("disabled");
                     document.getElementById('edit-submit').value = Drupal.t('Save');

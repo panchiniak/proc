@@ -3,7 +3,7 @@
  * Decrypts cipher texts into a file given a correct privkey passphrase.
  */
 
-(function () {
+(function ($) {
     'use strict';
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
@@ -15,10 +15,10 @@
             var sourceFileName = Drupal.settings.proc.proc_source_file_name;
             var sourceFileSize = Drupal.settings.proc.proc_source_file_size;
 
-            jQuery('#decryption-link').on(
+            $('#decryption-link').on(
                 'click', async function () {
 
-                    var secretPass = jQuery('input[name=pass]')[0].value;
+                    var secretPass = $('input[name=pass]')[0].value;
 
                     var secretPassString = new String(secretPass);
                     var passphrase = passDrupal.concat(secretPassString);
@@ -28,11 +28,11 @@
                         function (err) {
                             // @TODO: rephrase openpgpjs default error messages to allow for translations.
                             // @TODO: add to error log
-                            jQuery("form#-proc-decrypt-to-file").prepend('<div class="messages error">' + err + '</div>');
-                          if (jQuery("a#decryption-link")[0].href) {
-                              const fileUrl = jQuery("a#decryption-link")[0].href;
+                            $("form#-proc-decrypt-to-file").prepend('<div class="messages error">' + err + '</div>');
+                          if ($("a#decryption-link")[0].href) {
+                              const fileUrl = $("a#decryption-link")[0].href;
                               URL.revokeObjectURL(fileUrl);
-                              jQuery("a#decryption-link").removeAttr("href");
+                              $("a#decryption-link").removeAttr("href");
                           }
                         }
                     );
@@ -60,7 +60,7 @@
                       // @TODO: use t
                       // @TODO: add to error log
 
-                      jQuery("form#-proc-decrypt-to-file").prepend('<div class="messages error">Error: size mismatch.</div>');
+                      $("form#-proc-decrypt-to-file").prepend('<div class="messages error">Error: size mismatch.</div>');
                   }
                 }
             );

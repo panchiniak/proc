@@ -3,15 +3,15 @@
  * Public and private keys generation, symmetric encryption and storage.
  */
 
-(function () {
+(function ($) {
     'use strict';
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
-            jQuery('#edit-submit').on(
+            $('#edit-submit').on(
                 'click', async function () {
-                    var pass = jQuery('#edit-pass-fields-pass1')[0].value;
-                    var passConfirm = jQuery('#edit-pass-fields-pass2')[0].value;
+                    var pass = $('#edit-pass-fields-pass1')[0].value;
+                    var passConfirm = $('#edit-pass-fields-pass2')[0].value;
 
                     // Replace the password by a placeholder string for not submiting the
                     // real onechosen while stil validating its requirednes and confirmation
@@ -34,12 +34,12 @@
                         passPlaceholderString = passPlaceholderString + passPlaceholder;
                     }
 
-                      jQuery('#edit-pass-fields-pass1')[0].value = passPlaceholderString;
+                      $('#edit-pass-fields-pass1')[0].value = passPlaceholderString;
 
                     for (var passConfirmPlaceholderIndex = 1; passConfirmPlaceholderIndex < passConfirm.length; passConfirmPlaceholderIndex++) {
                         passConfirmPlaceholderString = passConfirmPlaceholderString + passConfirmationPlaceholder;
                     }
-                      jQuery('#edit-pass-fields-pass2')[0].value = passConfirmPlaceholderString;
+                      $('#edit-pass-fields-pass2')[0].value = passConfirmPlaceholderString;
                   }
                     // If there is some password.
                   if (pass !== "" && pass.length > 0) {
@@ -78,14 +78,14 @@
                                 return [pubkey, privkey, startSeconds, total, navigator.userAgent];
                             }
                           );
-                          jQuery('input[name=public_key]')[0].value = encryptionData[0];
-                          jQuery('input[name=encrypted_private_key]')[0].value = encryptionData[1];
-                          jQuery('input[name=generation_timestamp]')[0].value = encryptionData[2];
-                          jQuery('input[name=generation_timespan]')[0].value = encryptionData[3];
+                          $('input[name=public_key]')[0].value = encryptionData[0];
+                          $('input[name=encrypted_private_key]')[0].value = encryptionData[1];
+                          $('input[name=generation_timestamp]')[0].value = encryptionData[2];
+                          $('input[name=generation_timespan]')[0].value = encryptionData[3];
                           // @TODO: store fingerprint data structured in a JSON.
-                          jQuery('input[name=browser_fingerprint]')[0].value = encryptionData[4] + ', (' + screen.width + ' x ' + screen.height + ')';
-                          jQuery('#protected-content-gnerate-keys').submit();
-                          jQuery('#edit-public-key').trigger('change');
+                          $('input[name=browser_fingerprint]')[0].value = encryptionData[4] + ', (' + screen.width + ' x ' + screen.height + ')';
+                          $('#protected-content-generate-keys').submit();
+                          $('#edit-public-key').trigger('change');
 
                     }
                   }
