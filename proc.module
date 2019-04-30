@@ -40,7 +40,7 @@ function proc_menu() {
   $items['protected-content/key-pair/new'] = array(
     'title' => 'Add Protected Content Key',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_gnerate_keys'),
+    'page arguments' => array('_proc_generate_keys'),
     'access arguments' => array('register protected content keys'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
