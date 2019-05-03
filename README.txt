@@ -13,13 +13,14 @@ INTRODUCTION
 ------------
 
 The Protected Content (proc) module adds end-to-end/client side encryption and
-for decryption of content.
-It is very simple to use. Once it is installed:
+decryption of content.
+It is very simple to use. Once it is installed (see Installation below):
  * Access protected-content/key-pair/new to generate keys for the current user.
 
- * Access protected-content/file/new/<uid> to encrypt a file for the user
-   identified by <uid>. Protect Content will provide an exclusive access link
-   for the recipient to decrypt the file.
+ * Access protected-content/file/new/<uids_csv> to encrypt a file for the users
+   identified in <uids_csv> (a comma separated values list of user IDs). Protect
+   Content will provide an Exclusive Access Link for the recipients to decrypt 
+   the file.
 
 
 REQUIREMENTS

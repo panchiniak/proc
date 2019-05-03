@@ -36,7 +36,7 @@
               var dynamicMaximumSize = postMaxSizeBytesInt / 4;
 
             if (fileSize > dynamicMaximumSize) {
-                $("form#emnies-rsc-encrypt-file").prepend('<div class="messages error">Sorry. Dynamic maximum file size exceed. Please add a file smaller than ' + dynamicMaximumSize + ' bytes</div>');
+                $("form#-proc-encrypt-file").prepend('<div class="messages error">Sorry. Dynamic maximum file size exceed. Please add a file smaller than ' + dynamicMaximumSize + ' bytes</div>');
                 return;
             }
 
@@ -92,7 +92,6 @@
 
                     var startSeconds = new Date().getTime() / 1000;
                     const encrypted = await openpgp.encrypt(options);
-
 
                     const ciphertext = encrypted.data;
                     // Warning: Readable Stream expires if used twice.
