@@ -44,6 +44,6 @@ Create custom entities to handle keys and cipher texts.
 
 MAINTAINERS
 -----------
-Rodrigo Panchiniak Fernandes (panchiniak) - https://www.drupal.org/user/411448
+Rodrigo Panchiniak Fernandes (rodrigo-panchiniak-fernandes) - https://www.drupal.org/user/411448
 
 Duarte Briz (duartebriz) - https://www.drupal.org/u/duartebriz
