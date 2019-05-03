@@ -35,6 +35,7 @@
 
             if (fileSize > dynamicMaximumSize) {
                 $("form#-proc-encrypt-file").prepend('<div class="messages error">' + Drupal.t('Sorry. Dynamic maximum file size exceed. Please add a file smaller than ') + dynamicMaximumSize + Drupal.t(' bytes') + '</div>');
+                document.getElementById('edit-submit').value = Drupal.t('Save');
                 return;
             }
 
