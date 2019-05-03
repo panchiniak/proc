@@ -20,7 +20,7 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
 
   $form['#attached']['js'] = array(
     drupal_get_path('module', 'proc') . '/js/proc.decrypt_protected_to_file.js' => array(
-    'type' => 'file',
+      'type' => 'file',
     ),
   );
 
@@ -35,7 +35,8 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
         'proc_cipher' => $cid_cipher->cipher_text,
         'proc_source_file_name' => $cid_cipher->source_file_name,
         'proc_source_file_size' => $cid_cipher->source_file_size,
-    )),
+      ),
+    ),
     'type' => 'setting',
   );
 
@@ -83,7 +84,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
       }
     }
   }
-  // Check uniqueness
+  // Check uniqueness.
   $uids = array_unique($uids);
   $uids_csv = implode(',', $uids);
 
@@ -113,7 +114,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
 
   $form['#attached']['js'] = array(
     drupal_get_path('module', 'proc') . '/js/proc.encrypt_file.js' => array(
-    'type' => 'file',
+      'type' => 'file',
     ),
   );
 
@@ -127,7 +128,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
         'proc_recipient_pubkey' => $recipient_pubkeys,
         'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
         'proc_post_max_size_bytes' => $post_max_size_bytes,
-     )
+      ),
     ),
     'type' => 'setting',
   );
@@ -178,8 +179,8 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
       ),
     ),
   );
-  
-  // Sanitize form state
+
+  // Sanitize form state.
   $form_state['build_info']['args'][0] = $uids_csv;
 
   return $form;
@@ -208,7 +209,7 @@ function _proc_generate_keys($form, &$form_state) {
 
   $form['#attached']['js'] = array(
     drupal_get_path('module', 'proc') . '/js/proc.create_keys_protected.js' => array(
-    'type' => 'file',
+      'type' => 'file',
     ),
   );
 
@@ -219,7 +220,7 @@ function _proc_generate_keys($form, &$form_state) {
         'proc_pass' => $user->pass,
         'proc_mail' => $user->mail,
         'proc_name' => $user->name,
-      )
+      ),
     ),
     'type' => 'setting',
   );
@@ -327,12 +328,11 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   // @TODO: consider to drupal_check_token to assure form data integrity.
   $recipients_uids = serialize($recipients_uids);
 
-
   // Prepare the form values for submission.
   $record = new stdClass();
   $record->sender_uid = $user->uid;
   $record->recipient_uid = $recipient_uid;
-  
+
   $record->recipients_uids = $recipients_uids;
 
   $record->created = time();

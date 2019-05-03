@@ -30,7 +30,6 @@
             var fileSize = parseInt(files[0].size, 10);
             var postMaxSizeBytesInt = parseInt(postMaxSizeBytes, 10);
             // Assuming ciphertexts are at least 4 times bigger than their plaintexts.
-
             var dynamicMaximumSize = postMaxSizeBytesInt / 4;
 
             if (fileSize > dynamicMaximumSize) {

@@ -8,10 +8,10 @@
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
-            if (!(window.Blob)) {
-                // Error.
-                alert(Drupal.t('The File APIs are not fully supported in this browser.'));
-            }
+          if (!(window.Blob)) {
+              // Error.
+              alert(Drupal.t('The File APIs are not fully supported in this browser.'));
+          }
 
             // @TODO: replace var by let whenever possible
             var passDrupal = Drupal.settings.proc.proc_pass;
