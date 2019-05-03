@@ -46,4 +46,4 @@ MAINTAINERS
 -----------
 Rodrigo Panchiniak Fernandes (panchiniak) - https://www.drupal.org/user/411448
 
-Duarte Briz
+Duarte Briz (duartebriz) - https://www.drupal.org/u/duartebriz
