@@ -103,10 +103,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   // @TODO: add error handling to _proc_lib_load()
   _proc_lib_load();
 
-  // @TODO: change this to allow multiple pubkeys.
-  $recipient_pubkeys = array_pop(array_reverse($recipients_pubkeys));
-
-  if (empty($recipient_pubkeys)) {
+  if (empty($recipients_pubkeys)) {
     drupal_set_message(t('Sorry. A slected recipient is not registered to receive Protected Content.'), 'error');
     // @TODO: also here allow drupal_goto user back to recipient's list if any.
     $disable_upload = TRUE;
@@ -125,7 +122,6 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
         'proc_pass' => $user->pass,
         'proc_mail' => $user->mail,
         'proc_name' => $user->name,
-        'proc_recipient_pubkey' => $recipient_pubkeys,
         'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
         'proc_post_max_size_bytes' => $post_max_size_bytes,
       ),
@@ -291,7 +287,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
 
   $record_result = 0;
 
-  if (!empty($record->public_key)) {
+  if (!empty($record->public_key) && ($record->public_key != 'undefined')) {
     $record_result = drupal_write_record('proc_keys', $record);
   }
 
