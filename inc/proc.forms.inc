@@ -28,7 +28,7 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
     'data' => array(
       'proc' => array(
         'proc_uid' => $user->uid,
-        'proc_pass' => $user->pass,
+        'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
         'proc_mail' => $user->mail,
         'proc_name' => $user->name,
         'proc_privkey' => $privkey,
@@ -119,7 +119,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
     'data' => array(
       'proc' => array(
         'proc_uid' => $user->uid,
-        'proc_pass' => $user->pass,
+        'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
         'proc_mail' => $user->mail,
         'proc_name' => $user->name,
         'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
@@ -213,7 +213,7 @@ function _proc_generate_keys($form, &$form_state) {
     'data' => array(
       'proc' => array(
         'proc_uid' => $user->uid,
-        'proc_pass' => $user->pass,
+        'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
         'proc_mail' => $user->mail,
         'proc_name' => $user->name,
       ),
