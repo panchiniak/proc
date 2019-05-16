@@ -287,6 +287,14 @@ function _proc_generate_keys_submit($form, &$form_state) {
 
   $record_result = 0;
 
+  $entity = entity_create('proc', array('type' => 'proc_keyring'));
+  dpm($entity);
+  $wrapper = entity_metadata_wrapper('proc', $entity);
+  $wrapper->title = 'Random title of keyring.';
+  $wrapper->description = 'Random description of keyring.';
+  $wrapper->proc_field_data = 'a:1:{1}';
+  $wrapper->save();
+
   if (!empty($record->public_key) && ($record->public_key != 'undefined')) {
     $record_result = drupal_write_record('proc_keys', $record);
   }
@@ -342,7 +350,19 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   // @TODO: adjust database schema to comply with source_file_last_change format.
   if (!empty($record->cipher_text)) {
     $record_result = drupal_write_record('proc_cipher_texts', $record);
+
+    $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
+    dpm($entity);
+    $wrapper = entity_metadata_wrapper('proc', $entity);
+    $wrapper->title = 'Random title of cipher text.';
+    $wrapper->description = 'Random description of cipher text.';
+    $wrapper->proc_field_data = 'a:1:{1}';
+    $wrapper->save();
+  
+
+
   }
+  
 
   if ($record_result == 1) {
     $success_encryption_message = t(

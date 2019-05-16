@@ -11,6 +11,39 @@
 function proc_schema() {
   $schema = array();
 
+  $schema['proc'] = array(
+    'description' => 'The base table for proc.',
+    'fields' => array(
+      'aid' => array(
+        'description' => 'Armored entity primary identifier.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      // Field for storing bundle types of armored entities.
+      'type' => array(
+        'description' => 'Armored entity bundle.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'Armored entity title.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'Protected Content Armored Entity.',
+        'type' => 'text',
+      ),
+    ),
+    'primary key' => array('aid'),
+  );
+
+
   // @TODO: create custom entity to manage keys
   $schema['proc_keys'] = array(
     'description' => 'Stores public as-is and encrypted private keys and metadata on a per user/keys generated basis',
@@ -147,3 +180,76 @@ function proc_schema() {
 
   return $schema;
 }
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function proc_modules_enabled($modules) {
+  if (in_array('proc', $modules)) {
+    // Create a text field to store serialized data.
+    if (!field_read_field('proc_field_data')) {
+      $field = array(
+        'field_name' => 'proc_field_data',
+        'type' => 'text',
+      );
+      field_create_field($field);
+    }
+
+    // Attach created field to proper bundles.
+    if (!field_read_instance('proc', 'proc_field_data', 'proc_keyring')) {
+      field_attach_create_bundle('proc', 'proc_keyring');
+      $instance = array(
+        'field_name' => 'proc_field_data',
+        'label' => t('Serialized data of proc_keyring bundle'),
+        'entity_type' => 'proc',
+        'bundle' => 'proc_keyring',
+      );
+      field_create_instance($instance);
+    }
+
+    // Attach created field to proper bundles.
+    if (!field_read_instance('proc', 'proc_field_data', 'proc_ciphertxt')) {
+      field_attach_create_bundle('proc', 'proc_ciphertxt');
+      $instance = array(
+        'field_name' => 'proc_field_data',
+        'label' => t('Serialized data of proc_ciphertxt bundle'),
+        'entity_type' => 'proc',
+        'bundle' => 'proc_ciphertxt',
+      );
+      field_create_instance($instance);
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function proc_uninstall() {
+  // Delete previousely created field.
+  field_delete_field('proc_field_data');
+}
+
+/**
+ * Implements hook_field_schema().
+ */
+// function serialized_field_field_schema($field) {
+//   $columns = array(
+//     'value_serialized' => array(
+//       'type' => 'text',
+//       'size' => 'big',
+//       'description' => 'Serialized data.',
+//       'serialize' => TRUE,
+//       'serialized default' => 'a:0:{}',
+//     ),
+//     'serialization' => array(
+//       'description' => 'The serialization algorithm used in the value_serialized column.',
+//       'type' => 'varchar',
+//       'length' => 30,
+//       'not null' => TRUE,
+//       'default' => 'serialize',
+//     ),
+//   );
+//   return array(
+//     'columns' => $columns,
+//   );
+// }

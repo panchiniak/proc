@@ -11,5 +11,8 @@ yellow_flag_browsers_csv = "Edge,Internet Explorer"
 crypto_library_file = "openpgp.min.js"
 
 dependencies[] = libraries
+dependencies[] = entity
+dependencies[] = views
+
 test_dependencies[] = libraries
 files[] = tests/proc.test
