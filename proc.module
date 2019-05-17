@@ -266,6 +266,6 @@ function proc_entity_property_info() {
 // $wrapper = entity_metadata_wrapper('proc', $entity);
 // // $wrapper->title = 'Random title 1.';
 // // $wrapper->description = 'Random description 1.';
-// $wrapper->proc_field_data = 'a:0:{}';
+// $wrapper->proc_armored = 'a:0:{}';
 // $wrapper->save();
 

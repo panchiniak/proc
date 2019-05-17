@@ -187,19 +187,19 @@ function proc_schema() {
 function proc_modules_enabled($modules) {
   if (in_array('proc', $modules)) {
     // Create a text field to store serialized data.
-    if (!field_read_field('proc_field_data')) {
+    if (!field_read_field('proc_armored')) {
       $field = array(
-        'field_name' => 'proc_field_data',
+        'field_name' => 'proc_armored',
         'type' => 'text',
       );
       field_create_field($field);
     }
 
     // Attach created field to proper bundles.
-    if (!field_read_instance('proc', 'proc_field_data', 'proc_keyring')) {
+    if (!field_read_instance('proc', 'proc_armored', 'proc_keyring')) {
       field_attach_create_bundle('proc', 'proc_keyring');
       $instance = array(
-        'field_name' => 'proc_field_data',
+        'field_name' => 'proc_armored',
         'label' => t('Serialized data of proc_keyring bundle'),
         'entity_type' => 'proc',
         'bundle' => 'proc_keyring',
@@ -208,10 +208,10 @@ function proc_modules_enabled($modules) {
     }
 
     // Attach created field to proper bundles.
-    if (!field_read_instance('proc', 'proc_field_data', 'proc_ciphertxt')) {
+    if (!field_read_instance('proc', 'proc_armored', 'proc_ciphertxt')) {
       field_attach_create_bundle('proc', 'proc_ciphertxt');
       $instance = array(
-        'field_name' => 'proc_field_data',
+        'field_name' => 'proc_armored',
         'label' => t('Serialized data of proc_ciphertxt bundle'),
         'entity_type' => 'proc',
         'bundle' => 'proc_ciphertxt',
@@ -226,7 +226,7 @@ function proc_modules_enabled($modules) {
  */
 function proc_uninstall() {
   // Delete previousely created field.
-  field_delete_field('proc_field_data');
+  field_delete_field('proc_armored');
 }
 
 /**

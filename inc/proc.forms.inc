@@ -292,7 +292,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
   $wrapper = entity_metadata_wrapper('proc', $entity);
   $wrapper->title = 'Random title of keyring.';
   $wrapper->description = 'Random description of keyring.';
-  $wrapper->proc_field_data = 'a:1:{1}';
+  $wrapper->proc_armored = 'a:1:{1}';
   $wrapper->save();
 
   if (!empty($record->public_key) && ($record->public_key != 'undefined')) {
@@ -356,7 +356,7 @@ function _proc_encrypt_file_submit($form, &$form_state) {
     $wrapper = entity_metadata_wrapper('proc', $entity);
     $wrapper->title = 'Random title of cipher text.';
     $wrapper->description = 'Random description of cipher text.';
-    $wrapper->proc_field_data = 'a:1:{1}';
+    $wrapper->proc_armored = 'a:1:{1}';
     $wrapper->save();
   
 
