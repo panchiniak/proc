@@ -14,33 +14,27 @@ function proc_schema() {
   $schema['proc'] = array(
     'description' => 'The base table for proc.',
     'fields' => array(
-      'aid' => array(
+      // Armored ID:
+      'pid' => array(
         'description' => 'Armored entity primary identifier.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      // Field for storing bundle types of armored entities.
-      'type' => array(
-        'description' => 'Armored entity bundle.',
-        'type' => 'varchar',
-        'length' => 255,
+      'uid' => array(
+        'description' => 'User id from the users table.',
+        'type' => 'int',
         'not null' => TRUE,
-        'default' => '',
+        'default' => 0,
       ),
-      'title' => array(
-        'description' => 'Armored entity title.',
-        'type' => 'varchar',
-        'length' => 255,
+      'created' => array(
+        'description' => 'The Unix timestamp when the armored was created.',
+        'type' => 'int',
         'not null' => TRUE,
-        'default' => '',
-      ),
-      'description' => array(
-        'description' => 'Protected Content Armored Entity.',
-        'type' => 'text',
+        'default' => 0,
       ),
     ),
-    'primary key' => array('aid'),
+    'primary key' => array('pid'),
   );
 
 
@@ -190,7 +184,8 @@ function proc_modules_enabled($modules) {
     if (!field_read_field('proc_armored')) {
       $field = array(
         'field_name' => 'proc_armored',
-        'type' => 'text',
+        'type' => 'text_long',
+        'size' => 'big',
       );
       field_create_field($field);
     }
@@ -227,29 +222,5 @@ function proc_modules_enabled($modules) {
 function proc_uninstall() {
   // Delete previousely created field.
   field_delete_field('proc_armored');
+  field_purge_batch(0);
 }
-
-/**
- * Implements hook_field_schema().
- */
-// function serialized_field_field_schema($field) {
-//   $columns = array(
-//     'value_serialized' => array(
-//       'type' => 'text',
-//       'size' => 'big',
-//       'description' => 'Serialized data.',
-//       'serialize' => TRUE,
-//       'serialized default' => 'a:0:{}',
-//     ),
-//     'serialization' => array(
-//       'description' => 'The serialization algorithm used in the value_serialized column.',
-//       'type' => 'varchar',
-//       'length' => 30,
-//       'not null' => TRUE,
-//       'default' => 'serialize',
-//     ),
-//   );
-//   return array(
-//     'columns' => $columns,
-//   );
-// }

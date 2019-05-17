@@ -195,7 +195,7 @@ function proc_entity_info() {
       'label' => t('Armored Proc'),
       'base table' => 'proc',
       'entity keys' => array(
-        'id' => 'aid',
+        'id' => 'pid',
         // Database field where bundle types of entities are saved.
         'bundle' => 'type',
       ),
@@ -233,9 +233,9 @@ function proc_entity_info() {
 function proc_entity_property_info() {
   $info = array();
   $properties = &$info['proc']['properties'];
-  $properties['aid'] = array(
+  $properties['pid'] = array(
     'type' => 'integer',
-    'schema field' => 'aid',
+    'schema field' => 'pid',
     'label' => t('Proc Armored entity ID'),
     'setter callback' => 'entity_property_verbatim_set',
   );
@@ -246,26 +246,33 @@ function proc_entity_property_info() {
     'label' => t('Proc Armored entity type (bundle)'),
     'setter callback' => 'entity_property_verbatim_set',
   );
-  $properties['title'] = array(
-    'type' => 'text',
-    'schema field' => 'title',
+  $properties['uid'] = array(
+    'type' => 'integer',
+    'schema field' => 'uid',
     'required' => TRUE,
-    'label' => t('Proc Armored entity title'),
+    'label' => t('Proc Armored author'),
     'setter callback' => 'entity_property_verbatim_set',
   );
-  $properties['description'] = array(
-    'type' => 'text',
-    'schema field' => 'description',
-    'label' => t('Proc Armored entity description'),
+  $properties['created'] = array(
+    'type' => 'integer',
+    'schema field' => 'created',
+    'required' => TRUE,
+    'label' => t('Proc Armored created timestamp'),
     'setter callback' => 'entity_property_verbatim_set',
   );
+
+  // $properties['title'] = array(
+  //   'type' => 'text',
+  //   'schema field' => 'title',
+  //   'required' => TRUE,
+  //   'label' => t('Proc Armored entity title'),
+  //   'setter callback' => 'entity_property_verbatim_set',
+  // );
+  // $properties['description'] = array(
+  //   'type' => 'text',
+  //   'schema field' => 'description',
+  //   'label' => t('Proc Armored entity description'),
+  //   'setter callback' => 'entity_property_verbatim_set',
+  // );
   return $info;
 }
-
-// $entity = entity_create('proc', array('type' => 'proc_keyring'));
-// $wrapper = entity_metadata_wrapper('proc', $entity);
-// // $wrapper->title = 'Random title 1.';
-// // $wrapper->description = 'Random description 1.';
-// $wrapper->proc_armored = 'a:0:{}';
-// $wrapper->save();
-

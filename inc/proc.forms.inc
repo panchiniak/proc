@@ -278,21 +278,28 @@ function _proc_generate_keys_submit($form, &$form_state) {
   // Prepare the form values for submission.
   $record = new stdClass();
   $record->uid = $user->uid;
+
   $record->public_key = $form_state['values']['public_key'];
   $record->encrypted_private_key = $form_state['values']['encrypted_private_key'];
   $record->generation_timestamp = $form_state['values']['generation_timestamp'];
   $record->generation_timespan = $form_state['values']['generation_timespan'];
-  $record->browser_fingerprint = $form_state['values']['browser_fingerprint'];
+  $record->browser_fingerprint = $form_state['values']['browser_fingerprint'];  
   $record->created = time();
-
   $record_result = 0;
 
+  $keyring_data = array(
+    'public_key' => check_plain($form_state['values']['public_key']),
+    'encrypted_private_key' => check_plain($form_state['values']['encrypted_private_key']),
+    'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
+    'generation_timespan' => check_plain($form_state['values']['generation_timespan']),
+    'browser_fingerprint' => check_plain($form_state['values']['browser_fingerprint']),
+  );
+
   $entity = entity_create('proc', array('type' => 'proc_keyring'));
-  dpm($entity);
   $wrapper = entity_metadata_wrapper('proc', $entity);
-  $wrapper->title = 'Random title of keyring.';
-  $wrapper->description = 'Random description of keyring.';
-  $wrapper->proc_armored = 'a:1:{1}';
+  $wrapper->uid = $user->uid;
+  $wrapper->proc_armored = serialize($keyring_data);
+  $wrapper->created = time();
   $wrapper->save();
 
   if (!empty($record->public_key) && ($record->public_key != 'undefined')) {
@@ -348,19 +355,29 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   $record->source_file_size = $form_state['values']['source_file_size'];
   $record->source_file_type = $form_state['values']['source_file_type'];
   // @TODO: adjust database schema to comply with source_file_last_change format.
+
+  $ciphertxt_data = array(
+    'cipher_text' => check_plain($form_state['values']['cipher_text']),
+    'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
+    'generation_timespan' => check_plain($form_state['values']['generation_timespan']),
+    'encrypted_private_key' => check_plain($form_state['values']['encrypted_private_key']),
+    'browser_fingerprint' => check_plain($form_state['values']['browser_fingerprint']),
+    'source_file_name' => check_plain($form_state['values']['source_file_name']),
+    'source_file_size' => check_plain($form_state['values']['source_file_size']),
+    'source_file_type' => check_plain($form_state['values']['source_file_type']),
+  );
+
+
+  $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
+  $wrapper = entity_metadata_wrapper('proc', $entity);
+  $wrapper->uid = $user->uid;
+  $wrapper->proc_armored = serialize($ciphertxt_data);
+  $wrapper->created = time();
+  $wrapper->save();
+
+
   if (!empty($record->cipher_text)) {
     $record_result = drupal_write_record('proc_cipher_texts', $record);
-
-    $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
-    dpm($entity);
-    $wrapper = entity_metadata_wrapper('proc', $entity);
-    $wrapper->title = 'Random title of cipher text.';
-    $wrapper->description = 'Random description of cipher text.';
-    $wrapper->proc_armored = 'a:1:{1}';
-    $wrapper->save();
-  
-
-
   }
   
 
