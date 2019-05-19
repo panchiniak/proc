@@ -27,6 +27,11 @@ function proc_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'type' => array(
+        'description' => 'Entity instance type.',
+        'type' => 'text',
+        'size' => 'medium',
+      ),      
       'created' => array(
         'description' => 'The Unix timestamp when the armored was created.',
         'type' => 'int',
@@ -190,6 +195,7 @@ function proc_modules_enabled($modules) {
       field_create_field($field);
     }
 
+    // @TODO: create helper function to avoid code repetition
     // Attach created field to proper bundles.
     if (!field_read_instance('proc', 'proc_armored', 'proc_keyring')) {
       field_attach_create_bundle('proc', 'proc_keyring');
@@ -202,6 +208,7 @@ function proc_modules_enabled($modules) {
       field_create_instance($instance);
     }
 
+    // @TODO: create helper function to avoid code repetition
     // Attach created field to proper bundles.
     if (!field_read_instance('proc', 'proc_armored', 'proc_ciphertxt')) {
       field_attach_create_bundle('proc', 'proc_ciphertxt');
@@ -210,6 +217,33 @@ function proc_modules_enabled($modules) {
         'label' => t('Serialized data of proc_ciphertxt bundle'),
         'entity_type' => 'proc',
         'bundle' => 'proc_ciphertxt',
+      );
+      field_create_instance($instance);
+    }
+
+    // Create an entityreference field to link recipient users in ciphertxts.
+    if (!field_read_field('proc_recipient')) {
+      $field = array(
+        'field_name' => 'proc_recipient',
+        'type' => 'entityreference',
+        'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+        'settings' => array(
+          'target_type' => 'user',
+          'target_bundles' => array('user'),
+        ),
+      );
+      field_create_field($field);
+    }
+
+    if (!field_read_instance('proc', 'proc_recipient', 'proc_ciphertxt')) {
+      $instance = array(
+        'field_name' => 'proc_recipient',
+        'entity_type' => 'proc',
+        'bundle' => 'proc_ciphertxt',
+        'label' => 'Recipient of ciphertext user reference',
+        // 'widget' => array(
+        //   'type' => 'options_select',
+        // ),
       );
       field_create_instance($instance);
     }
@@ -222,5 +256,6 @@ function proc_modules_enabled($modules) {
 function proc_uninstall() {
   // Delete previousely created field.
   field_delete_field('proc_armored');
+  field_delete_field('proc_recipient');
   field_purge_batch(0);
 }

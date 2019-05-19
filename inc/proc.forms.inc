@@ -16,7 +16,11 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
   _proc_lib_load();
 
   // Get current user encrypted privkey.
-  $privkey = _proc_get_keys($user->uid)[0]->encrypted_private_key;
+  //$privkey = _proc_get_keys($user->uid)[0]->encrypted_private_key;
+  $privkey = _proc_get_keys($user->uid)['encrypted_private_key'];
+  //dpm($privkey);
+  // $privkey = _proc_get_keys($user->uid)[0]->encrypted_private_key;
+  // dpm($privkey);
 
   $form['#attached']['js'] = array(
     drupal_get_path('module', 'proc') . '/js/proc.decrypt_protected_to_file.js' => array(
@@ -63,7 +67,8 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
 function _proc_get_pubkeys($users) {
   $pubkeys = array();
   foreach ($users as $recipient) {
-    $pubkeys[] = _proc_get_keys($recipient)[0]->public_key;
+    //$pubkeys[] = _proc_get_keys($recipient)[0]->public_key;
+    $pubkeys[] = _proc_get_keys($recipient)['public_key'];
   }
   return $pubkeys;
 }
@@ -335,6 +340,10 @@ function _proc_encrypt_file_submit($form, &$form_state) {
 
   $recipients_uids = array();
   $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);
+  $recipients_uids_new = str_getcsv($form_state['build_info']['args'][0]);
+  asort($recipients_uids_new);
+  $recipients_uids_new = array_values($recipients_uids_new);
+
   // At this moment UIDs have been alredy checked.
   // @TODO: consider to drupal_check_token to assure form data integrity.
   $recipients_uids = serialize($recipients_uids);
@@ -360,7 +369,6 @@ function _proc_encrypt_file_submit($form, &$form_state) {
     'cipher_text' => check_plain($form_state['values']['cipher_text']),
     'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
     'generation_timespan' => check_plain($form_state['values']['generation_timespan']),
-    'encrypted_private_key' => check_plain($form_state['values']['encrypted_private_key']),
     'browser_fingerprint' => check_plain($form_state['values']['browser_fingerprint']),
     'source_file_name' => check_plain($form_state['values']['source_file_name']),
     'source_file_size' => check_plain($form_state['values']['source_file_size']),
@@ -372,14 +380,13 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   $wrapper = entity_metadata_wrapper('proc', $entity);
   $wrapper->uid = $user->uid;
   $wrapper->proc_armored = serialize($ciphertxt_data);
+  $wrapper->proc_recipient->set($recipients_uids_new);
   $wrapper->created = time();
   $wrapper->save();
-
 
   if (!empty($record->cipher_text)) {
     $record_result = drupal_write_record('proc_cipher_texts', $record);
   }
-  
 
   if ($record_result == 1) {
     $success_encryption_message = t(

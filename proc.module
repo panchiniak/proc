@@ -109,12 +109,32 @@ function _proc_lib_load() {
  */
 function _proc_get_keys($user_id) {
 
-  $result = db_select('proc_keys', 'er')
-    ->fields('er', ['encrypted_private_key', 'uid', 'kid', 'public_key'])
-    ->condition('uid', $user_id, '=')
-    ->orderBy('kid', 'DESC')
-    ->execute()
-    ->fetchAll();
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'proc')
+    ->entityCondition('bundle', 'proc_keyring')
+    ->propertyCondition('uid', $user_id)
+    ->propertyOrderBy('pid', 'DESC')
+    ->range(0,1);
+  $result = $query->execute();
+
+  $keyring = entity_load('proc', array_keys($result['proc']));
+  $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
+  $result = array();
+  $result['encrypted_private_key'] = $keyring['encrypted_private_key'];
+  $result['public_key'] = $keyring['public_key'];
+  
+  //dpm($result);
+
+  // $result = db_select('proc_keys', 'er')
+  //   ->fields('er', ['encrypted_private_key', 'uid', 'kid', 'public_key'])
+  //   ->condition('uid', $user_id, '=')
+  //   ->orderBy('kid', 'DESC')
+  //   ->execute()
+  //   ->fetchAll();
+
+    // dpm('final $result in helper ');
+    // dpm($result);
 
   return $result;
 }
@@ -124,6 +144,31 @@ function _proc_get_keys($user_id) {
  */
 function _proc_get_cipher($cid) {
   global $user;
+
+  dpm('$cid');
+  dpm($cid);
+
+
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'proc')
+    ->entityCondition('bundle', 'proc_ciphertxt')
+    ->propertyCondition('pid', $cid)
+    ->range(0,1);
+  $result = $query->execute();
+    
+
+  $result = entity_load('proc', array_keys($result['proc']));
+
+  // $cipher_text = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
+  // $cipher_text = array();
+  // $cipher_text['encrypted_private_key'] = $keyring['encrypted_private_key'];
+  //$result['public_key'] = $keyring['public_key'];
+
+
+  dpm('$result before');
+  dpm($result);
+
 
   $result = db_select('proc_cipher_texts', 'ci')
     ->fields('ci', [
@@ -139,6 +184,9 @@ function _proc_get_cipher($cid) {
     ->range(0, 1)
     ->execute()
     ->fetchAll();
+
+  dpm('$result after');
+  dpm($result);
 
   return $result;
 }

@@ -12,7 +12,7 @@ crypto_library_file = "openpgp.min.js"
 
 dependencies[] = libraries
 dependencies[] = entity
-dependencies[] = views
+dependencies[] = entityreference
 
 test_dependencies[] = libraries
 files[] = tests/proc.test
