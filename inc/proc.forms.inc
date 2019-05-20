@@ -11,16 +11,12 @@
 function _proc_decrypt_to_file($form, &$form_state, $cid) {
   global $user;
 
-  $cid_cipher = _proc_get_cipher((int) $cid)[0];
+  $cid_cipher = _proc_get_cipher((int) $cid);
 
   _proc_lib_load();
 
   // Get current user encrypted privkey.
-  //$privkey = _proc_get_keys($user->uid)[0]->encrypted_private_key;
   $privkey = _proc_get_keys($user->uid)['encrypted_private_key'];
-  //dpm($privkey);
-  // $privkey = _proc_get_keys($user->uid)[0]->encrypted_private_key;
-  // dpm($privkey);
 
   $form['#attached']['js'] = array(
     drupal_get_path('module', 'proc') . '/js/proc.decrypt_protected_to_file.js' => array(
@@ -36,9 +32,10 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
         'proc_mail' => $user->mail,
         'proc_name' => $user->name,
         'proc_privkey' => $privkey,
-        'proc_cipher' => $cid_cipher->cipher_text,
-        'proc_source_file_name' => $cid_cipher->source_file_name,
-        'proc_source_file_size' => $cid_cipher->source_file_size,
+        'proc_cipher' => $cid_cipher['cipher_text'],
+        'proc_source_file_name' => $cid_cipher['source_file_name'],
+        'proc_source_file_size' => $cid_cipher['source_file_size'],
+
       ),
     ),
     'type' => 'setting',

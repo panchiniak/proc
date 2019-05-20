@@ -123,18 +123,6 @@ function _proc_get_keys($user_id) {
   $result = array();
   $result['encrypted_private_key'] = $keyring['encrypted_private_key'];
   $result['public_key'] = $keyring['public_key'];
-  
-  //dpm($result);
-
-  // $result = db_select('proc_keys', 'er')
-  //   ->fields('er', ['encrypted_private_key', 'uid', 'kid', 'public_key'])
-  //   ->condition('uid', $user_id, '=')
-  //   ->orderBy('kid', 'DESC')
-  //   ->execute()
-  //   ->fetchAll();
-
-    // dpm('final $result in helper ');
-    // dpm($result);
 
   return $result;
 }
@@ -145,50 +133,26 @@ function _proc_get_keys($user_id) {
 function _proc_get_cipher($cid) {
   global $user;
 
-  dpm('$cid');
-  dpm($cid);
+  $proc_wrapper = entity_metadata_wrapper('proc', $cid);
+  $is_recipient = FALSE;
+  // Check if cid matches a cipher text
+  foreach ($proc_wrapper->proc_recipient->value() as $cipher_recipient){
+    if ($cipher_recipient->uid == $user->uid){
+      $is_recipient = TRUE;
+    }
+  }
+  if (!$is_recipient){
+    // Return empty if current user does not belong to recipients list.
+    return;
+  }
 
+  $cipher_text_data = array();
+  $cipher_text_data['cipher_text'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
+  $cipher_text_data['source_file_name'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']);
+  $cipher_text_data['source_file_size'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);  
 
-  $query = new EntityFieldQuery();
-  $query
-    ->entityCondition('entity_type', 'proc')
-    ->entityCondition('bundle', 'proc_ciphertxt')
-    ->propertyCondition('pid', $cid)
-    ->range(0,1);
-  $result = $query->execute();
-    
+  return $cipher_text_data;
 
-  $result = entity_load('proc', array_keys($result['proc']));
-
-  // $cipher_text = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
-  // $cipher_text = array();
-  // $cipher_text['encrypted_private_key'] = $keyring['encrypted_private_key'];
-  //$result['public_key'] = $keyring['public_key'];
-
-
-  dpm('$result before');
-  dpm($result);
-
-
-  $result = db_select('proc_cipher_texts', 'ci')
-    ->fields('ci', [
-      'cid',
-      'recipient_uid',
-      'cipher_text',
-      'source_file_name',
-      'source_file_size',
-      'recipients_uids',
-    ])
-    ->condition('recipients_uids', '%"' . db_like($user->uid) . '"%', 'LIKE')
-    ->condition('cid', $cid, '=')
-    ->range(0, 1)
-    ->execute()
-    ->fetchAll();
-
-  dpm('$result after');
-  dpm($result);
-
-  return $result;
 }
 
 /**
@@ -309,18 +273,5 @@ function proc_entity_property_info() {
     'setter callback' => 'entity_property_verbatim_set',
   );
 
-  // $properties['title'] = array(
-  //   'type' => 'text',
-  //   'schema field' => 'title',
-  //   'required' => TRUE,
-  //   'label' => t('Proc Armored entity title'),
-  //   'setter callback' => 'entity_property_verbatim_set',
-  // );
-  // $properties['description'] = array(
-  //   'type' => 'text',
-  //   'schema field' => 'description',
-  //   'label' => t('Proc Armored entity description'),
-  //   'setter callback' => 'entity_property_verbatim_set',
-  // );
   return $info;
 }
