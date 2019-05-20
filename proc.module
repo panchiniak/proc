@@ -204,7 +204,7 @@ function proc_libraries_info() {
 function proc_entity_info() {
   $info = array(
     'proc' => array(
-      'label' => t('Armored Proc'),
+      'label' => t('Protected Content'),
       'base table' => 'proc',
       'entity keys' => array(
         'id' => 'pid',
@@ -219,17 +219,19 @@ function proc_entity_info() {
       // Describe bundles of this entity.
       'bundles' => array(
         'proc_keyring' => array(
-          'label' => t('Proc Keyring'),
+          'label' => t('Keyring'),
         ),
         'proc_ciphertxt' => array(
-          'label' => t('Proc Cipher Text'),
+          'label' => t('Ciphertext'),
         ),
       ),
       'entity class' => 'Entity',
+      // @TODO: move write/read loginc into a custom entity controller
       'controller class' => 'EntityAPIController',
       'metadata controller class' => '',
       // Is it possible to attach fields to bundles.
       'fieldable' => TRUE,
+      'views controller class' => 'EntityDefaultViewsController',
     ),
   );
   return $info;
