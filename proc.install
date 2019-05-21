@@ -5,6 +5,8 @@
  * Set up a structure for storing pgp keys and cipher texts.
  */
 
+include_once 'inc/proc.functions.inc';
+
 /**
  * Implements hook_schema().
  */
@@ -31,7 +33,7 @@ function proc_schema() {
         'description' => 'Entity instance type.',
         'type' => 'text',
         'size' => 'medium',
-      ),      
+      ),
       'created' => array(
         'description' => 'The Unix timestamp when the armored was created.',
         'type' => 'int',
@@ -42,141 +44,6 @@ function proc_schema() {
     'primary key' => array('pid'),
   );
 
-
-  // @TODO: create custom entity to manage keys
-  $schema['proc_keys'] = array(
-    'description' => 'Stores public as-is and encrypted private keys and metadata on a per user/keys generated basis',
-    'fields' => array(
-      'kid' => array(
-        'description' => 'Serial Key ID.',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-      ),
-      'uid' => array(
-        'description' => 'User id from the users table.',
-        'type' => 'int',
-        'size' => 'medium',
-        'unsigned' => TRUE,
-      ),
-      'created' => array(
-        'description' => 'Timestamp for when keys were recorded.',
-        'type' => 'int',
-        'size' => 'normal',
-        'unsigned' => TRUE,
-      ),
-      'public_key' => array(
-        'description' => 'PGP public key.',
-        'type' => 'text',
-        'size' => 'medium',
-      ),
-      'encrypted_private_key' => array(
-        'description' => 'Encrypted PGP private key.',
-        'type' => 'text',
-        'size' => 'medium',
-      ),
-      'generation_timestamp' => array(
-        'description' => 'Linux epoche timestamp when keys were recorded.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'generation_timespan' => array(
-        'description' => 'Timespan of keys generation in seconds.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'browser_fingerprint' => array(
-        'description' => 'Browser information.',
-        'type' => 'text',
-        'size' => 'medium',
-      ),
-    ),
-    'primary key' => array('kid'),
-  );
-  // @TODO: create custom entity to manage cipher texts
-  $schema['proc_cipher_texts'] = array(
-    'description' => 'Stores cipher texts',
-    'fields' => array(
-      'cid' => array(
-        'description' => 'Serial Cipher ID.',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-      ),
-      'sender_uid' => array(
-        'description' => 'User id of sender from the users table.',
-        'type' => 'int',
-        'size' => 'medium',
-        'unsigned' => TRUE,
-      ),
-      'recipient_uid' => array(
-        'description' => 'User id of recipient from the users table.',
-        'type' => 'int',
-        'size' => 'medium',
-        'unsigned' => TRUE,
-      ),
-      'recipients_uids' => array(
-        'description' => 'Serialized user IDs of recipients from the users table.',
-        'type' => 'text',
-        'not null' => TRUE,
-        'serialize' => TRUE,
-      ),
-      'created' => array(
-        'description' => 'Timestamp when cipher text was recorded.',
-        'type' => 'int',
-        'size' => 'normal',
-        'unsigned' => TRUE,
-      ),
-      'cipher_text' => array(
-        'description' => 'Cipher text.',
-        'type' => 'text',
-        'size' => 'big',
-      ),
-      'cipher_generation_timestamp' => array(
-        'description' => 'Linux epoche timestamp when cipher text was recorded.',
-        'type' => 'numeric',
-        'unsigned' => TRUE,
-        'precision' => 15,
-        'scale' => 3,
-      ),
-      'cipher_generation_timespan' => array(
-        'description' => 'Timespan of cipher text generation in seconds.',
-        'type' => 'numeric',
-        'unsigned' => TRUE,
-        'precision' => 18,
-        'scale' => 16,
-      ),
-      'cipher_browser_fingerprint' => array(
-        'description' => 'Browser information.',
-        'type' => 'text',
-        'size' => 'medium',
-      ),
-      'source_file_name' => array(
-        'description' => 'Name of file source.',
-        'type' => 'text',
-        'size' => 'small',
-      ),
-      'source_file_size' => array(
-        'description' => 'Size of file source in bytes.',
-        'type' => 'text',
-        'size' => 'small',
-      ),
-      'source_file_type' => array(
-        'description' => 'Type of file source.',
-        'type' => 'text',
-        'size' => 'small',
-      ),
-      'source_file_last_change' => array(
-        'description' => 'Time stamp of last change made on source file.',
-        'type' => 'numeric',
-        'unsigned' => TRUE,
-        'precision' => 15,
-        'scale' => 3,
-      ),
-    ),
-    'primary key' => array('cid'),
-  );
-
   return $schema;
 }
 
@@ -185,45 +52,14 @@ function proc_schema() {
  */
 function proc_modules_enabled($modules) {
   if (in_array('proc', $modules)) {
-    // Create a text field to store serialized data.
-    if (!field_read_field('proc_armored')) {
-      $field = array(
+
+    $fields = array(
+      'proc_armored' => array(
         'field_name' => 'proc_armored',
         'type' => 'text_long',
         'size' => 'big',
-      );
-      field_create_field($field);
-    }
-
-    // @TODO: create helper function to avoid code repetition
-    // Attach created field to proper bundles.
-    if (!field_read_instance('proc', 'proc_armored', 'proc_keyring')) {
-      field_attach_create_bundle('proc', 'proc_keyring');
-      $instance = array(
-        'field_name' => 'proc_armored',
-        'label' => t('Serialized data of proc_keyring bundle'),
-        'entity_type' => 'proc',
-        'bundle' => 'proc_keyring',
-      );
-      field_create_instance($instance);
-    }
-
-    // @TODO: create helper function to avoid code repetition
-    // Attach created field to proper bundles.
-    if (!field_read_instance('proc', 'proc_armored', 'proc_ciphertxt')) {
-      field_attach_create_bundle('proc', 'proc_ciphertxt');
-      $instance = array(
-        'field_name' => 'proc_armored',
-        'label' => t('Serialized data of proc_ciphertxt bundle'),
-        'entity_type' => 'proc',
-        'bundle' => 'proc_ciphertxt',
-      );
-      field_create_instance($instance);
-    }
-
-    // Create an entityreference field to link recipient users in ciphertxts.
-    if (!field_read_field('proc_recipient')) {
-      $field = array(
+      ),
+      'proc_recipient' => array(
         'field_name' => 'proc_recipient',
         'type' => 'entityreference',
         'cardinality' => FIELD_CARDINALITY_UNLIMITED,
@@ -231,22 +67,31 @@ function proc_modules_enabled($modules) {
           'target_type' => 'user',
           'target_bundles' => array('user'),
         ),
-      );
-      field_create_field($field);
-    }
+      ),
+    );
+    _proc_field_create_fields($fields);
 
-    if (!field_read_instance('proc', 'proc_recipient', 'proc_ciphertxt')) {
-      $instance = array(
+    $instances = array(
+      'armored_keyring' => array(
+        'field_name' => 'proc_armored',
+        'label' => t('Serialized data of proc_keyring bundle'),
+        'entity_type' => 'proc',
+        'bundle' => 'proc_keyring',
+      ),
+      'armored_ciphertext' => array(
+        'field_name' => 'proc_armored',
+        'label' => t('Serialized data of proc_ciphertxt bundle'),
+        'entity_type' => 'proc',
+        'bundle' => 'proc_ciphertxt',
+      ),
+      'recipient_ciphertxt' => array(
         'field_name' => 'proc_recipient',
         'entity_type' => 'proc',
         'bundle' => 'proc_ciphertxt',
-        'label' => 'Recipient of ciphertext user reference',
-        // 'widget' => array(
-        //   'type' => 'options_select',
-        // ),
-      );
-      field_create_instance($instance);
-    }
+        'label' => t('Ciphertext recipient user reference'),
+      ),
+    );
+    _proc_field_create_instances($instances);
   }
 }
 

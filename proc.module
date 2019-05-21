@@ -5,6 +5,8 @@
  * Provide pgp encryption for files.
  */
 
+include_once 'inc/proc.functions.inc';
+
 /**
  * Implements hook_permission().
  */
@@ -68,23 +70,6 @@ function proc_menu() {
 }
 
 /**
- * Helper to load the cryptoigraphic library settings from info file.
- */
-function _proc_get_cryptolib_settings() {
-  $crypto_lib_settings = array();
-
-  $path = drupal_get_path('module', 'proc') . '/proc.info';
-  $info = drupal_parse_info_file($path);
-  $crypto_lib_settings['versionstring'] = $info['crypto_library_versionstring'];
-  $crypto_lib_settings['url'] = $info['crypto_library_url'];
-  $crypto_lib_settings['folder'] = $info['crypto_library_folder'];
-  $crypto_lib_settings['vendor'] = $info['crypto_library_vendor'];
-  $crypto_lib_settings['file'] = $info['crypto_library_file'];
-
-  return $crypto_lib_settings;
-}
-
-/**
  * Implements hook_views_api().
  */
 function proc_views_api() {
@@ -92,84 +77,6 @@ function proc_views_api() {
     'api' => '3.0',
     'path' => drupal_get_path('module', 'proc') . '/inc',
   );
-}
-
-/**
- * Helper to load the library.
- */
-function _proc_lib_load() {
-  if (function_exists('libraries_load')) {
-    $lib = libraries_load(_proc_get_cryptolib_settings()['folder']);
-  }
-  return $lib;
-}
-
-/**
- * Helper function to get proc_keys data.
- */
-function _proc_get_keys($user_id) {
-
-  $query = new EntityFieldQuery();
-  $query
-    ->entityCondition('entity_type', 'proc')
-    ->entityCondition('bundle', 'proc_keyring')
-    ->propertyCondition('uid', $user_id)
-    ->propertyOrderBy('pid', 'DESC')
-    ->range(0,1);
-  $result = $query->execute();
-
-  $keyring = entity_load('proc', array_keys($result['proc']));
-  $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
-  $result = array();
-  $result['encrypted_private_key'] = $keyring['encrypted_private_key'];
-  $result['public_key'] = $keyring['public_key'];
-
-  return $result;
-}
-
-/**
- * Helper function to get given cipher text that belongs to current user.
- */
-function _proc_get_cipher($cid) {
-  global $user;
-
-  $proc_wrapper = entity_metadata_wrapper('proc', $cid);
-  $is_recipient = FALSE;
-  // Check if cid matches a cipher text
-  foreach ($proc_wrapper->proc_recipient->value() as $cipher_recipient){
-    if ($cipher_recipient->uid == $user->uid){
-      $is_recipient = TRUE;
-    }
-  }
-  if (!$is_recipient){
-    // Return empty if current user does not belong to recipients list.
-    return;
-  }
-
-  $cipher_text_data = array();
-  $cipher_text_data['cipher_text'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
-  $cipher_text_data['source_file_name'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']);
-  $cipher_text_data['source_file_size'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);  
-
-  return $cipher_text_data;
-
-}
-
-/**
- * Helper function to check if current user is recipient of cipher text.
- */
-function _proc_recipient($cid) {
-  global $user;
-
-  if (isset($cid) && is_numeric($cid)) {
-    $cid = (int) $cid;
-    $cipher = _proc_get_cipher($cid);
-    // @TODO: add 'bypass cipher access control' restricted permission
-    if (!empty($cipher) or ($user->uid == 1)) {
-      return TRUE;
-    }
-  }
-  return FALSE;
 }
 
 /**
@@ -239,8 +146,8 @@ function proc_entity_info() {
 
 /**
  * Implements hook_entity_property_info().
- * 
- * It is not necessary to describe metadata for fields created with 
+ *
+ * It is not necessary to describe metadata for fields created with
  * field_create_instance function. Metadata for these fields is
  * created automatically.
  */

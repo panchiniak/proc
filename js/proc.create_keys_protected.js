@@ -2,6 +2,7 @@
  * @file
  * Public and private keys generation, symmetric encryption and storage.
  */
+
 (function($) {
   'use strict';
   Drupal.behaviors.proc = {

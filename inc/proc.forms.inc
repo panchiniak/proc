@@ -59,18 +59,6 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
 }
 
 /**
- * Helper function for retrieval of pubkeys.
- */
-function _proc_get_pubkeys($users) {
-  $pubkeys = array();
-  foreach ($users as $recipient) {
-    //$pubkeys[] = _proc_get_keys($recipient)[0]->public_key;
-    $pubkeys[] = _proc_get_keys($recipient)['public_key'];
-  }
-  return $pubkeys;
-}
-
-/**
  * Helper function for encryption of files.
  */
 function _proc_encrypt_file($form, &$form_state, $uids) {
@@ -257,38 +245,11 @@ function _proc_generate_keys($form, &$form_state) {
 }
 
 /**
- * Helper function to check if user agent in unsuported.
- */
-function _proc_browser_supported() {
-  $path = drupal_get_path('module', 'proc') . '/proc.info';
-  $info = drupal_parse_info_file($path);
-  $unsuported_browsers_array = str_getcsv($info['yellow_flag_browsers_csv']);
-
-  foreach ($unsuported_browsers_array as $unsuported_browser) {
-    if (strpos($_SERVER['HTTP_USER_AGENT'], $unsuported_browser) !== FALSE) {
-      return FALSE;
-    }
-  }
-  return TRUE;
-}
-
-/**
  * Submit function for public key submission.
  */
 function _proc_generate_keys_submit($form, &$form_state) {
   global $user;
   // Prepare the form values for submission.
-  $record = new stdClass();
-  $record->uid = $user->uid;
-
-  $record->public_key = $form_state['values']['public_key'];
-  $record->encrypted_private_key = $form_state['values']['encrypted_private_key'];
-  $record->generation_timestamp = $form_state['values']['generation_timestamp'];
-  $record->generation_timespan = $form_state['values']['generation_timespan'];
-  $record->browser_fingerprint = $form_state['values']['browser_fingerprint'];  
-  $record->created = time();
-  $record_result = 0;
-
   $keyring_data = array(
     'public_key' => check_plain($form_state['values']['public_key']),
     'encrypted_private_key' => check_plain($form_state['values']['encrypted_private_key']),
@@ -304,15 +265,16 @@ function _proc_generate_keys_submit($form, &$form_state) {
   $wrapper->created = time();
   $wrapper->save();
 
-  if (!empty($record->public_key) && ($record->public_key != 'undefined')) {
-    $record_result = drupal_write_record('proc_keys', $record);
-  }
-
-  if ($record_result == 1) {
+  // Just soppose not being 'undefined' is enough to say a pubkey has been
+  // generated.
+  // @TODO: improve heuristics of server side pubkey validation.
+  if ((isset($entity->pid)) && (!empty($keyring_data['public_key'])) && ($keyring_data['public_key'] != 'undefined')) {
+    // @TODO: add keyring generation success hook
     drupal_set_message(t('Encryption keys generated successfully.'));
     drupal_set_message(t("Your password can't be recovered. You must remember it. If you create new keys all previously Protected Content sent to you will be forever lost (and there is nothing we can do about that)."), 'info');
   }
   else {
+    // @TODO: add keyring generation failure hook
     if (!_proc_browser_supported()) {
       drupal_set_message(t('Key generation error. It looks like you are using some unsupported browser. Please try again using another one.'), 'error');
     }
@@ -321,7 +283,6 @@ function _proc_generate_keys_submit($form, &$form_state) {
     }
     watchdog('proc', 'Error on key generation/storage. User agent: %user-agent', array('%user-agent' => $_SERVER['HTTP_USER_AGENT']), WATCHDOG_ERROR);
   }
-
   cache_clear_all(NULL, 'cache_form', TRUE);
 }
 
@@ -332,36 +293,18 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   global $user;
   global $base_url;
 
-  // @TODO: add support for multiple recipients
-  $recipient_uid = check_plain($form_state['build_info']['args'][0]);
-
   $recipients_uids = array();
   $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);
   $recipients_uids_new = str_getcsv($form_state['build_info']['args'][0]);
+  // Sorting UIDs just because sorting is beautiful.
   asort($recipients_uids_new);
   $recipients_uids_new = array_values($recipients_uids_new);
 
   // At this moment UIDs have been alredy checked.
-  // @TODO: consider to drupal_check_token to assure form data integrity.
+  // @TODO: consider using drupal_check_token to assure form data integrity.
   $recipients_uids = serialize($recipients_uids);
 
   // Prepare the form values for submission.
-  $record = new stdClass();
-  $record->sender_uid = $user->uid;
-  $record->recipient_uid = $recipient_uid;
-
-  $record->recipients_uids = $recipients_uids;
-
-  $record->created = time();
-  $record->cipher_text = $form_state['values']['cipher_text'];
-  $record->cipher_generation_timestamp = $form_state['values']['generation_timestamp'];
-  $record->cipher_generation_timespan = $form_state['values']['generation_timespan'];
-  $record->cipher_browser_fingerprint = $form_state['values']['browser_fingerprint'];
-  $record->source_file_name = $form_state['values']['source_file_name'];
-  $record->source_file_size = $form_state['values']['source_file_size'];
-  $record->source_file_type = $form_state['values']['source_file_type'];
-  // @TODO: adjust database schema to comply with source_file_last_change format.
-
   $ciphertxt_data = array(
     'cipher_text' => check_plain($form_state['values']['cipher_text']),
     'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
@@ -372,8 +315,8 @@ function _proc_encrypt_file_submit($form, &$form_state) {
     'source_file_type' => check_plain($form_state['values']['source_file_type']),
   );
 
-
   $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
+
   $wrapper = entity_metadata_wrapper('proc', $entity);
   $wrapper->uid = $user->uid;
   $wrapper->proc_armored = serialize($ciphertxt_data);
@@ -381,28 +324,27 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   $wrapper->created = time();
   $wrapper->save();
 
-  if (!empty($record->cipher_text)) {
-    $record_result = drupal_write_record('proc_cipher_texts', $record);
-  }
-
-  if ($record_result == 1) {
+  if (isset($entity->pid)) {
+    // @TODO: add ciphertext success hook.
     $success_encryption_message = t(
       'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
       array(
          // @TODO: replace hardcoded part of address by a CONSTANT.
-        '@exclusive-access-link' => url('protected-content/file/open/' . $record->cid),
-        '@full-exclusive-access-link' => url($base_url . '/protected-content/file/open/' . $record->cid),
+        '@exclusive-access-link' => url('protected-content/file/open/' . $entity->pid),
+        '@full-exclusive-access-link' => url($base_url . '/protected-content/file/open/' . $entity->pid),
       )
     );
     drupal_set_message($success_encryption_message);
 
     drupal_set_message(t('Only the recipient chosen will be able to access this Protected Content.'), 'info');
-    // @TODO: add here a protectected file post creation hook to allow other module to send notifications
-    // make visible the recipient and sender users in the hook.
+    // @TODO: add here a protectected file post creation hook to allow other
+    // module to send notifications make visible the recipient and sender users
+    // in the hook.
   }
   else {
-    drupal_set_message(t('Sorry. Cipher text of your file has not been saved. Close other tabs in your browser to release some memory and try again.'), 'error');
+    // @TODO: add ciphertext failure hook
     // @TODO: add watchdog on cipher generation errors.
+    drupal_set_message(t('Sorry. Cipher text of your file has not been saved. Close other tabs in your browser to release some memory and try again.'), 'error');
   }
   cache_clear_all(NULL, 'cache_form', TRUE);
 }
