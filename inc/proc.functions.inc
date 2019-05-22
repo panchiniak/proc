@@ -27,7 +27,7 @@ function _proc_browser_supported() {
  * Helper function for retrieval of pubkeys.
  *
  * @param array $users
- *   UIDs
+ *   UIDs.
  *
  * @return array $pubkeys
  *   Array containing pubkeys.
@@ -44,7 +44,7 @@ function _proc_get_pubkeys($users) {
  * Helper function to create fields.
  *
  * @param array $fields
- *   Fields definitions
+ *   Fields definitions.
  */
 function _proc_field_create_fields($fields) {
   foreach ($fields as $field) {
@@ -58,7 +58,7 @@ function _proc_field_create_fields($fields) {
  * Helper function to create field instances.
  *
  * @param array $instances
- *   Intances definitions
+ *   Intances definitions.
  */
 function _proc_field_create_instances($instances) {
   foreach ($instances as $instance) {
@@ -106,7 +106,7 @@ function _proc_lib_load() {
  * Helper function to get keyring data.
  *
  * @param string $user_id
- *   User ID
+ *   User ID.
  *
  * @return array $keyring_keys
  *   Array containing pubkey and encrypted privkey.
@@ -133,9 +133,9 @@ function _proc_get_keys($user_id) {
 
 /**
  * Helper function to get given ciphertext that belongs to current user.
- * 
+ *
  * @param string $cid
- *   Ciphertext ID (proc entity)
+ *   Ciphertext ID (proc entity).
  *
  * @return array $cipher_text_data
  *   Array containing ciphertext data.
@@ -146,7 +146,7 @@ function _proc_get_cipher($cid) {
   $proc_wrapper = entity_metadata_wrapper('proc', $cid);
   $is_recipient = FALSE;
   // Check if cid matches a cipher text.
-  if (isset($proc_wrapper->proc_recipient)){
+  if (isset($proc_wrapper->proc_recipient)) {
     foreach ($proc_wrapper->proc_recipient->value() as $cipher_recipient) {
       if ($cipher_recipient->uid == $user->uid) {
         $is_recipient = TRUE;
@@ -172,7 +172,7 @@ function _proc_get_cipher($cid) {
  * Helper function to check if current user is recipient of cipher text.
  *
  * @param string $cid
- *   Ciphertext ID (proc entity)
+ *   Ciphertext ID (proc entity).
  *
  * @return bool
  *   A boolean indicating whether current user is recipient of the ciphertext.
