@@ -146,9 +146,12 @@ function _proc_get_cipher($cid) {
   $proc_wrapper = entity_metadata_wrapper('proc', $cid);
   $is_recipient = FALSE;
   // Check if cid matches a cipher text.
-  foreach ($proc_wrapper->proc_recipient->value() as $cipher_recipient) {
-    if ($cipher_recipient->uid == $user->uid) {
-      $is_recipient = TRUE;
+  if (isset($proc_wrapper->proc_recipient)){
+    foreach ($proc_wrapper->proc_recipient->value() as $cipher_recipient) {
+      if ($cipher_recipient->uid == $user->uid) {
+        $is_recipient = TRUE;
+        break;
+      }
     }
   }
   if (!$is_recipient) {
