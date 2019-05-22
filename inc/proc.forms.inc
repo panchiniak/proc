@@ -330,8 +330,8 @@ function _proc_encrypt_file_submit($form, &$form_state) {
       'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
       array(
          // @TODO: replace hardcoded part of address by a CONSTANT.
-        '@exclusive-access-link' => url('protected-content/file/open/' . $entity->pid),
-        '@full-exclusive-access-link' => url($base_url . '/protected-content/file/open/' . $entity->pid),
+        '@exclusive-access-link' => url('proc/' . $entity->pid),
+        '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
       )
     );
     drupal_set_message($success_encryption_message);

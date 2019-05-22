@@ -38,8 +38,7 @@ function proc_help($path) {
  */
 function proc_menu() {
 
-  // @TODO: replace by 'proc/keyring/add'
-  $items['protected-content/key-pair/new'] = array(
+  $items['proc/keyring/add'] = array(
     'title' => 'Add Protected Content Key',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_generate_keys'),
@@ -47,22 +46,20 @@ function proc_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   );
-  // @TODO: replace by 'proc/<uid/s>/add'
-  $items['protected-content/file/new/%'] = array(
+  $items['proc/%/add'] = array(
     'title' => 'Add file',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_encrypt_file', 3),
+    'page arguments' => array('_proc_encrypt_file', 1),
     'access arguments' => array('new protected file'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   );
-  // @TODO: replace by 'proc/<cid>' (view is default operation)
-  $items['protected-content/file/open/%'] = array(
+  $items['proc/%'] = array(
     'title' => 'View Protected Content',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_decrypt_to_file', 3),
+    'page arguments' => array('_proc_decrypt_to_file', 1),
     'access callback' => '_proc_recipient',
-    'access arguments' => array(3),
+    'access arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   );
