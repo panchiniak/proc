@@ -85,11 +85,6 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   $post_max_size_bytes = $post_max_size * 1000000;
 
   $disable_upload = FALSE;
-  if (!isset($uids)) {
-    drupal_set_message(t("You must chose an enabled recipient by filling in the URL the recipient user's identification. Recipient must have had registered a Protected Content Key."), 'error');
-    // @TODO: allow drupal_goto user back to recipient's list if any.
-    $disable_upload = TRUE;
-  }
   // @TODO: add error handling to _proc_lib_load()
   _proc_lib_load();
 
