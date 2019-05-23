@@ -74,6 +74,15 @@ function proc_modules_enabled($modules) {
           'target_bundles' => array('user'),
         ),
       ),
+      'proc_keyowner' => array(
+        'field_name' => 'proc_keyowner',
+        'type' => 'entityreference',
+        'cardinality' => 1,
+        'settings' => array(
+          'target_type' => 'user',
+          'target_bundles' => array('user'),
+        ),
+      ),
     );
     _proc_field_create_fields($fields);
 
@@ -81,6 +90,12 @@ function proc_modules_enabled($modules) {
       'armored_keyring' => array(
         'field_name' => 'proc_armored',
         'label' => t('Serialized data of proc_keyring bundle'),
+        'entity_type' => 'proc',
+        'bundle' => 'proc_keyring',
+      ),
+      'keyowner_keyring' => array(
+        'field_name' => 'proc_keyowner',
+        'label' => t('Owner of protected content keyring'),
         'entity_type' => 'proc',
         'bundle' => 'proc_keyring',
       ),
@@ -108,5 +123,6 @@ function proc_uninstall() {
   // Delete previousely created field.
   field_delete_field('proc_armored');
   field_delete_field('proc_recipient');
+  field_delete_field('proc_keyowner');
   field_purge_batch(0);
 }

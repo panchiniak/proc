@@ -123,13 +123,16 @@ function _proc_get_keys($user_id) {
       ->range(0, 1);
   $result = $query->execute();
 
-  $keyring = entity_load('proc', array_keys($result['proc']));
-  $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
-  $keyring_keys = array();
-  $keyring_keys['encrypted_private_key'] = $keyring['encrypted_private_key'];
-  $keyring_keys['public_key'] = $keyring['public_key'];
+  if (isset($result['proc'])){
+    $keyring = entity_load('proc', array_keys($result['proc']));
+    $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
+    $keyring_keys = array();
+    $keyring_keys['encrypted_private_key'] = $keyring['encrypted_private_key'];
+    $keyring_keys['public_key'] = $keyring['public_key'];
+    return $keyring_keys;
+  }
 
-  return $keyring_keys;
+  return;
 }
 
 /**

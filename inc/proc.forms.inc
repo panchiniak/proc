@@ -249,6 +249,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
   $entity = entity_create('proc', array('type' => 'proc_keyring'));
   $wrapper = entity_metadata_wrapper('proc', $entity);
   $wrapper->uid = $user->uid;
+  $wrapper->proc_keyowner->set($user->uid);
   $wrapper->proc_armored = serialize($keyring_data);
   $wrapper->created = time();
   $wrapper->save();
