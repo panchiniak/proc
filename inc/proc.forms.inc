@@ -80,19 +80,17 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
 
   $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));
 
+  // If some UID does not return keys:
+  if (empty($recipients_pubkeys) || (count($uids) != count($recipients_pubkeys))) {
+    drupal_not_found();
+  }
+
   // Get post_max_size to set dynamically maximum file size.
   $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
   $post_max_size_bytes = $post_max_size * 1000000;
 
-  $disable_upload = FALSE;
   // @TODO: add error handling to _proc_lib_load()
   _proc_lib_load();
-
-  if (empty($recipients_pubkeys)) {
-    drupal_set_message(t('Sorry. A slected recipient is not registered to receive Protected Content.'), 'error');
-    // @TODO: also here allow drupal_goto user back to recipient's list if any.
-    $disable_upload = TRUE;
-  }
 
   $form['#attached']['js'] = array(
     drupal_get_path('module', 'proc') . '/js/proc.encrypt_file.js' => array(
@@ -117,7 +115,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   $form['upload'] = array(
     '#name' => 'files[]',
     '#type' => 'file',
-    '#disabled' => $disable_upload,
+    '#disabled' => FALSE,
   );
 
   $form['pc-upload-description'] = array(
