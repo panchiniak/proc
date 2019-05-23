@@ -178,15 +178,10 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
 function _proc_generate_keys($form, &$form_state) {
   global $user;
 
+  // If form has not just being submited.
   if (empty($form_state['values'])) {
-    $has_key = db_select('proc_keys', 'k')
-      ->fields('k')
-      ->fields('k', array("uid"))
-      ->condition('uid', $user->uid, '=')
-      ->execute()
-      ->fetchAssoc();
-    // If user has keys.
-    if (!empty($has_key)) {
+    // If current has not yet registered a keyring.
+    if (!empty(_proc_get_pubkeys(array($user->uid))[0])) {
       drupal_set_message(t("You have already registered Protected Content keys and you don't need to register new ones unless you have lost your Protected Content password."), 'warning', FALSE);
       drupal_set_message(t('Warning: if you register a new password you will lose access to all encrypted data within this site previously sent to you.'), 'warning', FALSE);
     }
