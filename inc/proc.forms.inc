@@ -251,8 +251,9 @@ function _proc_generate_keys_submit($form, &$form_state) {
 
   $entity = entity_create('proc', array('type' => 'proc_keyring'));
   $wrapper = entity_metadata_wrapper('proc', $entity);
+  // @TODO: deprecate property uid in favor of proc_armoredown field.
   $wrapper->uid = $user->uid;
-  $wrapper->proc_keyowner->set($user->uid);
+  $wrapper->proc_armoredown->set($user->uid);
   $wrapper->proc_armored = serialize($keyring_data);
   $wrapper->created = time();
   $wrapper->save();
@@ -311,7 +312,9 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
 
   $wrapper = entity_metadata_wrapper('proc', $entity);
+  // @TODO: deprecate property uid in favor of proc_armoredown field.
   $wrapper->uid = $user->uid;
+  $wrapper->proc_armoredown->set($user->uid);
   $wrapper->proc_armored = serialize($ciphertxt_data);
   $wrapper->proc_recipient->set($recipients_uids_new);
   $wrapper->language($language->language);
