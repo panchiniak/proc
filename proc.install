@@ -33,7 +33,7 @@ function proc_schema() {
         'description' => 'Boolean indicating whether the proc is published (visible to non-administrators).',
         'type' => 'int',
         'not null' => TRUE,
-        'default' => 0,
+        'default' => 1,
       ),
       'type' => array(
         'description' => 'Entity instance type.',
