@@ -95,11 +95,17 @@ function proc_modules_enabled($modules) {
         'entity_type' => 'proc',
         'bundle' => 'proc_keyring',
       ),
-      'keyowner_keyring' => array(
+      'armoredowner_keyring' => array(
         'field_name' => 'proc_armoredown',
         'label' => t('Owner of protected content keyring'),
         'entity_type' => 'proc',
         'bundle' => 'proc_keyring',
+      ),
+      'armoredowner_ciphertext' => array(
+        'field_name' => 'proc_armoredown',
+        'label' => t('Owner of protected content cipher text'),
+        'entity_type' => 'proc',
+        'bundle' => 'proc_ciphertxt',
       ),
       'armored_ciphertext' => array(
         'field_name' => 'proc_armored',
