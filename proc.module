@@ -171,6 +171,7 @@ function proc_entity_property_info() {
     'label' => t('Proc Armored author'),
     'setter callback' => 'entity_property_verbatim_set',
   );
+  // @TODO: add status property.
   $properties['created'] = array(
     'type' => 'integer',
     'schema field' => 'created',
