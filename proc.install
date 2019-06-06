@@ -111,6 +111,12 @@ function proc_modules_enabled($modules) {
         'bundle' => 'proc_ciphertxt',
         'label' => t('Ciphertext recipient user reference'),
       ),
+      'ciphertxt_title' => array(
+        'field_name' => 'title_field',
+        'entity_type' => 'proc',
+        'bundle' => 'proc_ciphertxt',
+        'label' => t('Ciphertext title'),
+      ),
     );
     _proc_field_create_instances($instances);
   }

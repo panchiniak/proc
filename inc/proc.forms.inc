@@ -64,6 +64,9 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
 function _proc_encrypt_file($form, &$form_state, $uids) {
   global $user;
 
+  // @TODO: allow other modules to alter selected recipients based on required
+  // criteria
+
   if (isset($uids)) {
     $uids = check_plain($uids);
     $csv_values = str_getcsv($uids);
@@ -281,6 +284,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
 function _proc_encrypt_file_submit($form, &$form_state) {
   global $user;
   global $base_url;
+  global $language;
 
   $recipients_uids = array();
   $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);
@@ -310,6 +314,8 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   $wrapper->uid = $user->uid;
   $wrapper->proc_armored = serialize($ciphertxt_data);
   $wrapper->proc_recipient->set($recipients_uids_new);
+  $wrapper->language($language->language);
+  $wrapper->title_field = $ciphertxt_data['source_file_name'];
   $wrapper->created = time();
   $wrapper->save();
 
