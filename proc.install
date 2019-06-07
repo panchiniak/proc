@@ -29,6 +29,11 @@ function proc_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'title' => array(
+        'description' => 'The title of this protectec content.',
+        'type' => 'text',
+        'size' => 'small',
+      ),
       'status' => array(
         'description' => 'Boolean indicating whether the proc is published (visible to non-administrators).',
         'type' => 'int',
@@ -118,12 +123,6 @@ function proc_modules_enabled($modules) {
         'entity_type' => 'proc',
         'bundle' => 'proc_ciphertxt',
         'label' => t('Ciphertext recipient user reference'),
-      ),
-      'ciphertxt_title' => array(
-        'field_name' => 'title_field',
-        'entity_type' => 'proc',
-        'bundle' => 'proc_ciphertxt',
-        'label' => t('Ciphertext title'),
       ),
     );
     _proc_field_create_instances($instances);

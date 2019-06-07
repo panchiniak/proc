@@ -149,6 +149,7 @@ function proc_entity_info() {
 function proc_entity_property_info() {
   $info = array();
   $properties = &$info['proc']['properties'];
+
   $properties['pid'] = array(
     'type' => 'integer',
     'schema field' => 'pid',
@@ -162,11 +163,20 @@ function proc_entity_property_info() {
     'label' => t('Proc Armored entity type (bundle)'),
     'setter callback' => 'entity_property_verbatim_set',
   );
+  // @TODO: deprecate uid property in favor of user referance field.
   $properties['uid'] = array(
     'type' => 'user',
     'schema field' => 'uid',
     'required' => TRUE,
     'label' => t('Proc Armored author'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['title'] = array(
+    'type'  => 'text',
+    'schema field' => 'title',
+    'required' => TRUE,
+    'label' => t('Protected content title'),
+    'description' => t('Friendly identifier for armored data'),
     'setter callback' => 'entity_property_verbatim_set',
   );
   $properties['status'] = array(

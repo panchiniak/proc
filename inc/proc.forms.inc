@@ -255,6 +255,9 @@ function _proc_generate_keys_submit($form, &$form_state) {
   $wrapper->uid = $user->uid;
   $wrapper->proc_armoredown->set($user->uid);
   $wrapper->proc_armored = serialize($keyring_data);
+  // @TODO: implment full cipher indentifier:
+  // client side source domain name:user email.
+  $wrapper->title = $user->mail;
   $wrapper->created = time();
   $wrapper->save();
 
@@ -300,13 +303,13 @@ function _proc_encrypt_file_submit($form, &$form_state) {
 
   // Prepare the form values for submission.
   $ciphertxt_data = array(
-    'cipher_text' => check_plain($form_state['values']['cipher_text']),
-    'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
-    'generation_timespan' => check_plain($form_state['values']['generation_timespan']),
-    'browser_fingerprint' => check_plain($form_state['values']['browser_fingerprint']),
-    'source_file_name' => check_plain($form_state['values']['source_file_name']),
     'source_file_size' => check_plain($form_state['values']['source_file_size']),
     'source_file_type' => check_plain($form_state['values']['source_file_type']),
+    'generation_timespan' => check_plain($form_state['values']['generation_timespan']),
+    'browser_fingerprint' => check_plain($form_state['values']['browser_fingerprint']),
+    'cipher_text' => check_plain($form_state['values']['cipher_text']),
+    'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
+    'source_file_name' => check_plain($form_state['values']['source_file_name']),
   );
 
   $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
@@ -318,7 +321,7 @@ function _proc_encrypt_file_submit($form, &$form_state) {
   $wrapper->proc_armored = serialize($ciphertxt_data);
   $wrapper->proc_recipient->set($recipients_uids_new);
   $wrapper->language($language->language);
-  $wrapper->title_field = $ciphertxt_data['source_file_name'];
+  $wrapper->title = $ciphertxt_data['source_file_name'];
   $wrapper->created = time();
   $wrapper->save();
 
