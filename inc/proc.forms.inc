@@ -306,8 +306,8 @@ function _proc_encrypt_file_submit($form, &$form_state) {
     'source_file_size' => check_plain($form_state['values']['source_file_size']),
     'source_file_type' => check_plain($form_state['values']['source_file_type']),
     'generation_timespan' => check_plain($form_state['values']['generation_timespan']),
-    'browser_fingerprint' => check_plain($form_state['values']['browser_fingerprint']),
     'cipher_text' => check_plain($form_state['values']['cipher_text']),
+    'browser_fingerprint' => check_plain($form_state['values']['browser_fingerprint']),
     'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
     'source_file_name' => check_plain($form_state['values']['source_file_name']),
   );
