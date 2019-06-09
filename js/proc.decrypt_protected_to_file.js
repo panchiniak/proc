@@ -13,20 +13,19 @@
               alert(Drupal.t('The File APIs are not fully supported in this browser.'));
           }
 
-            // @TODO: replace var by let whenever possible
-            var passDrupal = Drupal.settings.proc.proc_pass;
-            var privkey = Drupal.settings.proc.proc_privkey;
-            var cipherText = Drupal.settings.proc.proc_cipher;
-            var sourceFileName = Drupal.settings.proc.proc_source_file_name;
-            var sourceFileSize = Drupal.settings.proc.proc_source_file_size;
+            let passDrupal = Drupal.settings.proc.proc_pass;
+            let privkey = Drupal.settings.proc.proc_privkey;
+            let cipherText = Drupal.settings.proc.proc_cipher;
+            let sourceFileName = Drupal.settings.proc.proc_source_file_name;
+            let sourceFileSize = Drupal.settings.proc.proc_source_file_size;
 
             $('#decryption-link').on(
                 'click', async function () {
 
-                    var secretPass = $('input[name=pass]')[0].value;
+                    let secretPass = $('input[name=pass]')[0].value;
 
-                    var secretPassString = new String(secretPass);
-                    var passphrase = passDrupal.concat(secretPassString);
+                    let secretPassString = new String(secretPass);
+                    let passphrase = passDrupal.concat(secretPassString);
                     const privKeyObj = (await openpgp.key.readArmored(privkey)).keys[0];
 
                     await privKeyObj.decrypt(passphrase).catch(
