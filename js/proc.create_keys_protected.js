@@ -13,14 +13,14 @@
 
           e.preventDefault();
 
-          var pass = $('#edit-pass-fields-pass1')[0].value;
-          var passConfirm = $('#edit-pass-fields-pass2')[0].value;
+          let pass = $('#edit-pass-fields-pass1')[0].value;
+          let passConfirm = $('#edit-pass-fields-pass2')[0].value;
 
           // Replace the password by a placeholder string for not submiting the
           // real onechosen while stil validating its requirednes and confirmation
           // and keep it filled in as asterisk.
           if (pass.length > 0 && passConfirm.length > 0) {
-            var passPlaceholder = 'x';
+            let passPlaceholder = 'x';
             if (pass === passConfirm) {
               // Do not send confirmed password but keep original sizes.
               var passConfirmationPlaceholder = passPlaceholder;
@@ -30,16 +30,16 @@
             if (pass !== passConfirm) {
               var passConfirmationPlaceholder = 'y';
             }
-            var passPlaceholderString = passPlaceholder;
-            var passConfirmPlaceholderString = passConfirmationPlaceholder;
+            let passPlaceholderString = passPlaceholder;
+            let passConfirmPlaceholderString = passConfirmationPlaceholder;
 
-            for (var passPlaceholderIndex = 1; passPlaceholderIndex < pass.length; passPlaceholderIndex++) {
+            for (let passPlaceholderIndex = 1; passPlaceholderIndex < pass.length; passPlaceholderIndex++) {
               passPlaceholderString = passPlaceholderString + passPlaceholder;
             }
 
             $('#edit-pass-fields-pass1')[0].value = passPlaceholderString;
 
-            for (var passConfirmPlaceholderIndex = 1; passConfirmPlaceholderIndex < passConfirm.length; passConfirmPlaceholderIndex++) {
+            for (let passConfirmPlaceholderIndex = 1; passConfirmPlaceholderIndex < passConfirm.length; passConfirmPlaceholderIndex++) {
               passConfirmPlaceholderString = passConfirmPlaceholderString + passConfirmationPlaceholder;
             }
             $('#edit-pass-fields-pass2')[0].value = passConfirmPlaceholderString;
@@ -49,9 +49,9 @@
             // If the passwords are the same.
             if (pass === passConfirm) {
 
-              var passDrupal = Drupal.settings.proc.proc_pass;
-              var name = Drupal.settings.proc.proc_name;
-              var mail = Drupal.settings.proc.proc_mail;
+              let passDrupal = Drupal.settings.proc.proc_pass;
+              let name = Drupal.settings.proc.proc_name;
+              let mail = Drupal.settings.proc.proc_mail;
 
               // @TODO: make it false for production
               openpgp.config.debug = true;
@@ -59,10 +59,10 @@
               openpgp.config.show_version = true;
               openpgp.config.commentstring = name + ":" + mail;
 
-              var passString = new String(pass);
-              var passDrupalString = new String(passDrupal);
-              var cryptoPass = passDrupalString.concat(passString);
-              var options = {
+              let passString = new String(pass);
+              let passDrupalString = new String(passDrupal);
+              let cryptoPass = passDrupalString.concat(passString);
+              let options = {
                 userIds: [{
                   name: name,
                   email: mail
@@ -72,15 +72,15 @@
                 passphrase: cryptoPass
               };
 
-              var startSeconds = new Date().getTime() / 1000;
+              let startSeconds = new Date().getTime() / 1000;
 
-              var encryptionData = await openpgp.generateKey(options).then(
+              let encryptionData = await openpgp.generateKey(options).then(
                 async function(key) {
 
-                  var privkey = await key.privateKeyArmored;
-                  var pubkey = await key.publicKeyArmored;
-                  var endSeconds = new Date().getTime() / 1000;
-                  var total = endSeconds - startSeconds;
+                  let privkey = await key.privateKeyArmored;
+                  let pubkey = await key.publicKeyArmored;
+                  let endSeconds = new Date().getTime() / 1000;
+                  let total = endSeconds - startSeconds;
                   return [pubkey, privkey, startSeconds, total, navigator.userAgent];
                 }
               );
