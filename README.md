@@ -39,7 +39,9 @@ Current version doesn't require/allow configurations.
 FUTURE ROADMAP
 --------------
 Ship a view for listing users with their keys.
+Ship a view with exposed filters for listing encrypted data.
 Add support for text fields.
+Add support for removal and update of protected content.
 Add status access control (published/unpublished).
 
 MAINTAINERS
