@@ -161,6 +161,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
       ),
     ),
   );
+  $form['submit']["#submit"][] = '_proc_encrypt_file_submit_callback';
 
   // Sanitize form state.
   $form_state['build_info']['args'][0] = $uids_csv;
@@ -285,7 +286,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
 /**
  * Submit function for cipher text submission.
  */
-function _proc_encrypt_file_submit($form, &$form_state) {
+function _proc_encrypt_file_submit_callback($form, &$form_state) {
   global $user;
   global $base_url;
   global $language;
