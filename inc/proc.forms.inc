@@ -283,7 +283,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
 }
 
 /**
- * Submit function for public key submission.
+ * Submit function for cipher text submission.
  */
 function _proc_encrypt_file_submit($form, &$form_state) {
   global $user;
@@ -336,6 +336,9 @@ function _proc_encrypt_file_submit($form, &$form_state) {
       )
     );
     drupal_set_message($success_encryption_message);
+    $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
+    $watchdog_args = array('@type' => 'proc_ciphertxt', '%pid' => $entity->pid);
+    watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
 
     drupal_set_message(t('Only the recipient chosen will be able to access this Protected Content.'), 'info');
     // @TODO: add here a protectected file post creation hook to allow other
