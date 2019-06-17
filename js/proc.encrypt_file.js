@@ -13,11 +13,11 @@
             // Error.
             alert(Drupal.t('The File APIs are not fully supported in this browser.'));
           }
-          document.getElementById('edit-submit').disabled = "TRUE";
+          document.getElementById('edit-button').disabled = "TRUE";
 
           function handleFileSelect(evt) {
 
-            document.getElementById('edit-submit').value = Drupal.t('Processing...');
+            document.getElementById('edit-button').value = Drupal.t('Processing...');
 
             let files = evt.target.files;
 
@@ -34,7 +34,7 @@
 
             if (fileSize > dynamicMaximumSize) {
                 $("form#-proc-encrypt-file").prepend('<div class="messages error">' + Drupal.t('Sorry. Dynamic maximum file size exceed. Please add a file smaller than ') + dynamicMaximumSize + Drupal.t(' bytes') + '</div>');
-                document.getElementById('edit-submit').value = Drupal.t('Save');
+                document.getElementById('edit-button').value = Drupal.t('Save');
                 return;
             }
 
@@ -99,8 +99,8 @@
                 $('input[name=generation_timestamp]')[0].value = startSeconds;
                 $('input[name=generation_timespan]')[0].value = total;
 
-                document.getElementById('edit-submit').removeAttribute("disabled");
-                document.getElementById('edit-submit').value = Drupal.t('Save');
+                document.getElementById('edit-button').removeAttribute("disabled");
+                document.getElementById('edit-button').value = Drupal.t('Save');
               }
             }
           }

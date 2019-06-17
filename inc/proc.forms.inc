@@ -125,7 +125,6 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
     '#type' => 'item',
     '#title' => t('Choose a file'),
   );
-
   $form['cipher_text'] = array(
     '#type' => 'hidden',
   );
@@ -150,8 +149,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   $form['source_file_last_change'] = array(
     '#type' => 'hidden',
   );
-
-  $form['submit'] = array(
+  $form['button'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
     '#attributes' => array(
@@ -161,9 +159,13 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
       ),
     ),
   );
-  $form['submit']["#submit"][] = '_proc_encrypt_file_submit_callback';
+  $form['button']['#ajax'] = array(
+    'callback' => '_proc_encrypt_file_submit_callback',
+    'wrapper' => '-proc-encrypt-file-form',
+    'method' => 'replace',
+    'effect' => 'fade',
+  );
 
-  // Sanitize form state.
   $form_state['build_info']['args'][0] = $uids_csv;
 
   return $form;
@@ -315,16 +317,18 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
 
   $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
 
-  $wrapper = entity_metadata_wrapper('proc', $entity);
-  // @TODO: deprecate property uid in favor of proc_armoredown field.
-  $wrapper->uid = $user->uid;
-  $wrapper->proc_armoredown->set($user->uid);
-  $wrapper->proc_armored = serialize($ciphertxt_data);
-  $wrapper->proc_recipient->set($recipients_uids_new);
-  $wrapper->language($language->language);
-  $wrapper->title = $ciphertxt_data['source_file_name'];
-  $wrapper->created = time();
-  $wrapper->save();
+  if (!empty($ciphertxt_data)){
+    $wrapper = entity_metadata_wrapper('proc', $entity);
+    // @TODO: deprecate property uid in favor of proc_armoredown field.
+    $wrapper->uid = $user->uid;
+    $wrapper->proc_armoredown->set($user->uid);
+    $wrapper->proc_armored = serialize($ciphertxt_data);
+    $wrapper->proc_recipient->set($recipients_uids_new);
+    $wrapper->language($language->language);
+    $wrapper->title = $ciphertxt_data['source_file_name'];
+    $wrapper->created = time();
+    $wrapper->save();
+  }
 
   if (isset($entity->pid)) {
     // @TODO: add ciphertext success hook.
@@ -352,4 +356,10 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     drupal_set_message(t('Sorry. Cipher text of your file has not been saved. Close other tabs in your browser to release some memory and try again.'), 'error');
   }
   cache_clear_all(NULL, 'cache_form', TRUE);
+
+  // @TODO: add hook to make default messages behaviour easy to change.
+  $commands[] = ajax_command_remove('div.messages');
+  $commands[] = ajax_command_before('#main-content', theme('status_messages'));
+  return array('#type' => 'ajax', '#commands' => $commands);
+
 }
