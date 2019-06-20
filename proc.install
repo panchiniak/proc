@@ -79,8 +79,6 @@ function proc_modules_enabled($modules) {
           'target_bundles' => array('user'),
         ),
       ),
-      // @TODO: use proc_armoredown instead and instanciate within both keys and
-      // ciphers
       'proc_armoredown' => array(
         'field_name' => 'proc_armoredown',
         'type' => 'entityreference',
