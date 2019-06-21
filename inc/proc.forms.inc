@@ -330,6 +330,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     $wrapper->save();
   }
 
+  // @TODO: add option to turn off cipher post save default messages.
   if (isset($entity->pid)) {
     // @TODO: add ciphertext success hook.
     $success_encryption_message = t(
@@ -357,9 +358,10 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   }
   cache_clear_all(NULL, 'cache_form', TRUE);
 
-  // @TODO: add hook to make default messages behaviour easy to change.
   $commands[] = ajax_command_remove('div.messages');
   $commands[] = ajax_command_before('#main-content', theme('status_messages'));
-  return array('#type' => 'ajax', '#commands' => $commands);
+
+  ajax_deliver(array('#type' => 'ajax', '#commands' => $commands));
+  module_invoke_all('cipher_postsave', $pid);
 
 }
