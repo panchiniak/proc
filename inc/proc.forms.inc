@@ -68,6 +68,8 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   // criteria
 
   if (isset($uids)) {
+    // Remove query string from the path if any.
+    $uids = preg_replace('/\?.+/','',$uids);
     $uids = check_plain($uids);
     $csv_values = str_getcsv($uids);
     $uids = array();
@@ -332,7 +334,6 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
 
   // @TODO: add option to turn off cipher post save default messages.
   if (isset($entity->pid)) {
-    // @TODO: add ciphertext success hook.
     $success_encryption_message = t(
       'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
       array(
@@ -347,9 +348,6 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
 
     drupal_set_message(t('Only the recipient chosen will be able to access this Protected Content.'), 'info');
-    // @TODO: add here a protectected file post creation hook to allow other
-    // module to send notifications make visible the recipient and sender users
-    // in the hook.
   }
   else {
     // @TODO: add ciphertext failure hook
@@ -358,10 +356,10 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   }
   cache_clear_all(NULL, 'cache_form', TRUE);
 
+  module_invoke_all('cipher_postsave', $pid);
+
   $commands[] = ajax_command_remove('div.messages');
   $commands[] = ajax_command_before('#main-content', theme('status_messages'));
-
   ajax_deliver(array('#type' => 'ajax', '#commands' => $commands));
-  module_invoke_all('cipher_postsave', $pid);
 
 }
