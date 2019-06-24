@@ -12,4 +12,3 @@
  */
 function hook_cipher_postsave(int $pid) {
 }
-
