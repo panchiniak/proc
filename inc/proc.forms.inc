@@ -347,7 +347,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     $watchdog_args = array('@type' => 'proc_ciphertxt', '%pid' => $entity->pid);
     watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
 
-    drupal_set_message(t('Only the recipient chosen will be able to access this Protected Content.'), 'info');
+    drupal_set_message(t('Only the recipient chosen will be able to access the Protected Content.'), 'info');
   }
   else {
     // @TODO: add ciphertext failure hook
