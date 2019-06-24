@@ -10,5 +10,6 @@
  * @param int $pid
  *   Protected Content entity ID of created cipher text.
  */
-function hook_answers_postsave(int $pid) {
+function hook_cipher_postsave(int $pid) {
 }
+
