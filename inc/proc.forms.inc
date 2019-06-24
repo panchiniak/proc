@@ -356,7 +356,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   }
   cache_clear_all(NULL, 'cache_form', TRUE);
 
-  module_invoke_all('cipher_postsave', $pid);
+  module_invoke_all('cipher_postsave', $entity->pid);
 
   $commands[] = ajax_command_remove('div.messages');
   $commands[] = ajax_command_before('#main-content', theme('status_messages'));
