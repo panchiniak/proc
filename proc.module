@@ -109,14 +109,14 @@ function proc_entity_info() {
   $info = array(
     'proc' => array(
       'label' => t('Protected Content'),
+      'entity class' => 'Proc',
       'base table' => 'proc',
+      'label callback' => 'entity_class_label',
+      'uri callback' => 'entity_class_uri',
       'entity keys' => array(
         'id' => 'pid',
-        // Database field where bundle types of entities are saved.
         'bundle' => 'type',
       ),
-      // Describe which property of entity object shall be used to
-      // identify entity bundle.
       'bundle keys' => array(
         'bundle' => 'type',
       ),
@@ -128,8 +128,7 @@ function proc_entity_info() {
           'label' => t('Ciphertext'),
         ),
       ),
-      'entity class' => 'Entity',
-      // @TODO: move write/read logic into a custom entity controller
+      'module' => 'proc',
       'controller class' => 'EntityAPIController',
       'metadata controller class' => '',
       'fieldable' => TRUE,
@@ -194,4 +193,13 @@ function proc_entity_property_info() {
   );
 
   return $info;
+}
+
+/**
+ * Proc class.
+ */
+class Proc extends Entity {
+  protected function defaultLabel() {
+    return $this->title;
+  }
 }
