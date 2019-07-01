@@ -13,13 +13,22 @@ include_once 'inc/proc.functions.inc';
 function proc_permission() {
   return array(
     'register protected content keys' => array(
-      'title' => t('Register Protected Content Keys'),
+      'title' => t('Register protected content keys'),
       'description' => t('Allow user to access Protected Content Keys registration page.'),
     ),
     'new protected file' => array(
-      'title' => t('Create new Protected File'),
+      'title' => t('Create new protected file'),
       'description' => t('Allow user to access Create New Protected File page.'),
     ),
+    'create cipher' => array(
+      'title' => t('Create new cipher'),
+      'description' => t('Allow user to create new cipher entity.'),
+    ),
+    'view cipher' => array(
+      'title' => t('View cipher'),
+      'description' => t('Allow user to view cipher entity.'),
+    ),
+
   );
 }
 
@@ -50,7 +59,7 @@ function proc_menu() {
     'title' => 'Add file',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_encrypt_file', 2),
-    'access arguments' => array('new protected file'),
+    'access arguments' => array('new protected file', 'create cipher'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   );
@@ -128,7 +137,14 @@ function proc_entity_info() {
           'label' => t('Ciphertext'),
         ),
       ),
+      'view modes' => array(
+        'full' => array(
+          'label' => t('Default'),
+          'custom settings' => FALSE,
+        ),
+      ),
       'module' => 'proc',
+      'access callback' => 'proc_access',
       'controller class' => 'EntityAPIController',
       'metadata controller class' => '',
       'fieldable' => TRUE,
@@ -199,7 +215,27 @@ function proc_entity_property_info() {
  * Proc class.
  */
 class Proc extends Entity {
+  protected function defaultURI() {
+    return array('path' => 'proc/' . $this->identifier());
+  }
   protected function defaultLabel() {
     return $this->title;
+  }
+}
+
+/**
+ * Access callback for Proc.
+ */
+function proc_access($op, $task, $account = NULL, $entity_type = NULL) {
+  global $user;
+
+  if (!isset($account)) {
+    $account = $user;
+  }
+  switch ($op) {
+    case 'create':
+      return user_access('create cipher', $account);
+    case 'view':
+      return user_access('view cipher', $account);
   }
 }
