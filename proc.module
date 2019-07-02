@@ -59,7 +59,7 @@ function proc_menu() {
     'title' => 'Add file',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_encrypt_file', 2),
-    'access arguments' => array('new protected file', 'create cipher'),
+    'access arguments' => array('new protected file'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   );
