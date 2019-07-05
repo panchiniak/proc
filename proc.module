@@ -216,7 +216,10 @@ function proc_entity_property_info() {
  */
 class Proc extends Entity {
   protected function defaultURI() {
-    return array('path' => 'proc/' . $this->identifier());
+    if (($this->type == 'proc_ciphertxt') && (_proc_recipient($this->identifier()))) {
+      return array('path' => 'proc/' . $this->identifier());
+    }
+    return FALSE;
   }
   protected function defaultLabel() {
     return $this->title;
