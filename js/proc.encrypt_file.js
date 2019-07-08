@@ -13,7 +13,9 @@
             // Error.
             alert(Drupal.t('The File APIs are not fully supported in this browser.'));
           }
-          document.getElementById('edit-button').disabled = "TRUE";
+          if (document.getElementById('edit-button')){
+            document.getElementById('edit-button').disabled = "TRUE";
+          }
 
           function handleFileSelect(evt) {
 
@@ -104,7 +106,9 @@
               }
             }
           }
-          document.getElementById('edit-upload').addEventListener('change', handleFileSelect, false);
+          if (document.getElementById('edit-upload')){
+            document.getElementById('edit-upload').addEventListener('change', handleFileSelect, false);
+          }
         }
   }
 })(jQuery);
