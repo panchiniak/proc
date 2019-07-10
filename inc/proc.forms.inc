@@ -157,7 +157,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
     '#attributes' => array(
       'onclick' => array(
          // @TODO: make this in a JS file
-        'javascript:var s=this;setTimeout(function(){s.value="Saving...";s.classList.add("ajax-progress-throbber");s.disabled=true;},1);',
+        'javascript:var s=this;setTimeout(function(){s.value="Saving...";s.disabled=true;},1);',
       ),
     ),
   );
@@ -233,7 +233,7 @@ function _proc_generate_keys($form, &$form_state) {
     '#attributes' => array(
       'onclick' => array(
          // @TODO: make this in a JS file
-        'javascript:var s=this;setTimeout(function(){s.value="Saving...";s.disabled=true;},1);',
+        'javascript:var s=this;setTimeout(function(){s.value="Saving...";s.addClass="ajax-progress-throbber";s.disabled=true;},1);',
       ),
     ),
   );
