@@ -47,7 +47,8 @@
           // If there is some password.
           if (pass !== "" && pass.length > 0) {
             // If the passwords are the same.
-            if (pass === passConfirm) {
+            // @TODO: add t()
+            if (pass === passConfirm && $('.password-strength-text').text() === 'Strong') {
 
               let passDrupal = Drupal.settings.proc.proc_pass;
               let name = Drupal.settings.proc.proc_name;
@@ -92,6 +93,10 @@
               $('input[name=browser_fingerprint]')[0].value = encryptionData[4] + ', (' + screen.width + ' x ' + screen.height + ')';
               $('#-proc-generate-keys').submit();
 
+            }
+            else{
+              // @TODO: add t()
+              alert('You must type in both password fields the same strong password.');
             }
           }
         }
