@@ -183,8 +183,8 @@ function _proc_generate_keys($form, &$form_state) {
   if (empty($form_state['values'])) {
     // If current has not yet registered a keyring.
     if (!empty(_proc_get_pubkeys(array($user->uid))[0])) {
-      drupal_set_message(t("You have already registered Protected Content keys and you don't need to register new ones unless you have lost your Protected Content password."), 'warning', FALSE);
-      drupal_set_message(t('Warning: if you register a new password you will lose access to all encrypted data within this site previously sent to you.'), 'warning', FALSE);
+      drupal_set_message(t("Your encryption keys are already generated. You don't need to generate new ones unless you have lost your password."), 'warning', FALSE);
+      drupal_set_message(t('Warning: if you generate new encryption keys, you will lose access to all encrypted files which were previously sent to you.'), 'warning', FALSE);
     }
   };
   _proc_lib_load();
@@ -229,11 +229,11 @@ function _proc_generate_keys($form, &$form_state) {
   );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Generate new keys'),
+    '#value' => t('Generate encryption keys'),
     '#attributes' => array(
       'onclick' => array(
          // @TODO: make this in a JS file
-        'javascript:var s=this;setTimeout(function(){s.value="Saving...";s.addClass="ajax-progress-throbber";s.disabled=true;},1);',
+        'javascript:var s=this;setTimeout(function(){s.value="Generating encryption keys and saving...";s.addClass="ajax-progress-throbber";s.disabled=true;},1);',
       ),
     ),
   );

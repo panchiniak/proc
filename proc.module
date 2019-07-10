@@ -48,7 +48,7 @@ function proc_help($path) {
 function proc_menu() {
 
   $items['proc/keyring/add'] = array(
-    'title' => 'Add Protected Content Key',
+    'title' => 'Manage Encryption Keys',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_generate_keys'),
     'access arguments' => array('register protected content keys'),
