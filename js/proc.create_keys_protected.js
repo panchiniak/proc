@@ -97,6 +97,8 @@
             else{
               // @TODO: add t()
               alert('You must type in both password fields the same strong password.');
+              jQuery('#edit-pass-fields-pass1').val("");
+              jQuery('#edit-pass-fields-pass2').val("");
             }
           }
         }
