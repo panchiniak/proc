@@ -5,8 +5,8 @@ package = Cryptography
 
 crypto_library_versionstring = "OpenPGP.js v4.4.10"
 crypto_library_vendor = "https://openpgpjs.org"
-crypto_library_url = "https://github.com/openpgpjs/openpgpjs/releases/tag/v4.4.10"
-crypto_library_folder = "openpgpjs"
+crypto_library_url = "https://github.com/openpgpjs/openpgpjs/archive/v4.4.10.zip"
+crypto_library_folder = "openpgpjs-4.4.10"
 yellow_flag_browsers_csv = "Edge,Internet Explorer"
 crypto_library_file = "dist/openpgp.min.js"
 
