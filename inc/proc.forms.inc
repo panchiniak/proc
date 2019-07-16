@@ -48,13 +48,25 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
     '#required' => TRUE,
   );
 
-  $form['pc_access_link'] = array(
-    '#markup' => t('<a id="decryption-link" href="#@random_id">Get it</a>', array(
-      '@random_id' => md5(drupal_random_bytes(32)),
+  $get_proc_link_fragment = md5(drupal_random_bytes(32));
+  $get_proc_link = l(
+    t('Get it'),
+    current_path(),
+    array(
+      'attributes' => array(
+        'id' => 'decryption-link',
+        'class' => array(
+          'btn',
+          'btn-default'
+        )
+      ),
+      'fragment' => $get_proc_link_fragment,
     )
-    ),
   );
 
+  $form['pc_access_link'] = array(
+    '#markup' => $get_proc_link,
+  );
   return $form;
 }
 
