@@ -17,6 +17,12 @@
       let sourceFileName = Drupal.settings.proc.proc_source_file_name;
       let sourceFileSize = Drupal.settings.proc.proc_source_file_size;
 
+      $('input#edit-pass').keypress(function(event){
+        if(event.keyCode == 13){
+          event.preventDefault();
+        }
+      });
+
       // Reset messages
       $('input#edit-pass').once().on('focusin', function() {
         $('.messages').remove();
