@@ -17,19 +17,19 @@
       let sourceFileName = Drupal.settings.proc.proc_source_file_name;
       let sourceFileSize = Drupal.settings.proc.proc_source_file_size;
 
-      $('input#edit-pass').keypress(function(event){
-        if(event.keyCode == 13){
-          event.preventDefault();
-        }
+      // Do not submit the form at all.
+      $('#-proc-decrypt-to-file').submit(function(event) {
+        $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages error">You can\'t and you don\'t need to submit this form. Instead just click or tap on "Get it" button.</div>'));
+        return false;
       });
 
       // Reset messages
       $('input#edit-pass').once().on('focusin', function() {
         $('.messages').remove();
       });
+
       $('#decryption-link').on(
         'click', async function() {
-
           let secretPass = $('input[name=pass]')[0].value;
           let secretPassString = new String(secretPass);
           let passphrase = passDrupal.concat(secretPassString);
@@ -38,17 +38,17 @@
           await privKeyObj.decrypt(passphrase).catch(
             function(err) {
               // @TODO: save error log.
-              $("form#-proc-decrypt-to-file").prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
+              $('form#-proc-decrypt-to-file').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
 
-              if ($("a#decryption-link")[0].href) {
-                const fileUrl = $("a#decryption-link")[0].href;
+              if ($('a#decryption-link')[0].href) {
+                const fileUrl = $('a#decryption-link')[0].href;
                 URL.revokeObjectURL(fileUrl);
-                $("a#decryption-link").removeAttr("href");
+                $('a#decryption-link').removeAttr('href');
               }
             }
           );
 
-          $("form#-proc-decrypt-to-file").prepend(Drupal.t('<div class="messages info">Indroducing key passphrase for decryption. Your browser may become unresponsive during this process. Please keep it open and wait...</div>'));
+          $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages info">Indroducing key passphrase for decryption. Your browser may become unresponsive during this process. Please keep it open and wait...</div>'));
 
           const optionsDecription = {
             message: await openpgp.message.readArmored(cipherText),
@@ -74,11 +74,10 @@
 
           } else {
             // @TODO: save error log.
-            $("form#-proc-decrypt-to-file").prepend(Drupal.t('<div class="messages error">Error: size mismatch.</div>'));
+            $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages error">Error: size mismatch.</div>'));
           }
         }
       );
-
     }
   }
 })(jQuery);
