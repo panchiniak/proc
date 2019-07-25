@@ -63,10 +63,13 @@
             type: 'application/octet-binary',
             endings: 'native'
           });
-          const objectURL = URL.createObjectURL(blob);
+
           const link = document.getElementById('decryption-link');
-          link.href = objectURL;
           link.href = URL.createObjectURL(blob);
+          let saveActionString = Drupal.t('Save');
+          if (link.text != saveActionString) {
+            link.text = saveActionString;
+          }
 
           // Check if file generated is the same size of source file.
           if (blob.size.toString() === sourceFileSize) {

@@ -50,7 +50,7 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
 
   $get_proc_link_fragment = md5(drupal_random_bytes(32));
   $get_proc_link = l(
-    t('Get it'),
+    t('Decrypt'),
     current_path(),
     array(
       'attributes' => array(
