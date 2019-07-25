@@ -48,7 +48,9 @@
             }
           );
 
-          $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages info">Indroducing key passphrase for decryption. Your browser may become unresponsive during this process. Please keep it open and wait...</div>'));
+          if (!$('#proc-decrypting-info')[0]){
+            $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages info" id="proc-decrypting-info">Indroducing key passphrase for decryption. Your browser may become unresponsive during this process. Please keep it open and wait...</div>'));
+          }
 
           const optionsDecription = {
             message: await openpgp.message.readArmored(cipherText),
