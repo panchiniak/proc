@@ -77,6 +77,7 @@
             link.text(openActionLabel);
             // Highlight the link for better UX
             link.removeClass('active');
+            $('.messages').after(Drupal.t('<div class="messages status" id="proc-decrypting-status">Decryption successful.</div>'));
           }
 
           // Check if file generated is the same size of source file.
