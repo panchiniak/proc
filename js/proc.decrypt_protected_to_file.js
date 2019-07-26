@@ -19,13 +19,17 @@
 
       // Do not submit the form at all.
       $('#-proc-decrypt-to-file').submit(function(event) {
-        $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages error">You can\'t and you don\'t need to submit this form. Instead just click or tap on "Get it" button.</div>'));
+        $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages error">You can\'t and you don\'t need to submit this form. Instead just click or tap on "Decrypt".</div>'));
         return false;
       });
 
-      // Reset messages
+      // Reset messages and action.
       $('input#edit-pass').once().on('focusin', function() {
         $('.messages').remove();
+        let actionLink = $('#decryption-link');
+        if (!(actionLink.hasClass('active'))){
+          actionLink.text('Decrypt').removeClass('active').removeAttr('download').removeAttr('href');
+        }
       });
 
       $('#decryption-link').on(
@@ -49,7 +53,7 @@
           );
 
           if (!$('#proc-decrypting-info')[0]){
-            $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages info" id="proc-decrypting-info">Indroducing key passphrase for decryption. Your browser may become unresponsive during this process. Please keep it open and wait...</div>'));
+            $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages info" id="proc-decrypting-info">Indroducing key passphrase for decryption...</div>'));
           }
 
           const optionsDecription = {
@@ -66,17 +70,18 @@
             endings: 'native'
           });
 
-          const link = document.getElementById('decryption-link');
-          link.href = URL.createObjectURL(blob);
-          let saveActionString = Drupal.t('Save');
-          if (link.text != saveActionString) {
-            link.text = saveActionString;
+          const link = $('#decryption-link');
+          link.attr('href', URL.createObjectURL(blob));
+          let openActionLabel = Drupal.t('Open');
+          if (link.text() != openActionLabel){
+            link.text(openActionLabel);
+            // Highlight the link for better UX
+            link.removeClass('active');
           }
 
           // Check if file generated is the same size of source file.
           if (blob.size.toString() === sourceFileSize) {
-            link.download = sourceFileName;
-
+            link.attr('download', sourceFileName);
           } else {
             // @TODO: save error log.
             $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages error">Error: size mismatch.</div>'));
