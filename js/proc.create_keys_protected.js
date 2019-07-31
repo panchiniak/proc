@@ -80,7 +80,6 @@
               };
 
               let startSeconds = new Date().getTime() / 1000;
-              document.getElementById('edit-submit').value = Drupal.t('Generating...');
 
               let encryptionData = await openpgp.generateKey(options).then(
                 async function(key) {
