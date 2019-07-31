@@ -9,6 +9,14 @@
     attach: function(context, settings) {
 
       $('#edit-submit').on(
+        'focusin', async function(e) {
+          if ($('.password-strength-text').text() === Drupal.t('Strong') && $('.password-confirm').children(0).text() === Drupal.t('yes')){
+            document.getElementById('edit-submit').value = Drupal.t('Processing...');
+          }
+        }
+      );
+
+      $('#edit-submit').on(
         'click', async function(e) {
 
           e.preventDefault();
@@ -17,16 +25,16 @@
           let passConfirm = $('#edit-pass-fields-pass2')[0].value;
 
           // Replace the password by a placeholder string for not submiting the
-          // real onechosen while stil validating its requirednes and confirmation
-          // and keep it filled in as asterisk.
+          // real one chosen while stil validating its requirednes and
+          // confirmation and keep it filled in.
           if (pass.length > 0 && passConfirm.length > 0) {
             let passPlaceholder = 'x';
             if (pass === passConfirm) {
               // Do not send confirmed password but keep original sizes.
               var passConfirmationPlaceholder = passPlaceholder;
             }
-            // Do not send chosen password even if it confirmation fails and keep
-            // original sizes.
+            // Do not send chosen password even if its confirmation fails and
+            // keep original sizes.
             if (pass !== passConfirm) {
               var passConfirmationPlaceholder = 'y';
             }
@@ -47,14 +55,12 @@
           // If there is some password.
           if (pass !== "" && pass.length > 0) {
             // If the passwords are the same.
-            // @TODO: add t()
-            if (pass === passConfirm && $('.password-strength-text').text() === 'Strong') {
+            if (pass === passConfirm && $('.password-strength-text').text() === Drupal.t('Strong')) {
 
               let passDrupal = Drupal.settings.proc.proc_pass;
               let name = Drupal.settings.proc.proc_name;
               let mail = Drupal.settings.proc.proc_mail;
 
-              // @TODO: make it false for production
               openpgp.config.debug = true;
               openpgp.config.show_comment = true;
               openpgp.config.show_version = true;
@@ -74,10 +80,12 @@
               };
 
               let startSeconds = new Date().getTime() / 1000;
+              document.getElementById('edit-submit').value = Drupal.t('Generating...');
 
               let encryptionData = await openpgp.generateKey(options).then(
                 async function(key) {
 
+                  document.getElementById('edit-submit').value = Drupal.t('Saving...');
                   let privkey = await key.privateKeyArmored;
                   let pubkey = await key.publicKeyArmored;
                   let endSeconds = new Date().getTime() / 1000;
@@ -95,11 +103,15 @@
 
             }
             else{
-              // @TODO: add t()
+              // @TODO: use a message instead of alert().
               alert(Drupal.t('You must type in both password fields the same strong password.'));
               $('#edit-pass-fields-pass1').val("");
               $('#edit-pass-fields-pass2').val("");
             }
+          }
+          else{
+            // @TODO: use a message instead of alert().
+            alert(Drupal.t('Password is required.'));
           }
         }
       );

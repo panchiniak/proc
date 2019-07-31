@@ -242,22 +242,6 @@ function _proc_generate_keys($form, &$form_state) {
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Generate encryption keys'),
-    '#attributes' => array(
-      'onclick' => array(
-         // @TODO: make this in a JS file
-        'javascript:
-          if (jQuery("input[name=public_key]")[0].value){
-            var s=this;
-            setTimeout(
-              function(){
-                s.value="Generating encryption keys and saving...";
-                s.addClass="ajax-progress-throbber";
-                s.disabled=true;
-              },1
-            );
-          };',
-      ),
-    ),
   );
   return $form;
 }
