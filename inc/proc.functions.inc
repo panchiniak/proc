@@ -30,10 +30,10 @@ function _proc_browser_supported() {
  * @param array $users
  *   UIDs.
  *
- * @return array $pubkeys
+ * @return array
  *   Array containing pubkeys.
  */
-function _proc_get_pubkeys($users) {
+function _proc_get_pubkeys(array $users) {
   $pubkeys = array();
   foreach ($users as $recipient) {
     $pubkeys[] = _proc_get_keys($recipient)['public_key'];
@@ -47,7 +47,7 @@ function _proc_get_pubkeys($users) {
  * @param array $fields
  *   Fields definitions.
  */
-function _proc_field_create_fields($fields) {
+function _proc_field_create_fields(array $fields) {
   foreach ($fields as $field) {
     if (!field_read_field($field['field_name'])) {
       field_create_field($field);
@@ -61,7 +61,7 @@ function _proc_field_create_fields($fields) {
  * @param array $instances
  *   Intances definitions.
  */
-function _proc_field_create_instances($instances) {
+function _proc_field_create_instances(array $instances) {
   foreach ($instances as $instance) {
     if (!field_read_instance('proc', $instance['field_name'], $instance['bundle'])) {
       field_attach_create_bundle('proc', $instance['bundle']);
@@ -73,7 +73,7 @@ function _proc_field_create_instances($instances) {
 /**
  * Helper to load the cryptographic library settings from info file.
  *
- * @return array $crypto_lib_settings
+ * @return array
  *   Array containing cryptographic library settings defined on .info.
  */
 function _proc_get_cryptolib_settings() {
@@ -93,7 +93,7 @@ function _proc_get_cryptolib_settings() {
 /**
  * Helper to load the cryptographic library.
  *
- * @return array $lib
+ * @return array
  *   Array containing loaded cryptographic library.
  */
 function _proc_lib_load() {
@@ -109,21 +109,21 @@ function _proc_lib_load() {
  * @param string $user_id
  *   User ID.
  *
- * @return array $keyring_keys
+ * @return array
  *   Array containing pubkey and encrypted privkey.
  */
 function _proc_get_keys($user_id) {
 
   $query = new EntityFieldQuery();
   $query
-      ->entityCondition('entity_type', 'proc')
-      ->entityCondition('bundle', 'proc_keyring')
-      ->propertyCondition('uid', $user_id)
-      ->propertyOrderBy('pid', 'DESC')
-      ->range(0, 1);
+    ->entityCondition('entity_type', 'proc')
+    ->entityCondition('bundle', 'proc_keyring')
+    ->propertyCondition('uid', $user_id)
+    ->propertyOrderBy('pid', 'DESC')
+    ->range(0, 1);
   $result = $query->execute();
 
-  if (isset($result['proc'])){
+  if (isset($result['proc'])) {
     $keyring = entity_load('proc', array_keys($result['proc']));
     $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
     $keyring_keys = array();
@@ -132,7 +132,6 @@ function _proc_get_keys($user_id) {
     return $keyring_keys;
   }
 
-  return;
 }
 
 /**
@@ -141,7 +140,7 @@ function _proc_get_keys($user_id) {
  * @param string $cid
  *   Ciphertext ID (proc entity).
  *
- * @return array $cipher_text_data
+ * @return array
  *   Array containing ciphertext data.
  */
 function _proc_get_cipher($cid) {
@@ -160,7 +159,7 @@ function _proc_get_cipher($cid) {
   }
   if (!$is_recipient) {
     // Return empty if current user does not belong to recipients list.
-    return;
+    return array();
   }
 
   $cipher_text_data = array();

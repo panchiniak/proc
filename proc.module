@@ -5,7 +5,7 @@
  * Provide pgp encryption for files.
  */
 
-include_once 'inc/proc.functions.inc';
+require_once 'inc/proc.functions.inc';
 
 /**
  * Implements hook_permission().
@@ -215,15 +215,24 @@ function proc_entity_property_info() {
  * Proc class.
  */
 class Proc extends Entity {
+
+  /**
+   * Defualt URI.
+   */
   protected function defaultURI() {
     if (($this->type == 'proc_ciphertxt') && (_proc_recipient($this->identifier()))) {
       return array('path' => 'proc/' . $this->identifier());
     }
     return FALSE;
   }
+
+  /**
+   * Default label.
+   */
   protected function defaultLabel() {
     return $this->title;
   }
+
 }
 
 /**
@@ -238,6 +247,7 @@ function proc_access($op, $task, $account = NULL, $entity_type = NULL) {
   switch ($op) {
     case 'create':
       return user_access('create cipher', $account);
+
     case 'view':
       return user_access('view cipher', $account);
   }

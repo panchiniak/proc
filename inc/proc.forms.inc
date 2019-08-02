@@ -50,19 +50,19 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
 
   $get_proc_link_fragment = md5(drupal_random_bytes(32));
   $get_proc_link = l(
-    t('Decrypt'),
-    current_path(),
-    array(
-      'attributes' => array(
-        'id' => 'decryption-link',
-        'class' => array(
-          'btn',
-          'btn-default'
+        t('Decrypt'),
+        current_path(),
+        array(
+          'attributes' => array(
+            'id' => 'decryption-link',
+            'class' => array(
+              'btn',
+              'btn-default',
+            ),
+          ),
+          'fragment' => $get_proc_link_fragment,
         )
-      ),
-      'fragment' => $get_proc_link_fragment,
-    )
-  );
+    );
 
   $form['pc_access_link'] = array(
     '#markup' => $get_proc_link,
@@ -78,10 +78,9 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
 
   // @TODO: allow other modules to alter selected recipients based on required
   // criteria
-
   if (isset($uids)) {
     // Remove query string from the path if any.
-    $uids = preg_replace('/\?.+/','',$uids);
+    $uids = preg_replace('/\?.+/', '', $uids);
     $uids = check_plain($uids);
     $csv_values = str_getcsv($uids);
     $uids = array();
@@ -325,7 +324,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
 
   $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
 
-  if (!empty($ciphertxt_data)){
+  if (!empty($ciphertxt_data)) {
     $wrapper = entity_metadata_wrapper('proc', $entity);
     // @TODO: deprecate property uid in favor of proc_armoredown field.
     $wrapper->uid = $user->uid;
@@ -341,13 +340,13 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   // @TODO: add option to turn off cipher post save default messages.
   if (isset($entity->pid)) {
     $success_encryption_message = t(
-      'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
-      array(
-         // @TODO: replace hardcoded part of address by a CONSTANT.
-        '@exclusive-access-link' => url('proc/' . $entity->pid),
-        '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
-      )
-    );
+          'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
+          array(
+          // @TODO: replace hardcoded part of address by a CONSTANT.
+            '@exclusive-access-link' => url('proc/' . $entity->pid),
+            '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
+          )
+      );
     drupal_set_message($success_encryption_message);
     $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
     $watchdog_args = array('@type' => 'proc_ciphertxt', '%pid' => $entity->pid);
