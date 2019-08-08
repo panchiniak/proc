@@ -61,7 +61,7 @@
                             let name = Drupal.settings.proc.proc_name;
                             let mail = Drupal.settings.proc.proc_mail;
 
-                            openpgp.config.debug = true;
+                            openpgp.config.debug = false;
                             openpgp.config.show_comment = true;
                             openpgp.config.show_version = true;
                             openpgp.config.commentstring = name + ":" + mail;

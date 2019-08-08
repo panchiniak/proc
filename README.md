@@ -45,6 +45,7 @@ Ship a view with exposed filters for listing encrypted data.
 Add support for text fields.
 Add support for removal and update of protected content.
 Add status access control (published/unpublished).
+Add GUI page for updating the CSV of yellow flagged browser identification.
 
 MAINTAINERS
 -----------
