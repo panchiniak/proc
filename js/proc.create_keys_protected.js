@@ -9,14 +9,6 @@
         attach: function (context, settings) {
 
             $('#edit-submit').on(
-                'focusin', async function (e) {
-                    if ($('.password-strength-text').text() === Drupal.t('Strong') && $('.password-confirm').children(0).text() === Drupal.t('yes')) {
-                        document.getElementById('edit-submit').value = Drupal.t('Processing...');
-                    }
-                }
-            );
-
-            $('#edit-submit').on(
                 'click', async function (e) {
 
                     e.preventDefault();
@@ -57,6 +49,8 @@
                         // If the passwords are the same.
                         if (pass === passConfirm && $('.password-strength-text').text() === Drupal.t('Strong')) {
 
+                            $('#edit-submit')[0].value = Drupal.t('Processing...');
+
                             let passDrupal = Drupal.settings.proc.proc_pass;
                             let name = Drupal.settings.proc.proc_name;
                             let mail = Drupal.settings.proc.proc_mail;
@@ -84,7 +78,7 @@
                             let encryptionData = await openpgp.generateKey(options).then(
                                 async function (key) {
 
-                                    document.getElementById('edit-submit').value = Drupal.t('Saving...');
+                                    $('#edit-submit')[0].value = Drupal.t('Saving...');
                                     let privkey = await key.privateKeyArmored;
                                     let pubkey = await key.publicKeyArmored;
                                     let endSeconds = new Date().getTime() / 1000;
