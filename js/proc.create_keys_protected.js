@@ -8,6 +8,11 @@
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
+            function resetPassword() {
+                $('#edit-pass-fields-pass1').val("");
+                $('#edit-pass-fields-pass2').val("");
+            }
+
             $('#edit-submit').on(
                 'click', async function (e) {
 
@@ -75,10 +80,19 @@
 
                             let startSeconds = new Date().getTime() / 1000;
 
-                            let encryptionData = await openpgp.generateKey(options).then(
+                            let encryptionData = await openpgp.generateKey(options).catch(
+                                function (err) {
+                                    // This error is possibly due to tampering
+                                    // atempt.
+                                    // @TODO: watch the dog.
+                                    $('form#-proc-generate-keys').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
+                                    // Reset password and action label.
+                                    resetPassword();
+                                    $('#edit-submit')[0].value = Drupal.t('Generate encryption keys');
+                                    return;
+                                }
+                            ).then(
                                 async function (key) {
-
-                                    $('#edit-submit')[0].value = Drupal.t('Saving...');
                                     let privkey = await key.privateKeyArmored;
                                     let pubkey = await key.publicKeyArmored;
                                     let endSeconds = new Date().getTime() / 1000;
@@ -86,6 +100,8 @@
                                     return [pubkey, privkey, startSeconds, total, navigator.userAgent];
                                 }
                             );
+
+                            $('#edit-submit')[0].value = Drupal.t('Saving...');
                             $('input[name=public_key]')[0].value = encryptionData[0];
                             $('input[name=encrypted_private_key]')[0].value = encryptionData[1];
                             $('input[name=generation_timestamp]')[0].value = encryptionData[2];
@@ -98,8 +114,7 @@
                         else{
                             // @TODO: use a message instead of alert().
                             alert(Drupal.t('You must type in both password fields the same strong password.'));
-                            $('#edit-pass-fields-pass1').val("");
-                            $('#edit-pass-fields-pass2').val("");
+                            resetPassword();
                         }
                     }
                     else{

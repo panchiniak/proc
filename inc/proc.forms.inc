@@ -260,21 +260,23 @@ function _proc_generate_keys_submit($form, &$form_state) {
   );
 
   $entity = entity_create('proc', array('type' => 'proc_keyring'));
-  $wrapper = entity_metadata_wrapper('proc', $entity);
-  // @TODO: deprecate property uid in favor of proc_armoredown field.
-  $wrapper->uid = $user->uid;
-  $wrapper->proc_armoredown->set($user->uid);
-  $wrapper->proc_armored = serialize($keyring_data);
-  // @TODO: implment full cipher indentifier:
-  // client side source domain name:user email.
-  $wrapper->title = $user->mail;
-  $wrapper->created = time();
-  $wrapper->save();
 
-  // Just soppose not being 'undefined' is enough to say a pubkey has been
-  // generated.
-  // @TODO: improve heuristics of server side pubkey validation.
-  if ((isset($entity->pid)) && (!empty($keyring_data['public_key'])) && ($keyring_data['public_key'] != 'undefined')) {
+  // Do not save in case the key has not been generated.
+  if (!(empty($keyring_data['public_key']) || $keyring_data['public_key'] == 'undefined')){
+    $wrapper = entity_metadata_wrapper('proc', $entity);
+    // @TODO: deprecate property uid in favor of proc_armoredown field.
+    $wrapper->uid = $user->uid;
+    $wrapper->proc_armoredown->set($user->uid);
+    $wrapper->proc_armored = serialize($keyring_data);
+    // @TODO: implement full cipher indentifier:
+    // client side source domain name:user email.
+    // @TODO: use 'label' instead of 'title'
+    $wrapper->title = $user->mail;
+    $wrapper->created = time();
+    $wrapper->save();
+  }
+
+  if (isset($entity->pid)) {
     // @TODO: add keyring generation success hook
     drupal_set_message(t('Encryption keys generated successfully.'));
     drupal_set_message(t("Your password can't be recovered. You must remember it. If you create new keys all previously Protected Content sent to you will be forever lost (and there is nothing we can do about that)."), 'info');
@@ -282,7 +284,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
   else {
     // @TODO: add keyring generation failure hook
     if (!_proc_browser_supported()) {
-      drupal_set_message(t('Key generation error. It looks like you are using some unsupported browser. Please try again using another one.'), 'error');
+      drupal_set_message(t('Key generation error. It looks like you are using some unsupported browser. Please try it again using another one.'), 'error');
     }
     else {
       drupal_set_message(t('Sorry. Your public key has not been saved to the database. You might need to close tabs in your browser to release memory, or do it again using another browser.'), 'error');
