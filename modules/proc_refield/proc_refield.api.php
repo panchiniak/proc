@@ -11,6 +11,5 @@
  * @param array $element
  *   Form element of proc reference field.
  */
-function hook_proc_refield_widget_process_alter(array $element) 
-{
+function hook_proc_refield_widget_process_alter(array $element) {
 }

@@ -29,7 +29,7 @@ function proc_refield_install() {
   $instances = array(
     'proc_refield_my_cipher' => array(
       'field_name' => 'proc_refield',
-      'label' => t('Entity reference to my cipher texts'),
+      'label' => 'Entity reference to my cipher texts',
       'entity_type' => 'proc',
       'bundle' => 'proc_ciphertxt',
     ),

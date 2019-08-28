@@ -262,7 +262,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
   $entity = entity_create('proc', array('type' => 'proc_keyring'));
 
   // Do not save in case the key has not been generated.
-  if (!(empty($keyring_data['public_key']) || $keyring_data['public_key'] == 'undefined')){
+  if (!(empty($keyring_data['public_key']) || $keyring_data['public_key'] == 'undefined')) {
     $wrapper = entity_metadata_wrapper('proc', $entity);
     // @TODO: deprecate property uid in favor of proc_armoredown field.
     $wrapper->uid = $user->uid;
