@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * Set up a structure for storing pgp keys and cipher texts.
+ */
+
+include_once 'inc/proc_refield.functions.inc';
+
+/**
+ * Implements hook_install().
+ */
+function proc_refield_install() {
+
+  $fields = array(
+    'proc_refield' => array(
+      'field_name' => 'proc_refield',
+      'type' => 'entityreference',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'settings' => array(
+        'target_type' => 'proc',
+        'target_bundles' => array('proc_ciphertxt'),
+      ),
+    ),
+  );
+
+  _proc_refield_field_create_fields($fields);
+
+  $instances = array(
+    'proc_refield_my_cipher' => array(
+      'field_name' => 'proc_refield',
+      'label' => t('Entity reference to my cipher texts'),
+      'entity_type' => 'proc',
+      'bundle' => 'proc_ciphertxt',
+    ),
+  );
+
+  _proc_refield_field_create_instances($instances);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function proc_refield_uninstall() {
+  field_delete_field('proc_refield');
+  field_purge_batch(0);
+}

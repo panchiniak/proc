@@ -1,0 +1,6 @@
+name = "Protected Content Reference Field"
+description = "This module creates a Protected Content Reference Field for the creation and reuse of cipher texts"
+core = 7.x
+package = Cryptography
+
+dependencies[] = proc
