@@ -125,10 +125,12 @@ function _proc_get_keys($user_id) {
 
   if (isset($result['proc'])) {
     $keyring = entity_load('proc', array_keys($result['proc']));
+    $keyring_created = $keyring[key($keyring)]->created;
     $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
     $keyring_keys = array();
     $keyring_keys['encrypted_private_key'] = $keyring['encrypted_private_key'];
     $keyring_keys['public_key'] = $keyring['public_key'];
+    $keyring_keys['created'] = $keyring_created;
     return $keyring_keys;
   }
 
@@ -166,6 +168,11 @@ function _proc_get_cipher($cid) {
   $cipher_text_data['cipher_text'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
   $cipher_text_data['source_file_name'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']);
   $cipher_text_data['source_file_size'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);
+
+  $context = array(
+    'unalterable_cipher_object' => clone $proc_wrapper,
+  );
+  drupal_alter('get_cipher_text', $cipher_text_data, $context);
 
   return $cipher_text_data;
 

@@ -15,3 +15,14 @@
  */
 function hook_cipher_postsave(int $pid, array $form_state) {
 }
+/**
+ * Allow modules to alter cipher text retrieved.
+ *
+ * @param array $cipher_text_data
+ *   Alterable array of cipher text data.
+ *
+ * @param object $context
+ *   Unalterable full cipher text object.
+ */
+function hook_get_cipher_text_alter(array $cipher_text_data, object $context) {
+}
