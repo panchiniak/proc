@@ -192,7 +192,7 @@ function _proc_generate_keys($form, &$form_state) {
 
   // If form has not just being submited.
   if (empty($form_state['values'])) {
-    // If current has not yet registered a keyring.
+    // If current user has not yet registered a keyring:
     if (!empty(_proc_get_pubkeys(array($user->uid))[0])) {
       drupal_set_message(t("Your encryption keys are already generated. You don't need to generate new ones unless you have lost your password."), 'warning', FALSE);
       drupal_set_message(t('Warning: if you generate new encryption keys, you will lose access to all encrypted files which were previously sent to you.'), 'warning', FALSE);
@@ -261,8 +261,8 @@ function _proc_generate_keys_submit($form, &$form_state) {
 
   $entity = entity_create('proc', array('type' => 'proc_keyring'));
 
-  // Do not save in case the key has not been generated.
-  if (!(empty($keyring_data['public_key']) || $keyring_data['public_key'] == 'undefined')) {
+  // Save only if key has been effectively generated:
+  if (substr($keyring_data['public_key'], 5, 26) == 'BEGIN PGP PUBLIC KEY BLOCK') {
     $wrapper = entity_metadata_wrapper('proc', $entity);
     // @TODO: deprecate property uid in favor of proc_armoredown field.
     $wrapper->uid = $user->uid;
