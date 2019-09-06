@@ -131,9 +131,35 @@ function proc_modules_enabled($modules) {
  * Implements hook_uninstall().
  */
 function proc_uninstall() {
-  // Delete previousely created field.
+  // Delete previously created field.
   field_delete_field('proc_armored');
   field_delete_field('proc_recipient');
   field_delete_field('proc_armoredown');
   field_purge_batch(0);
+}
+
+/**
+ * Remove empty key entries if any.
+ */
+function proc_update_7000() {
+  $query = db_query(
+    'SELECT p.entity_id, p.proc_armored_value FROM {field_data_proc_armored} p WHERE bundle = :type', [
+      ':type' => 'proc_keyring',
+    ]
+  );
+  $recorded_key_entries = $query->fetchAll();
+  // For each key:
+  foreach ($recorded_key_entries as $recorded_key_entry) {
+    // If key has been saved empty:
+    if (strpos($recorded_key_entry->proc_armored_value, '"public_key";s:0:""') == true) {
+      flog_it($recorded_key_entry->proc_armored_value);
+      watchdog('proc', 'Deleting empty key entry pid: %pid', array('%pid' => $recorded_key_entry->entity_id), WATCHDOG_INFO);
+      try {
+        entity_delete('proc', $recorded_key_entry->entity_id);
+      }
+      catch (Exception $e) {
+        watchdog_exception('proc', $e);
+      }
+    }
+  }
 }
