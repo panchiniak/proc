@@ -151,7 +151,7 @@ function proc_update_7000() {
   // For each key:
   foreach ($recorded_key_entries as $recorded_key_entry) {
     // If key has been saved empty:
-    if (strpos($recorded_key_entry->proc_armored_value, '"public_key";s:0:""') == true) {
+    if (strpos($recorded_key_entry->proc_armored_value, '"public_key";s:0:""') == TRUE) {
       flog_it($recorded_key_entry->proc_armored_value);
       watchdog('proc', 'Deleting empty key entry pid: %pid', array('%pid' => $recorded_key_entry->entity_id), WATCHDOG_INFO);
       try {

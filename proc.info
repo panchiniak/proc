@@ -15,4 +15,3 @@ dependencies[] = entity
 dependencies[] = entityreference
 
 test_dependencies[] = libraries
-files[] = tests/proc.test

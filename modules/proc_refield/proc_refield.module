@@ -42,8 +42,7 @@ function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state) 
     $form['instance']['settings']['onclick']['enable'] = array(
       '#type' => 'checkboxes',
       '#options' => array('1' => t('Enabled')),
-      '#default_value' => isset($settings['onclick']['enable'])
-        ? $settings['onclick']['enable'] : 0,
+      '#default_value' => isset($settings['onclick']['enable']) ? $settings['onclick']['enable'] : 0,
     );
   }
 }
@@ -198,11 +197,6 @@ function proc_refield_views_default_views() {
   );
   $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
   $handler->display->display_options['defaults']['row_options'] = FALSE;
-  $translatables['proc_refield_my_ciphers'] = array(
-    t('My protected content'),
-    t('Proc Armored entity ID'),
-    t('([pid]) [title] <b>Encrypted for:</b> [proc_recipient]'),
-  );
   $views[$view->name] = $view;
   return $views;
 }
