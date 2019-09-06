@@ -21,7 +21,7 @@ function hook_cipher_postsave(int $pid, array $form_state) {
  *
  * @param array $cipher_text_data
  *   Alterable array of cipher text data.
- * @param object $context
+ * @param array $context
  *   Unalterable full cipher text object.
  */
 function hook_get_cipher_text_alter(array $cipher_text_data, array $context) {
