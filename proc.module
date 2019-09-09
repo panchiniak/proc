@@ -219,7 +219,7 @@ class Proc extends Entity {
   /**
    * Defualt URI.
    */
-  protected function defaultURI() {
+  protected function defaultUri() {
     if (($this->type == 'proc_ciphertxt') && (_proc_recipient($this->identifier()))) {
       return array('path' => 'proc/' . $this->identifier());
     }
