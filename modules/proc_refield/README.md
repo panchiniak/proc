@@ -24,6 +24,10 @@ After that you can implment hook_cipher_postsave (see Proc API) in order to
 automatically populate proc_refield with the newly created cipher text. This way
 it is possible to have encryption smothly integrated into any fieldable content
 creation form.
+And additionally to using proc_refield you can also enable Protected Content API
+on any Entity Reference field. This will allow you to have several Protected
+Content reference fields with 'Add a new file' link in any bundles or content
+types of your choice.
 
 REQUIREMENTS
 ------------

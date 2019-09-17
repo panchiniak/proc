@@ -31,7 +31,7 @@ function proc_refield_views_api() {
  * Implements hook_form_field_ui_field_edit_form_alter().
  */
 function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
-  if ($form['#field']['field_name'] == 'proc_refield') {
+  if ($form['#field']['field_name'] == 'proc_refield' || $form['#field']['type'] == 'entityreference') {
     $settings = $form['#instance']['settings'];
     $form['instance']['settings']['onclick'] = array(
       '#type' => 'fieldset',
@@ -67,8 +67,7 @@ function proc_refield_element_info_alter(&$types) {
  * Process callback.
  */
 function proc_refield_process_widget($element) {
-  // Expose only instances of proc_refield.
-  if (!isset($element['#entity_type']) || $element['#parents'][0] != 'proc_refield') {
+  if (!isset($element['#entity_type'])) {
     return $element;
   }
 
