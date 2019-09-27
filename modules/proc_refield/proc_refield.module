@@ -72,11 +72,10 @@ function proc_refield_process_widget($element) {
   }
 
   $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
-  if ($instance['settings']['onclick']['enable']['1'] == '1') {
+  if (isset($instance['settings']['onclick']) && $instance['settings']['onclick']['enable']['1'] == '1') {
     // @TODO: rename this hook for proc_refield_widget_process_onclick.
     drupal_alter('proc_refield_widget_process', $element);
   }
-
   return $element;
 }
 
