@@ -338,33 +338,40 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     $wrapper->created = time();
     $wrapper->save();
   }
-
   // @TODO: add option to turn off cipher post save default messages.
   if (isset($entity->pid)) {
     $success_encryption_message = t(
-          'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
-          array(
-          // @TODO: replace hardcoded part of address by a CONSTANT.
-            '@exclusive-access-link' => url('proc/' . $entity->pid),
-            '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
-          )
-      );
-    drupal_set_message($success_encryption_message);
+      'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
+      array(
+        '@exclusive-access-link' => url('proc/' . $entity->pid),
+        '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
+      )
+    );
     $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
     $watchdog_args = array('@type' => 'proc_ciphertxt', '%pid' => $entity->pid);
     watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
-
-    drupal_set_message(t('Only the recipient chosen will be able to access the Protected Content.'), 'info');
   }
   else {
-    // @TODO: add ciphertext failure hook
-    // @TODO: add watchdog on cipher generation errors.
-    drupal_set_message(t('Sorry. Cipher text of your file has not been saved. Close other tabs in your browser to release some memory and try again.'), 'error');
+    $failure_encryption_message = t('Sorry. Cipher text of your file has not been saved. Close other tabs in your browser to release some memory and try again.');
+    $context = array(
+      'unalterable_encryption_source_form' => $form,
+    );
+    drupal_alter('cipher_postsave_failure_encryption_message', $failure_encryption_message, $context);
+    if (!empty($failure_encryption_message)) {
+      drupal_set_message($failure_encryption_message, 'error');
+    }
   }
+  $context = array(
+    'unalterable_encryption_source_form' => $form,
+    'unalterable_pid' => $entity->pid,
+  );
+  drupal_alter('cipher_postsave_success_encryption_message', $success_encryption_message, $context);
+  if (!empty($success_encryption_message)) {
+    drupal_set_message($success_encryption_message);
+  }
+
   cache_clear_all(NULL, 'cache_form', TRUE);
-
   module_invoke_all('cipher_postsave', $entity->pid, $form_state);
-
   $commands[] = ajax_command_remove('div.messages');
   $commands[] = ajax_command_before('#main-content', theme('status_messages'));
   ajax_deliver(array('#type' => 'ajax', '#commands' => $commands));
