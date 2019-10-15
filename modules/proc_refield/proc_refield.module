@@ -83,14 +83,9 @@ function proc_refield_process_widget($element) {
  * Implements hook_views_default_views().
  */
 function proc_refield_views_default_views() {
-  // This view lists cipher texts that belong to the current user and is used to
+  // This view lists cipher texts sent to the current user and is used to
   // populate the available items in the entity reference field (proc_refield).
   // This way the current user will be able to reuse her/his own cipher texts.
-  // If a cipher text created by using the keys of someone else does really
-  // belong to the creator is a methaphisical issue mostly beyond the scope of
-  // this code. However and eventually a shared ownership schema could be
-  // implemented: the metadata of a cipher text would belong to its author but
-  // the cipher text itself would belong to the majority of its recipients.
   $view = new view();
   $view->name = 'proc_refield_my_ciphers';
   $view->description = '';
