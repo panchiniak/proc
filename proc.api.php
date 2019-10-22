@@ -13,7 +13,7 @@
  * @param array $form_state
  *   Form state from cipher text submit.
  */
-function hook_cipher_postsave(int $pid, array $form_state) {
+function hook_cipher_postsave(integer $pid, array $form_state) {
 }
 
 /**
@@ -46,5 +46,5 @@ function hook_cipher_postsave_success_encryption_message_alter(array $success_en
  * @param array $context
  *   Unalterable encryption form as a means of context.
  */
-function hook_cipher_postsave_failure_encryption_message_alter(array $success_encryption_message, array $context) {
+function hook_cipher_postsave_failure_encryption_message_alter(array $failure_encryption_message, array $context) {
 }

@@ -34,4 +34,5 @@ class ProcTestCase extends DrupalWebTestCase {
     $entity_description = entity_get_info('proc');
     $this->assertEqual($entity_description['base table'], 'proc', t("Entity type 'proc' exists."));
   }
+
 }
