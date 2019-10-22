@@ -9,9 +9,11 @@ crypto_library_url = "https://github.com/openpgpjs/openpgpjs/archive/v4.4.10.zip
 crypto_library_folder = "openpgpjs"
 yellow_flag_browsers_csv = "Internet Explorer,Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko,Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko"
 crypto_library_file = "dist/openpgp.min.js"
+testing_api = 2.x
 
 dependencies[] = libraries
 dependencies[] = entity
 dependencies[] = entityreference
 
 test_dependencies[] = libraries
+files[] = tests/proc.test

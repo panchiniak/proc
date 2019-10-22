@@ -1,6 +1,37 @@
 <?php
-
 /**
  * @file
- * Tests to be added here.
+ * Tests for proc module.
  */
+
+/**
+ * Check existence of proc.
+ */
+class ProcTestCase extends DrupalWebTestCase {
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Proc',
+      'description' => 'Check existence of proc entity.',
+      'group' => 'Protected Content',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp() {
+    parent::setUp('proc');
+  }
+
+  /**
+   * Check existence of proc.
+   */
+  public function testProc() {
+    // Make sure that "proc" entity type exists.
+    $entity_description = entity_get_info('proc');
+    $this->assertEqual($entity_description['base table'], 'proc', t("Entity type 'proc' exists."));
+  }
+}
