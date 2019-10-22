@@ -8,7 +8,7 @@
 /**
  * Allow modules to act on cipher post save.
  *
- * @param int $pid
+ * @param integer $pid
  *   Protected Content entity ID of created cipher text.
  * @param array $form_state
  *   Form state from cipher text submit.
