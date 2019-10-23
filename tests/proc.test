@@ -9,8 +9,9 @@
  * Check existence of proc.
  */
 class ProcTestCase extends DrupalWebTestCase {
+
   /**
-   * Implements getInfo().
+   * Gets info for test results overview.
    */
   public static function getInfo() {
     return array(
@@ -21,14 +22,14 @@ class ProcTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Implements setUp().
+   * Defines dependencies.
    */
   public function setUp() {
     parent::setUp('proc');
   }
 
   /**
-   * Check existence of proc.
+   * Checks existence of proc.
    */
   public function testProc() {
     // Make sure that "proc" entity type exists.
