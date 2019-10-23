@@ -85,7 +85,7 @@ function proc_refield_process_widget($element) {
 function proc_refield_views_default_views() {
   // This view lists cipher texts sent to the current user and is used to
   // populate the available items in the entity reference field (proc_refield).
-  // This way the current user will be able to reuse her/his own cipher texts.
+  // This way the current user will be able to reuse user's own cipher texts.
   $view = new view();
   $view->name = 'proc_refield_my_ciphers';
   $view->description = '';
