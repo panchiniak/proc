@@ -8,12 +8,12 @@
 /**
  * Allow modules to act on cipher post save.
  *
- * @param integer $pid
+ * @param string $pid
  *   Protected Content entity ID of created cipher text.
  * @param array $form_state
  *   Form state from cipher text submit.
  */
-function hook_cipher_postsave(integer $pid, array $form_state) {
+function hook_cipher_postsave(string $pid, array $form_state) {
 }
 
 /**
