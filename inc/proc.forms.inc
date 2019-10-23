@@ -326,7 +326,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
 
   $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
 
-  if (!empty($ciphertxt_data)) {
+  if (!empty($ciphertxt_data['source_file_name'])) {
     $wrapper = entity_metadata_wrapper('proc', $entity);
     // @TODO: deprecate property uid in favor of proc_armoredown field.
     $wrapper->uid = $user->uid;
