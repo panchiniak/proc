@@ -133,6 +133,7 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['fields']['pid']['table'] = 'proc';
   $handler->display->display_options['fields']['pid']['field'] = 'pid';
   $handler->display->display_options['fields']['pid']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['pid']['separator'] = '';
   /* Field: Protected Content: Ciphertext recipient user reference */
   $handler->display->display_options['fields']['proc_recipient']['id'] = 'proc_recipient';
   $handler->display->display_options['fields']['proc_recipient']['table'] = 'field_data_proc_recipient';
