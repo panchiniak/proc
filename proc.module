@@ -186,11 +186,11 @@ function proc_entity_property_info() {
     'label' => t('Proc Armored author'),
     'setter callback' => 'entity_property_verbatim_set',
   );
-  $properties['title'] = array(
+  $properties['label'] = array(
     'type'  => 'text',
-    'schema field' => 'title',
+    'schema field' => 'label',
     'required' => TRUE,
-    'label' => t('Protected content title'),
+    'label' => t('Protected content label'),
     'description' => t('Friendly identifier for armored data'),
     'setter callback' => 'entity_property_verbatim_set',
   );
@@ -230,7 +230,7 @@ class Proc extends Entity {
    * Default label.
    */
   protected function defaultLabel() {
-    return $this->title;
+    return $this->label;
   }
 
 }

@@ -162,3 +162,19 @@ function proc_update_7000() {
     }
   }
 }
+
+/**
+ * Rename proc table field.
+ */
+function proc_update_7001() {
+  db_change_field(
+    'proc',
+    'title',
+    'label',
+    array (
+      'description' => 'The label of this protectec content.',
+      'type' => 'text',
+      'size' => 'small'
+    )
+  );
+}

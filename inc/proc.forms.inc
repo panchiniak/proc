@@ -270,8 +270,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
     $wrapper->proc_armored = serialize($keyring_data);
     // @TODO: implement full cipher indentifier:
     // client side source domain name:user email.
-    // @TODO: use 'label' instead of 'title'
-    $wrapper->title = $user->mail;
+    $wrapper->label = $user->mail;
     $wrapper->created = time();
     $wrapper->save();
   }
@@ -334,7 +333,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     $wrapper->proc_armored = serialize($ciphertxt_data);
     $wrapper->proc_recipient->set($recipients_uids_new);
     $wrapper->language($language->language);
-    $wrapper->title = $ciphertxt_data['source_file_name'];
+    $wrapper->label = $ciphertxt_data['source_file_name'];
     $wrapper->created = time();
     $wrapper->save();
   }
