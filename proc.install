@@ -29,8 +29,8 @@ function proc_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'title' => array(
-        'description' => 'The title of this protectec content.',
+      'label' => array(
+        'description' => 'The label of this protected content.',
         'type' => 'text',
         'size' => 'small',
       ),
@@ -172,7 +172,7 @@ function proc_update_7001() {
     'title',
     'label',
     array (
-      'description' => 'The label of this protectec content.',
+      'description' => 'The label of this protected content.',
       'type' => 'text',
       'size' => 'small'
     )
