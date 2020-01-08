@@ -45,3 +45,13 @@ function proc_refield_uninstall() {
   field_delete_field('proc_refield');
   field_purge_batch(0);
 }
+
+/**
+ * Remove view with proc title.
+ */
+function proc_refield_update_7000() {
+  $my_cyphers_view_name = 'proc_refield_my_ciphers';
+  if ($view = views_get_view($my_cyphers_view_name)) {
+    views_delete_view($view);
+  }
+}
