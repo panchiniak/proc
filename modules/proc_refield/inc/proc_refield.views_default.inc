@@ -4,21 +4,21 @@
  * Implements hook_views_default_views().
  */
 function proc_refield_views_default_views() {
-  // This view lists cipher texts sent to the current user and is used to
+  // This view lists cipher texts sent to and by the current user and is used to
   // populate the available items in the entity reference field (proc_refield).
   // This way the current user will be able to reuse user's own cipher texts.
   $view = new view();
-  $view->name = 'proc_refield_my_ciphers';
-  $view->description = '';
+  $view->name = 'my_proc_ciphers_ls';
+  $view->description = 'My proc ciphers, lato sensu - sent to me and by me';
   $view->tag = 'default';
   $view->base_table = 'proc';
-  $view->human_name = 'My Ciphers';
+  $view->human_name = 'my proc ciphers';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'My protected content lato sensu';
+  $handler->display->display_options['title'] = 'My protected content';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'none';
   $handler->display->display_options['cache']['type'] = 'none';
@@ -44,11 +44,6 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'proc';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
-  /* Relationship: Entity Reference: Referenced Entity */
-  $handler->display->display_options['relationships']['proc_recipient_target_id']['id'] = 'proc_recipient_target_id';
-  $handler->display->display_options['relationships']['proc_recipient_target_id']['table'] = 'field_data_proc_recipient';
-  $handler->display->display_options['relationships']['proc_recipient_target_id']['field'] = 'proc_recipient_target_id';
-  $handler->display->display_options['relationships']['proc_recipient_target_id']['required'] = TRUE;
   /* Field: Protected Content: Proc Armored entity ID */
   $handler->display->display_options['fields']['pid']['id'] = 'pid';
   $handler->display->display_options['fields']['pid']['table'] = 'proc';
@@ -70,16 +65,14 @@ function proc_refield_views_default_views() {
   );
   $handler->display->display_options['fields']['proc_recipient']['delta_offset'] = '0';
   $handler->display->display_options['fields']['proc_recipient']['separator'] = ' - ';
-  /* Field: Protected Content: Protected content title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'proc';
-  $handler->display->display_options['fields']['title']['field'] = 'label';
-  $handler->display->display_options['fields']['title']['label'] = '';
-  $handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['title']['alter']['text'] = '([pid]) [title] <b>Encrypted for:</b> [proc_recipient]';
-  $handler->display->display_options['fields']['title']['alter']['path'] = 'proc/[pid]';
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['title']['element_default_classes'] = FALSE;
+  /* Field: Protected Content: Protected content label */
+  $handler->display->display_options['fields']['label']['id'] = 'label';
+  $handler->display->display_options['fields']['label']['table'] = 'proc';
+  $handler->display->display_options['fields']['label']['field'] = 'label';
+  $handler->display->display_options['fields']['label']['label'] = '';
+  $handler->display->display_options['fields']['label']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['label']['alter']['text'] = '([pid]) [label] <b>Encrypted for:</b> [proc_recipient]';
+  $handler->display->display_options['fields']['label']['element_label_colon'] = FALSE;
   /* Sort criterion: Protected Content: Proc Armored entity ID */
   $handler->display->display_options['sorts']['pid']['id'] = 'pid';
   $handler->display->display_options['sorts']['pid']['table'] = 'proc';
@@ -94,11 +87,11 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['filters']['uid_current']['id'] = 'uid_current';
   $handler->display->display_options['filters']['uid_current']['table'] = 'users';
   $handler->display->display_options['filters']['uid_current']['field'] = 'uid_current';
-  $handler->display->display_options['filters']['uid_current']['relationship'] = 'proc_recipient_target_id';
+  $handler->display->display_options['filters']['uid_current']['relationship'] = 'uid';
   $handler->display->display_options['filters']['uid_current']['value'] = '1';
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
-  $handler->display->display_options['path'] = 'my-ciphers';
+  $handler->display->display_options['path'] = 'my-proc-ciphers';
   /* Display: Entity Reference */
   $handler = $view->new_display('entityreference', 'Entity Reference', 'entityreference_1');
   $handler->display->display_options['defaults']['title'] = FALSE;
@@ -107,7 +100,8 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['style_plugin'] = 'entityreference_style';
   $handler->display->display_options['style_options']['search_fields'] = array(
     'pid' => 'pid',
-    'title' => 'title',
+    'label' => 'label',
+    'proc_recipient' => 0,
   );
   $handler->display->display_options['defaults']['style_options'] = FALSE;
   $handler->display->display_options['defaults']['row_plugin'] = FALSE;
@@ -119,5 +113,5 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
   $handler->display->display_options['defaults']['row_options'] = FALSE;
   $views[$view->name] = $view;
-  // return $views;
+  return $views;
 }
