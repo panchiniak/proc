@@ -270,7 +270,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
     $wrapper->proc_armored = serialize($keyring_data);
     // @TODO: implement full cipher indentifier:
     // client side source domain name:user email.
-    $wrapper->label = $user->mail;
+    $wrapper->label->set($user->mail);
     $wrapper->created = time();
     $wrapper->save();
   }
