@@ -27,7 +27,7 @@ It is very simple to use. Once it is installed (see Installation below):
 
 REQUIREMENTS
 ------------
-OpenPGP.js v4.4.10
+OpenPGP.js v4.7.2
 
 INSTALLATION
 ------------
