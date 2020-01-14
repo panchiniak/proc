@@ -48,3 +48,16 @@ function hook_cipher_postsave_success_encryption_message_alter(array $success_en
  */
 function hook_cipher_postsave_failure_encryption_message_alter(array $failure_encryption_message, array $context) {
 }
+
+/**
+ * Allow modules to act on keyring post save.
+ *
+ * @param string $pid
+ *   Protected Content entity ID of created keyring.
+ * @param array $form_state
+ *   Form state from keyring submit.
+ * @param string $uid
+ *   User ID of keyring owner.
+ */
+function hook_keyring_postsave(string $pid, array $form_state, string $uid) {
+}

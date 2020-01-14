@@ -276,7 +276,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
   }
 
   if (isset($entity->pid)) {
-    // @TODO: add keyring generation success hook
+    module_invoke_all('keyring_postsave', $entity->pid, $form_state, $user->uid);
     drupal_set_message(t('Encryption keys generated successfully.'));
     drupal_set_message(t("Your password can't be recovered. You must remember it. If you create new keys all previously Protected Content sent to you will be forever lost (and there is nothing we can do about that)."), 'info');
   }
