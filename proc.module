@@ -28,7 +28,10 @@ function proc_permission() {
       'title' => t('View cipher'),
       'description' => t('Allow user to view cipher entity.'),
     ),
-
+    'delete cipher' => array(
+      'title' => t('Delete cipher'),
+      'description' => t('Allow user to delete cipher entity.'),
+    ),
   );
 }
 
@@ -250,5 +253,8 @@ function proc_access($op, $task, $account = NULL, $entity_type = NULL) {
 
     case 'view':
       return user_access('view cipher', $account);
+
+    case 'delete':
+      return user_access('delete cipher', $account);
   }
 }
