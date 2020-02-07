@@ -61,13 +61,21 @@
                     }
 
                     const optionsDecription = {
-                        message: await openpgp.message.readArmored(cipherText),
+                        message: await openpgp.message.readArmored(cipherText).catch(
+                            function(err){
+                                $('form#-proc-decrypt-to-file').prepend('<div class="messages error">' + Drupal.t(err) + '</div>')
+                            }
+                        ),
                         privateKeys: [privKeyObj],
                         // For the sake of simplicity all files are considered binary.
                         format: 'binary'
                     };
 
-                    const decrypted = await openpgp.decrypt(optionsDecription);
+                    const decrypted = await openpgp.decrypt(optionsDecription).catch(
+                        function(err){
+                            $('form#-proc-decrypt-to-file').prepend('<div class="messages error">' + Drupal.t(err) + '</div>')
+                        }
+                    );
                     const plaintext = await openpgp.stream.readToEnd(decrypted.data);
                     const blob = new Blob(
                         [plaintext], {
