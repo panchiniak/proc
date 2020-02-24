@@ -14,6 +14,7 @@ testing_api = 2.x
 dependencies[] = libraries
 dependencies[] = entity
 dependencies[] = entityreference
+dependencies[] = jquery_update
 
 test_dependencies[] = libraries
 files[] = tests/proc.test
