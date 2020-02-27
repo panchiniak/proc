@@ -44,6 +44,12 @@ function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state) 
       '#options' => array('1' => t('Enabled')),
       '#default_value' => isset($settings['onclick']['enable']) ? $settings['onclick']['enable'] : 0,
     );
+    $form['instance']['settings']['onclick']['fetcher'] = array(
+      '#title' => t('Users view for fetching recipients'),
+      // @TODO: replace by a selection of populated user views.
+      '#type' => 'textfield',
+      '#default_value' => isset($settings['onclick']['fetcher']) ? $settings['onclick']['fetcher'] : '',
+    );
   }
 }
 

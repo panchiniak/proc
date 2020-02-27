@@ -1,0 +1,8 @@
+name = Protected Message
+description = Add a protected content reference field to private message.
+core = 7.x
+package = Cryptography
+dependencies[] = autodialog
+dependencies[] = entityreference
+dependencies[] = proc
+dependencies[] = proc_refield

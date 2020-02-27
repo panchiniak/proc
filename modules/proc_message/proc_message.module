@@ -1,0 +1,236 @@
+<?php
+/**
+ * @file
+ * Code for the yyyyy Proc feature.
+ */
+
+/**
+ * Implements hook_page_alter().
+ */
+function proc_message_page_alter(&$page) {
+  // If this is a proc page inbound on a field altered by proc refield:
+  if (isset($page['content']['system_main']['#action'])) {
+    if (strpos($page['content']['system_main']['#action'], 'proc_refield_field_id') !== false) {
+      unset($page['#handler']->handler);
+    }
+  }
+}
+
+/**
+ * Custom menu callback for retrieval of encryption recipients.
+ *
+ * @param string $view
+ *   View for retrieval of users.
+ *
+ * @param string $filter
+ *   Filter parameters.
+ */
+function _proc_recipients_menu_callback($view, $filter_arguments) {
+  $recipients_view = views_get_view($view);
+  if ($recipients_view){
+    $recipients_view->set_arguments([$filter_arguments]);
+    $recipients_view->execute();
+    $selected_user_ids = array();
+    foreach ($recipients_view->result as $row_key => $row) {
+      $selected_user_ids[] = $row->uid;
+    }
+    $uids = array_unique($selected_user_ids);
+    asort($uids);
+    $uids_csv = implode(',', $uids);
+    drupal_json_output($uids_csv);
+  }
+  else{
+    drupal_json_output('Error: no view found.');
+  }
+
+}
+
+/**
+ * Implements hook_menu().
+ */
+function proc_message_menu() {
+  $items = array();
+  $items['proc/recipients/%/%'] = [
+    'page callback' => '_proc_recipients_menu_callback',
+    'page arguments' => [2,3],
+    'access arguments' => ['new protected file'],
+  ];
+  return $items;
+}
+
+/**
+ * Implements hook_proc_refield_widget_process_alter().
+ */
+function proc_message_proc_refield_widget_process_alter(&$element){
+
+  $field = field_info_field($element['#field_name']);
+  $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+  // Available at any implementation of entity reference fields:
+  // Define fetcher criteria in a field by field basis:
+  // If the element is disabled do not show Add a file button:
+  if (!isset($element['#attributes']['disabled'])){
+    // Apply recipients criteria defined at data-proc for all proc fields:
+    $add_file_link_text = '<span id="add-file-proc-link-' . $element['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
+    $proc_message_fetcher_argument = "var procRecipientsFetcherCriteria = 'x';";
+    $add_file_link = l(
+      $add_file_link_text,
+      '', [
+        'attributes' => [
+          'class' => ['autodialog'],
+          'data-dialog-title' => t('File encryption'),
+          // @TODO: set width by configurations
+          'data-dialog-width' => '400',
+          'id' => ['add-file-proc-link-' . $element['#field_name']],
+          'rel' => ['[center,60]'],
+          'name' => ['-proc-encrypt-file'],
+          'title' => t('File encryption'),
+          'onclick' => $proc_message_fetcher_argument . "
+            var inputElementId = this.parentNode.parentNode.previousElementSibling.id;
+            var currentLink = this;
+            var viewAccessURL = window.location.origin + Drupal.settings.basePath + 'proc/recipients/" . $instance['settings']['onclick']['fetcher'] . "/' + procRecipientsFetcherCriteria;
+            jQuery.ajax({
+              async: false,
+              url: viewAccessURL,
+              success: function(result){
+                let procAddFilePath = window.location.origin + Drupal.settings.basePath + 'proc/add/' + result + '?proc_refield=proc_message&proc_refield_field_id=" . $element['#field_name'] . "&proc_recipients_view_fetcher=" . $instance['settings']['onclick']['fetcher'] . "&proc_recipients_view_fetcher_arg=' + procRecipientsFetcherCriteria + '&input_element_id=' + inputElementId;
+                // Populate Add file link with UIDs of recipient users enriched with metadta for retuning the entity reference into the correspondent input element.
+                jQuery(currentLink).attr('href', procAddFilePath);
+              }
+            });
+          ",
+        ],
+        'html' => TRUE,
+      ]
+    );
+    $element['#description'] = $add_file_link;
+    if (isset($instance['description'])){
+      $element['#description'] = $instance['description'] . '<div>' . $add_file_link . '</div>';
+    }
+  }
+}
+
+/**
+ * Implements hook_cipher_postsave().
+ */
+function proc_message_cipher_postsave($pid, $form_state) {
+  global $base_url;
+
+  // Get parameter at private message form load (not from the modal window!)
+  $url = str_replace('amp;', '', filter_xss($form_state['complete form']['#action']));
+
+  $params = drupal_parse_url($url);
+  dpm($params);
+  if (isset($params['query']['proc_refield_field_id'])){
+    $proc_field_id = $params['query']['proc_refield_field_id'];
+  }
+
+  if (isset($params['query']['proc_refield']) && $params['query']['proc_refield'] == 'proc_message') {
+    watchdog('proc_refield', 'Created proc %pid on %module at field %fid.', [
+      '%pid' => $pid,
+      '%module' => 'proc_message',
+      '%fid' => $proc_field_id,
+    ], WATCHDOG_INFO);
+    $commands[] = ajax_command_append(
+      'body',
+      "
+        <script>
+          jQuery('button.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-icon-only.ui-dialog-titlebar-close').trigger('click');
+        </script>
+
+        <script>
+          // Available results in the entity reference proc_refield at eumobil_case:
+          var url = '" . $base_url . "/xxxx_autocomplete_deluxe/entityreference///" . $proc_field_id . "/';
+          jQuery.getJSON(url, function (data, result) {
+            if (result != 'success') {
+                return;
+            }
+            // Get Pid
+            var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
+            // Build yyyyy autocomplete deluxe item
+            var removableCipherAutoCompleteElement = jQuery(
+              \"<span class='autocomplete-deluxe-item'>\" +
+              data[Object.keys(data)[0]] +
+              \"<a class='autocomplete-deluxe-item-delete' id='autocomplete-deluxe-item-delete-proc-privatemsg-\" +
+              pid +
+              \"' href='javascript:void(0)'></a><input value='\" +
+              data[Object.keys(data)[0]] +
+              \"' type='hidden'></span>\"
+            );
+
+            // Select the automplete deluxe container according to field id:
+            jQuery('div.autocomplete-deluxe-container.autocomplete-deluxe-multiple')
+            .children(\"input[name^='" . $proc_field_id . "']\")
+            .parent()
+            .prepend(
+              removableCipherAutoCompleteElement
+            );
+
+            // Apply result to value of field:
+            var cipherSlected = jQuery(\"input[name^='" . $proc_field_id . "']\")[1].value;
+            var prefix = '\"\"\"\" ';
+            if (cipherSlected) {
+              prefix = '';
+            }
+            jQuery(\"input[name^='" . $proc_field_id . "'\").eq(1)[0].value = prefix + cipherSlected + ' \"\"' + Object.keys(data)[0] + '\"\"';
+
+          })
+        </script>
+      "
+    );
+    ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
+  }
+
+
+}
+
+/**
+ * Implements hook_get_cipher_text_alter().
+ *
+ * Check if cipher has been created after the key was generated.
+ */
+function proc_message_get_cipher_text_alter(&$cipher_text_data, $context) {
+  global $user;
+  // If cipher has been created previously to the creation of latest user's key:
+  if ($context['unalterable_cipher_object']->created->value() < _proc_get_keys($user->uid)['created']){
+    $expired_encryption_alert = t(
+      'You have lost access to previously encrypted <b>@file-name (@file-id)</b> file due to the generation of your newer encryption key.',
+      array(
+      '@file-name' => $context['unalterable_cipher_object']->label->value(),
+      '@file-id' => $context['unalterable_cipher_object']->pid->value(),
+      )
+    );
+    drupal_set_message($expired_encryption_alert, 'warning');
+    // Return empty cipher data in order to remove default URI.
+    $cipher_text_data = array();
+  }
+}
+
+/**
+ * Implements hook_cipher_postsave_success_encryption_message_alter().
+ */
+function proc_message_cipher_postsave_success_encryption_message_alter(&$success_encryption_message, $context) {
+  // Get RIAT fields:
+  $riat_fields = array_keys(field_info_instances('node', 'riat_case'));
+  // Get source field of cipher:
+  $action_url_parameters = drupal_parse_url($context['unalterable_encryption_source_form']['#action'])['query'];
+  if (isset($action_url_parameters['proc_refield_field_id'])) {
+    // If cipher comes from a field in RIAT or private message:
+    if (
+      // Private message:
+      $action_url_parameters['proc_refield_field_id'] == 'field_proc_cipher_reference' && $action_url_parameters['proc_privatemessage']
+    ){
+      $success_encryption_message = '';
+    }
+  }
+}
+
+/**
+ * Implements hook_form__proc_encrypt_file_alter().
+ */
+// function proc_message_form__proc_encrypt_file_alter(&$form, &$form_state, $form_id){
+//   // If this is a proc page originated on field altered by proc refield:
+//   if (strpos($form['#action'], 'proc_refield_field_id') !== false) {
+//     // Remove repeated Chose a file title but keep placeholder for file metadata
+//     $form['pc-upload-description']['#title'] = ' ';
+//   }
+// }
