@@ -42,7 +42,6 @@ function _proc_recipients_menu_callback($view, $filter_arguments) {
   else{
     drupal_json_output('Error: no view found.');
   }
-
 }
 
 /**
@@ -65,6 +64,7 @@ function proc_message_proc_refield_widget_process_alter(&$element){
 
   $field = field_info_field($element['#field_name']);
   $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+
   // Available at any implementation of entity reference fields:
   // Define fetcher criteria in a field by field basis:
   // If the element is disabled do not show Add a file button:
@@ -92,7 +92,23 @@ function proc_message_proc_refield_widget_process_alter(&$element){
               async: false,
               url: viewAccessURL,
               success: function(result){
-                let procAddFilePath = window.location.origin + Drupal.settings.basePath + 'proc/add/' + result + '?proc_refield=proc_message&proc_refield_field_id=" . $element['#field_name'] . "&proc_recipients_view_fetcher=" . $instance['settings']['onclick']['fetcher'] . "&proc_recipients_view_fetcher_arg=' + procRecipientsFetcherCriteria + '&input_element_id=' + inputElementId;
+                let procAddFilePath =
+                  window.location.origin +
+                  Drupal.settings.basePath +
+                  'proc/add/' +
+                  result +
+                  '?proc_refield=proc_message&proc_refield_field_id=" .
+                  $element['#field_name'] .
+                  "&proc_refield_field_bundle=" .
+                  $element['#bundle'] .
+                  "&proc_refield_field_entity_type=" .
+                  $element['#entity_type'] .
+                  "&proc_recipients_view_fetcher=" .
+                  $instance['settings']['onclick']['fetcher'] .
+                  "&proc_recipients_view_fetcher_arg=' +
+                  procRecipientsFetcherCriteria +
+                  '&input_element_id=' +
+                  inputElementId;
                 // Populate Add file link with UIDs of recipient users enriched with metadta for retuning the entity reference into the correspondent input element.
                 jQuery(currentLink).attr('href', procAddFilePath);
               }
@@ -119,10 +135,18 @@ function proc_message_cipher_postsave($pid, $form_state) {
   $url = str_replace('amp;', '', filter_xss($form_state['complete form']['#action']));
 
   $params = drupal_parse_url($url);
-  dpm($params);
+
+  flog_it($params);
+
   if (isset($params['query']['proc_refield_field_id'])){
     $proc_field_id = $params['query']['proc_refield_field_id'];
   }
+
+  // entityreference/autocomplete/single/
+  // <field-name>/
+  // <entity type: node, user, privatemsg_message, etc.>/
+  // <bundle: article, basic page, privatemsg_message, etc.>/
+  // NULL/1
 
   if (isset($params['query']['proc_refield']) && $params['query']['proc_refield'] == 'proc_message') {
     watchdog('proc_refield', 'Created proc %pid on %module at field %fid.', [
@@ -134,20 +158,22 @@ function proc_message_cipher_postsave($pid, $form_state) {
       'body',
       "
         <script>
-          jQuery('button.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-icon-only.ui-dialog-titlebar-close').trigger('click');
+          jQuery('.ui-dialog-titlebar-close').trigger('click');
         </script>
-
         <script>
-          // Available results in the entity reference proc_refield at eumobil_case:
-          var url = '" . $base_url . "/xxxx_autocomplete_deluxe/entityreference///" . $proc_field_id . "/';
+          // Available results in the entity reference for this field instance:
+          var url = '" . $base_url . "/entityreference/autocomplete/single/" . $proc_field_id . "/" . $params['query']['proc_refield_field_entity_type'] . "/" . $params['query']['proc_refield_field_bundle'] . "/NULL/1';
           jQuery.getJSON(url, function (data, result) {
-            if (result != 'success') {
-                return;
-            }
-            // Get Pid
-            var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
-            // Build yyyyy autocomplete deluxe item
-            var removableCipherAutoCompleteElement = jQuery(
+          if (result != 'success') {
+              return;
+          }
+          // Get proc id
+          var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
+          console.log('------------');
+          console.log(pid);
+
+          // Build autocomplete item
+          var removableCipherAutoCompleteElement = jQuery(
               \"<span class='autocomplete-deluxe-item'>\" +
               data[Object.keys(data)[0]] +
               \"<a class='autocomplete-deluxe-item-delete' id='autocomplete-deluxe-item-delete-proc-privatemsg-\" +
@@ -155,29 +181,35 @@ function proc_message_cipher_postsave($pid, $form_state) {
               \"' href='javascript:void(0)'></a><input value='\" +
               data[Object.keys(data)[0]] +
               \"' type='hidden'></span>\"
-            );
+          );
+          console.log(removableCipherAutoCompleteElement);
 
-            // Select the automplete deluxe container according to field id:
-            jQuery('div.autocomplete-deluxe-container.autocomplete-deluxe-multiple')
-            .children(\"input[name^='" . $proc_field_id . "']\")
-            .parent()
-            .prepend(
+          // Select the automplete deluxe container according to field id:
+          jQuery('div.autocomplete-deluxe-container.autocomplete-deluxe-multiple')
+          .children(\"input[id^='" . $params['query']['input_element_id'] . "']\")
+          .parent()
+          .prepend(
               removableCipherAutoCompleteElement
-            );
+          );
 
-            // Apply result to value of field:
-            var cipherSlected = jQuery(\"input[name^='" . $proc_field_id . "']\")[1].value;
-            var prefix = '\"\"\"\" ';
-            if (cipherSlected) {
+          // Apply result to value of field:
+          var cipherSlected = jQuery(\"input[id^='" . $params['query']['input_element_id'] . "']\")[0].value;
+          var prefix = '\"\"\"\" ';
+          if (cipherSlected) {
               prefix = '';
-            }
-            jQuery(\"input[name^='" . $proc_field_id . "'\").eq(1)[0].value = prefix + cipherSlected + ' \"\"' + Object.keys(data)[0] + '\"\"';
+          }
+
+          //jQuery(\"input[id^='" . $params['query']['input_element_id'] . "'\")[0].value = '(12) emnies-protected-files-list.PNG Encrypted for: admin - rodrigo - john (12)';
+
 
           })
         </script>
+
       "
     );
     ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
+
+    //jQuery(\"input[id^='" . $params['query']['input_element_id'] . "'\")[0].value = prefix + cipherSlected + ' \"\"' + Object.keys(data)[0] + '\"\"';
   }
 
 
