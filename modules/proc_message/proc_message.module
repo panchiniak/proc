@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Code for the yyyyy Proc feature.
+ * Code for the proc message module.
  */
 
 /**
@@ -71,23 +71,33 @@ function proc_message_proc_refield_widget_process_alter(&$element){
   if (!isset($element['#attributes']['disabled'])){
     // Apply recipients criteria defined at data-proc for all proc fields:
     $add_file_link_text = '<span id="add-file-proc-link-' . $element['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
-    $proc_message_fetcher_argument = "var procRecipientsFetcherCriteria = 'x';";
+    $proc_message_fetcher_arguments = "
+      var procRecipientsFetcherCriteria = 'x';
+      var procViewFecther = '" . $instance['settings']['onclick']['fetcher'] . "';
+      var procOriginFieldName = '" . $element['#field_name'] . "';
+      var procOriginFieldEntityBundle = '" . $element['#bundle'] . "';
+      var procOriginFieldEntityType = '" . $element['#entity_type'] . "';
+      var procOriginFieldEntityFetcher = '" . $instance['settings']['onclick']['fetcher'] . "';
+    ";
     $add_file_link = l(
       $add_file_link_text,
       '', [
         'attributes' => [
           'class' => ['autodialog'],
           'data-dialog-title' => t('File encryption'),
-          // @TODO: set width by configurations
           'data-dialog-width' => '400',
           'id' => ['add-file-proc-link-' . $element['#field_name']],
           'rel' => ['[center,60]'],
           'name' => ['-proc-encrypt-file'],
           'title' => t('File encryption'),
-          'onclick' => $proc_message_fetcher_argument . "
+          'onclick' => $proc_message_fetcher_arguments . "
             var inputElementId = this.parentNode.parentNode.previousElementSibling.previousElementSibling.id;
             var currentLink = this;
-            var viewAccessURL = window.location.origin + Drupal.settings.basePath + 'proc/recipients/" . $instance['settings']['onclick']['fetcher'] . "/' + procRecipientsFetcherCriteria;
+            var viewAccessURL = window.location.origin +
+              Drupal.settings.basePath +
+              'proc/recipients/' +
+              procViewFecther +
+              '/' + procRecipientsFetcherCriteria;
             jQuery.ajax({
               async: false,
               url: viewAccessURL,
@@ -97,19 +107,15 @@ function proc_message_proc_refield_widget_process_alter(&$element){
                   Drupal.settings.basePath +
                   'proc/add/' +
                   result +
-                  '?proc_refield=proc_message&proc_refield_field_id=" .
-                  $element['#field_name'] .
-                  "&proc_refield_field_bundle=" .
-                  $element['#bundle'] .
-                  "&proc_refield_field_entity_type=" .
-                  $element['#entity_type'] .
-                  "&proc_recipients_view_fetcher=" .
-                  $instance['settings']['onclick']['fetcher'] .
-                  "&proc_recipients_view_fetcher_arg=' +
-                  procRecipientsFetcherCriteria +
-                  '&input_element_id=' +
-                  inputElementId;
-                // Populate Add file link with UIDs of recipient users enriched with metadta for retuning the entity reference into the correspondent input element.
+                  '?proc_refield=proc_message&proc_refield_field_id=' + procOriginFieldName +
+                  '&proc_refield_field_bundle=' + procOriginFieldEntityBundle +
+                  '&proc_refield_field_entity_type=' +procOriginFieldEntityType  +
+                  '&proc_recipients_view_fetcher=' + procOriginFieldEntityFetcher +
+                  '&proc_recipients_view_fetcher_arg=' + procRecipientsFetcherCriteria +
+                  '&input_element_id=' + inputElementId;
+                // Populate Add file link with UIDs of recipient users enriched
+                // with metadta for retuning the entity reference into the
+                // correspondent input element.
                 jQuery(currentLink).attr('href', procAddFilePath);
               }
             });
@@ -229,14 +235,3 @@ function proc_message_cipher_postsave_success_encryption_message_alter(&$success
     }
   }
 }
-
-/**
- * Implements hook_form__proc_encrypt_file_alter().
- */
-// function proc_message_form__proc_encrypt_file_alter(&$form, &$form_state, $form_id){
-//   // If this is a proc page originated on field altered by proc refield:
-//   if (strpos($form['#action'], 'proc_refield_field_id') !== false) {
-//     // Remove repeated Chose a file title but keep placeholder for file metadata
-//     $form['pc-upload-description']['#title'] = ' ';
-//   }
-// }
