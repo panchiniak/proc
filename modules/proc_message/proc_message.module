@@ -142,8 +142,6 @@ function proc_message_cipher_postsave($pid, $form_state) {
 
   $params = drupal_parse_url($url);
 
-  flog_it($params);
-
   if (isset($params['query']['proc_refield_field_id'])){
     $proc_field_id = $params['query']['proc_refield_field_id'];
   }
@@ -184,7 +182,8 @@ function proc_message_cipher_postsave($pid, $form_state) {
                   return;
               }
               // Get proc id
-              var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
+              // var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
+              // @TODO: check pid instead of just using the latest
               var procInputValue = Object.keys(data)[0];
               jQuery('input[id=' + procInputElementId + ']')[0].value = procInputValue;
             });
