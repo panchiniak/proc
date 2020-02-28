@@ -85,7 +85,7 @@ function proc_message_proc_refield_widget_process_alter(&$element){
           'name' => ['-proc-encrypt-file'],
           'title' => t('File encryption'),
           'onclick' => $proc_message_fetcher_argument . "
-            var inputElementId = this.parentNode.parentNode.previousElementSibling.id;
+            var inputElementId = this.parentNode.parentNode.previousElementSibling.previousElementSibling.id;
             var currentLink = this;
             var viewAccessURL = window.location.origin + Drupal.settings.basePath + 'proc/recipients/" . $instance['settings']['onclick']['fetcher'] . "/' + procRecipientsFetcherCriteria;
             jQuery.ajax({
@@ -142,11 +142,13 @@ function proc_message_cipher_postsave($pid, $form_state) {
     $proc_field_id = $params['query']['proc_refield_field_id'];
   }
 
-  // entityreference/autocomplete/single/
-  // <field-name>/
-  // <entity type: node, user, privatemsg_message, etc.>/
-  // <bundle: article, basic page, privatemsg_message, etc.>/
-  // NULL/1
+  // entityreference/autocomplete/single/<field-name>/<entity type>/<bundle>/NULL/1
+  $proc_aruments = "
+    var procFieldId = '" . $proc_field_id  . "';
+    var procRefieldEntittyType = '" . $params['query']['proc_refield_field_entity_type'] . "';
+    var procRefieldFieldBundle = '" . $params['query']['proc_refield_field_bundle'] . "';
+    var procInputElementId = '" . $params['query']['input_element_id'] . "';
+  ";
 
   if (isset($params['query']['proc_refield']) && $params['query']['proc_refield'] == 'proc_message') {
     watchdog('proc_refield', 'Created proc %pid on %module at field %fid.', [
@@ -158,61 +160,33 @@ function proc_message_cipher_postsave($pid, $form_state) {
       'body',
       "
         <script>
-          jQuery('.ui-dialog-titlebar-close').trigger('click');
+          var height = document.getElementsByClassName('ui-dialog')[0].getBoundingClientRect().y;
+          // Center dialog before closing:
+          Drupal.autodialog.animatedMove(jQuery('.autodialog-content').dialog('widget'), height * 3 );
+          jQuery('.autodialog-content').dialog('close');
         </script>
-        <script>
+        <script>".
+          $proc_aruments . "
           // Available results in the entity reference for this field instance:
-          var url = '" . $base_url . "/entityreference/autocomplete/single/" . $proc_field_id . "/" . $params['query']['proc_refield_field_entity_type'] . "/" . $params['query']['proc_refield_field_bundle'] . "/NULL/1';
-          jQuery.getJSON(url, function (data, result) {
-          if (result != 'success') {
-              return;
-          }
-          // Get proc id
-          var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
-          console.log('------------');
-          console.log(pid);
-
-          // Build autocomplete item
-          var removableCipherAutoCompleteElement = jQuery(
-              \"<span class='autocomplete-deluxe-item'>\" +
-              data[Object.keys(data)[0]] +
-              \"<a class='autocomplete-deluxe-item-delete' id='autocomplete-deluxe-item-delete-proc-privatemsg-\" +
-              pid +
-              \"' href='javascript:void(0)'></a><input value='\" +
-              data[Object.keys(data)[0]] +
-              \"' type='hidden'></span>\"
-          );
-          console.log(removableCipherAutoCompleteElement);
-
-          // Select the automplete deluxe container according to field id:
-          jQuery('div.autocomplete-deluxe-container.autocomplete-deluxe-multiple')
-          .children(\"input[id^='" . $params['query']['input_element_id'] . "']\")
-          .parent()
-          .prepend(
-              removableCipherAutoCompleteElement
-          );
-
-          // Apply result to value of field:
-          var cipherSlected = jQuery(\"input[id^='" . $params['query']['input_element_id'] . "']\")[0].value;
-          var prefix = '\"\"\"\" ';
-          if (cipherSlected) {
-              prefix = '';
-          }
-
-          //jQuery(\"input[id^='" . $params['query']['input_element_id'] . "'\")[0].value = '(12) emnies-protected-files-list.PNG Encrypted for: admin - rodrigo - john (12)';
-
-
-          })
+            var url = window.location.origin +
+              Drupal.settings.basePath +
+              '/entityreference/autocomplete/single/' + procFieldId +
+              '/' + procRefieldEntittyType +
+              '/' + procRefieldFieldBundle + '/NULL/1';
+            jQuery.getJSON(url, function (data, result) {
+              if (result != 'success') {
+                  return;
+              }
+              // Get proc id
+              var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
+              var procInputValue = Object.keys(data)[0];
+              jQuery('input[id=' + procInputElementId + ']')[0].value = procInputValue;
+            });
         </script>
-
       "
     );
     ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
-
-    //jQuery(\"input[id^='" . $params['query']['input_element_id'] . "'\")[0].value = prefix + cipherSlected + ' \"\"' + Object.keys(data)[0] + '\"\"';
   }
-
-
 }
 
 /**
