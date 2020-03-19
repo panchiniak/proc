@@ -33,3 +33,15 @@ function _proc_refield_field_create_instances(array $instances) {
     }
   }
 }
+
+/**
+ * Helper function to retrieve entity reference widget identifiers.
+ *
+ * @return array
+ *   Array containing entity reference widget identifiers.
+ */
+function _proc_refield_get_proc_refield_widget(){
+  $proc_refield_widget[] = 'entityreference_autocomplete';
+  drupal_alter('proc_refield_get_widget', $proc_refield_widget);
+  return $proc_refield_widget;
+}

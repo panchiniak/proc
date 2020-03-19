@@ -63,7 +63,8 @@ function proc_refield_process_widget($element) {
  * Implements hook__form_field_ui_field_settings_form_alter().
  */
 function proc_refield_form_field_ui_field_settings_form_alter(&$form, &$form_state, $form_id){
-  if ($form['field']['type']['#value'] == 'entityreference') {
+  $proc_refield_widget = _proc_refield_get_proc_refield_widget();
+  if (in_array($form_state['build_info']['args'][0]['widget']['type'], $proc_refield_widget)){
     $settings = $form['field']['settings'];
     $form['field']['settings']['onclick'] = array(
       '#type' => 'fieldset',
