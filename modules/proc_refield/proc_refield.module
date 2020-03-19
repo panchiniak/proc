@@ -28,32 +28,6 @@ function proc_refield_views_api() {
 }
 
 /**
- * Implements hook_form_field_ui_field_edit_form_alter().
- */
-function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
-  if ($form['#field']['field_name'] == 'proc_refield' || $form['#field']['type'] == 'entityreference') {
-    $settings = $form['#instance']['settings'];
-    $form['instance']['settings']['onclick'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Protected content API'),
-      '#collapsible' => FALSE,
-      '#collapsed' => FALSE,
-    );
-    $form['instance']['settings']['onclick']['enable'] = array(
-      '#type' => 'checkboxes',
-      '#options' => array('1' => t('Enabled')),
-      '#default_value' => isset($settings['onclick']['enable']) ? $settings['onclick']['enable'] : 0,
-    );
-    $form['instance']['settings']['onclick']['fetcher'] = array(
-      '#title' => t('Users view for fetching recipients'),
-      // @TODO: replace by a selection of populated user views.
-      '#type' => 'textfield',
-      '#default_value' => isset($settings['onclick']['fetcher']) ? $settings['onclick']['fetcher'] : '',
-    );
-  }
-}
-
-/**
  * Implements hook_element_info_alter().
  */
 function proc_refield_element_info_alter(&$types) {
@@ -83,4 +57,29 @@ function proc_refield_process_widget($element) {
     drupal_alter('proc_refield_widget_process', $element);
   }
   return $element;
+}
+
+/**
+ * Implements hook__form_field_ui_field_settings_form_alter().
+ */
+function proc_refield_form_field_ui_field_settings_form_alter(&$form, &$form_state, $form_id){
+  if ($form['field']['type']['#value'] == 'entityreference') {
+    $settings = $form['field']['settings'];
+    $form['field']['settings']['onclick'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Protected content API'),
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+    );
+    $form['field']['settings']['onclick']['enable'] = array(
+      '#type' => 'checkboxes',
+      '#options' => array('1' => t('Enabled')),
+      '#default_value' => isset($settings['#field']['settings']['onclick']['enable']) ? $settings['#field']['settings']['onclick']['enable'] : 0,
+    );
+    $form['field']['settings']['onclick']['fetcher'] = array(
+      '#title' => t('Users view for fetching recipients'),
+      '#type' => 'textfield',
+      '#default_value' => isset($settings['#field']['settings']['onclick']['fetcher']) ? $settings['#field']['settings']['onclick']['fetcher'] : '',
+    );
+  }
 }
