@@ -45,3 +45,31 @@ function _proc_refield_get_proc_refield_widget(){
   drupal_alter('proc_refield_get_widget', $proc_refield_widget);
   return $proc_refield_widget;
 }
+
+/**
+ * Custom menu callback for retrieval of encryption recipients.
+ *
+ * @param string $view
+ *   View for retrieval of users.
+ *
+ * @param string $filter
+ *   Filter parameters.
+ */
+function _proc_refield_recipients_menu_callback($view, $filter_arguments) {
+  $recipients_view = views_get_view($view);
+  if ($recipients_view){
+    $recipients_view->set_arguments([$filter_arguments]);
+    $recipients_view->execute();
+    $selected_user_ids = array();
+    foreach ($recipients_view->result as $row_key => $row) {
+      $selected_user_ids[] = $row->uid;
+    }
+    $uids = array_unique($selected_user_ids);
+    asort($uids);
+    $uids_csv = implode(',', $uids);
+    drupal_json_output($uids_csv);
+  }
+  else{
+    drupal_json_output('Error: no view found.');
+  }
+}

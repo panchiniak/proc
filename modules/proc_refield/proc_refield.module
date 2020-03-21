@@ -54,6 +54,82 @@ function proc_refield_process_widget($element) {
   $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
   if (isset($instance['settings']['onclick']) && $instance['settings']['onclick']['enable']['1'] == '1') {
     // @TODO: rename this hook for proc_refield_widget_process_onclick.
+
+    $field = field_info_field($element['#field_name']);
+    $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+
+    // Available at any implementation of entity reference fields:
+    // Define fetcher criteria in a field by field basis:
+    // If the element is disabled do not show Add a file button:
+    if (!isset($element['#attributes']['disabled'])){
+    // Apply recipients criteria defined at data-proc for all proc fields:
+      $add_file_link_text = '<span id="add-file-proc-link-' . $element['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
+      $proc_message_fetcher_arguments = "
+        var procRecipientsFetcherCriteria = 'x';
+        var procViewFecther = '" . $instance['settings']['onclick']['fetcher'] . "';
+        var procOriginFieldName = '" . $element['#field_name'] . "';
+        var procOriginFieldEntityBundle = '" . $element['#bundle'] . "';
+        var procOriginFieldEntityType = '" . $element['#entity_type'] . "';
+        var procOriginFieldEntityFetcher = '" . $instance['settings']['onclick']['fetcher'] . "';
+      ";
+      $add_file_link = l(
+        $add_file_link_text,
+        '', [
+          'attributes' => [
+            'class' => ['autodialog'],
+            'data-dialog-title' => t('File encryption'),
+            'data-dialog-width' => '400',
+            'id' => ['add-file-proc-link-' . $element['#field_name']],
+            'rel' => ['[center,60]'],
+            'name' => ['-proc-encrypt-file'],
+            'title' => t('File encryption'),
+            'onclick' => $proc_message_fetcher_arguments . "
+              var inputElementId = this.parentNode.parentNode.previousElementSibling.previousElementSibling.id;
+              var currentLink = this;
+              var viewAccessURL = window.location.origin +
+                Drupal.settings.basePath +
+                'proc/recipients/' +
+                procViewFecther +
+                '/' + procRecipientsFetcherCriteria;
+              jQuery.ajax({
+                async: false,
+                url: viewAccessURL,
+                success: function(result){
+                  let procAddFilePath =
+                    window.location.origin +
+                    Drupal.settings.basePath +
+                    'proc/add/' +
+                    result +
+                    '?proc_refield=proc_message&proc_refield_field_id=' + procOriginFieldName +
+                    '&proc_refield_field_bundle=' + procOriginFieldEntityBundle +
+                    '&proc_refield_field_entity_type=' +procOriginFieldEntityType  +
+                    '&proc_recipients_view_fetcher=' + procOriginFieldEntityFetcher +
+                    '&proc_recipients_view_fetcher_arg=' + procRecipientsFetcherCriteria +
+                    '&input_element_id=' + inputElementId;
+                  // Populate Add file link with UIDs of recipient users enriched
+                  // with metadta for retuning the entity reference into the
+                  // correspondent input element.
+                  jQuery(currentLink).attr('href', procAddFilePath);
+                }
+              });
+            ",
+          ],
+          'html' => TRUE,
+        ]
+      );
+
+      $context = array(
+        'unalterable_field_instance' => clone $instance,
+        'unalterable_form_element' => clone $element,
+      );
+
+      drupal_alter('proc_refield_add_file_link', $add_file_link, $context);
+
+      $element['#description'] = $add_file_link;
+      if (isset($instance['description'])){
+        $element['#description'] = $instance['description'] . '<div>' . $add_file_link . '</div>';
+      }
+    }
     drupal_alter('proc_refield_widget_process', $element);
   }
   return $element;
@@ -65,6 +141,7 @@ function proc_refield_process_widget($element) {
 function proc_refield_form_field_ui_field_settings_form_alter(&$form, &$form_state, $form_id){
   $proc_refield_widget = _proc_refield_get_proc_refield_widget();
   if (in_array($form_state['build_info']['args'][0]['widget']['type'], $proc_refield_widget)){
+    $all_views = views_get_views_as_options($views_only = FALSE, $filter = 'all', $exclude_view = NULL, $optgroup = TRUE, $sort = FALSE);
     $settings = $form['field']['settings'];
     $form['field']['settings']['onclick'] = array(
       '#type' => 'fieldset',
@@ -78,9 +155,122 @@ function proc_refield_form_field_ui_field_settings_form_alter(&$form, &$form_sta
       '#default_value' => isset($settings['#field']['settings']['onclick']['enable']) ? $settings['#field']['settings']['onclick']['enable'] : 0,
     );
     $form['field']['settings']['onclick']['fetcher'] = array(
-      '#title' => t('Users view for fetching recipients'),
-      '#type' => 'textfield',
-      '#default_value' => isset($settings['#field']['settings']['onclick']['fetcher']) ? $settings['#field']['settings']['onclick']['fetcher'] : '',
+      '#type' => 'select',
+      '#title' => t('Recipients fetcher view'),
+      '#options' => $all_views,
+      '#default_value' => isset($settings['#field']['settings']['onclick']['fetcher']) ? $settings['#field']['settings']['onclick']['fetcher'] : '- None -',
+      '#description' => t('Choose a user reference view as recipient fecther.'),
     );
   }
 }
+
+/**
+ * Implements hook_menu().
+ */
+function proc_refield_menu() {
+  $items = array();
+  $items['proc/recipients/%/%'] = [
+    'page callback' => '_proc_refield_recipients_menu_callback',
+    'page arguments' => [2,3],
+    'access arguments' => ['new protected file'],
+  ];
+  return $items;
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function proc_refield_page_alter(&$page) {
+  // If this is a proc page inbound on a field altered by proc refield:
+  if (isset($page['content']['system_main']['#action'])) {
+    if (strpos($page['content']['system_main']['#action'], 'proc_refield_field_id') !== false) {
+      unset($page['#handler']->handler);
+    }
+  }
+}
+
+/**
+ * Implements hook_get_cipher_text_alter().
+ *
+ * Check if cipher has been created after the key was generated.
+ */
+function proc_refield_get_cipher_text_alter(&$cipher_text_data, $context) {
+  global $user;
+  // If cipher has been created previously to the creation of latest user's key:
+  if ($context['unalterable_cipher_object']->created->value() < _proc_get_keys($user->uid)['created']){
+    $expired_encryption_alert = t(
+      'You have lost access to previously encrypted <b>@file-name (@file-id)</b> file due to the generation of your newer encryption key.',
+      array(
+      '@file-name' => $context['unalterable_cipher_object']->label->value(),
+      '@file-id' => $context['unalterable_cipher_object']->pid->value(),
+      )
+    );
+    drupal_set_message($expired_encryption_alert, 'warning');
+    // Return empty cipher data in order to remove default URI.
+    $cipher_text_data = array();
+  }
+}
+
+/**
+ * Implements hook_cipher_postsave().
+ */
+function proc_refield_cipher_postsave($pid, $form_state) {
+  global $base_url;
+
+  // Get parameter at private message form load (not from the modal window!)
+  $url = str_replace('amp;', '', filter_xss($form_state['complete form']['#action']));
+
+  $params = drupal_parse_url($url);
+
+  if (isset($params['query']['proc_refield_field_id'])){
+    $proc_field_id = $params['query']['proc_refield_field_id'];
+  }
+
+  // entityreference/autocomplete/single/<field-name>/<entity type>/<bundle>/NULL/1
+  $proc_aruments = "
+    var procFieldId = '" . $proc_field_id  . "';
+    var procRefieldEntittyType = '" . $params['query']['proc_refield_field_entity_type'] . "';
+    var procRefieldFieldBundle = '" . $params['query']['proc_refield_field_bundle'] . "';
+    var procInputElementId = '" . $params['query']['input_element_id'] . "';
+  ";
+
+  if (isset($params['query']['proc_refield']) && $params['query']['proc_refield'] == 'proc_message') {
+    watchdog('proc_refield', 'Created proc %pid on %module at field %fid.', [
+      '%pid' => $pid,
+      '%module' => 'proc_message',
+      '%fid' => $proc_field_id,
+    ], WATCHDOG_INFO);
+    $commands[] = ajax_command_append(
+      'body',
+      "
+        <script>
+          var height = document.getElementsByClassName('ui-dialog')[0].getBoundingClientRect().y;
+          // Center dialog before closing:
+          Drupal.autodialog.animatedMove(jQuery('.autodialog-content').dialog('widget'), height * 3 );
+          jQuery('.autodialog-content').dialog('close');
+        </script>
+        <script>".
+          $proc_aruments . "
+          // Available results in the entity reference for this field instance:
+            var url = window.location.origin +
+              Drupal.settings.basePath +
+              '/entityreference/autocomplete/single/' + procFieldId +
+              '/' + procRefieldEntittyType +
+              '/' + procRefieldFieldBundle + '/NULL/1';
+            jQuery.getJSON(url, function (data, result) {
+              if (result != 'success') {
+                  return;
+              }
+              // Get proc id
+              // var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
+              // @TODO: check pid instead of just using the latest
+              var procInputValue = Object.keys(data)[0];
+              jQuery('input[id=' + procInputElementId + ']')[0].value = procInputValue;
+            });
+        </script>
+      "
+    );
+    ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
+  }
+}
+

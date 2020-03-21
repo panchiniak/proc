@@ -5,3 +5,4 @@ package = Cryptography
 
 dependencies[] = proc
 dependencies[] = views_ui
+dependencies[] = autodialog
