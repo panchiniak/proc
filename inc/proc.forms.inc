@@ -118,6 +118,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
     'data' => array(
       'proc' => array(
         'proc_uid' => $user->uid,
+        'proc_save_button_label' => t('Save'),
         'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
         'proc_mail' => $user->mail,
         'proc_name' => $user->name,
