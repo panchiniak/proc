@@ -37,7 +37,7 @@
 
                 if (fileSize > dynamicMaximumSize) {
                     $("form#-proc-encrypt-file").prepend('<div class="messages error">' + Drupal.t('Sorry. Dynamic maximum file size exceed. Please add a file smaller than ') + dynamicMaximumSize + Drupal.t(' bytes') + '</div>');
-                    document.getElementById('edit-button').value = Drupal.t('Save');
+                    document.getElementById('edit-button').value = Drupal.settings.proc.proc_save_button_label;
                     return;
                 }
 
@@ -107,7 +107,7 @@
                         $('input[name=generation_timespan]')[0].value = total;
 
                         document.getElementById('edit-button').removeAttribute("disabled");
-                        document.getElementById('edit-button').value = Drupal.t('Save');
+                        document.getElementById('edit-button').value = Drupal.settings.proc.proc_save_button_label;
                     }
                 }
             }
