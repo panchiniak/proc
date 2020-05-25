@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Set up a structure for storing pgp keys and cipher texts.
+ * Main file of Proc Reference Field module.
  */
 
 include_once 'inc/proc_refield.functions.inc';
@@ -55,3 +55,10 @@ function proc_refield_update_7000() {
     views_delete_view($view);
   }
 }
+
+/**
+ * Set my_proc_ciphers_ls for proc_refield instace.
+ */
+// function proc_refield_update_7001() {
+//   // Do logics here.
+// }

@@ -13,7 +13,7 @@ include_once 'inc/proc_refield.functions.inc';
 function proc_refield_help($path) {
   switch ($path) {
     case "admin/help#proc_refield":
-      return '<p>' . t('Protected Content Reference Field (proc_refield) creates an entity reference field for adding or reusing cipher texts.') . '</p>';
+      return '<p>' . t('Protected Content Reference Field (proc_refield) enables Protected Content API at your entity reference field settings.') . '</p>';
   }
 }
 
@@ -33,14 +33,20 @@ function proc_refield_views_api() {
 function proc_refield_element_info_alter(&$types) {
   // Append a process function as gateway for every type with process defined.
   // This is needed for making the integration available for any widget chosen.
-  // It will be filtered down only to instances of proc_refield in the process
-  // of the widget chosen, where the instance settings are available.
-  // @TODO: consider using hook_field_widget_form_alter() instead.
   foreach ($types as $type_key => $type) {
     if (isset($type['#process'])) {
       $types[$type_key]['#process'][] = 'proc_refield_process_widget';
     }
   }
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context) {
+  // dpm($element);
+  // @todo: add Add a file button via $context['form']
+  // dpm($context['form']);
 }
 
 /**
@@ -135,10 +141,14 @@ function proc_refield_process_widget($element) {
   return $element;
 }
 
+
+
+
 /**
- * Implements hook__form_field_ui_field_settings_form_alter().
+ * Implements hook_form_alter().
  */
-function proc_refield_form_field_ui_field_settings_form_alter(&$form, &$form_state, $form_id){
+function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id){
+
   $proc_refield_widget = _proc_refield_get_proc_refield_widget();
   if (in_array($form_state['build_info']['args'][0]['widget']['type'], $proc_refield_widget)){
     $all_views = views_get_views_as_options($views_only = FALSE, $filter = 'all', $exclude_view = NULL, $optgroup = TRUE, $sort = FALSE);

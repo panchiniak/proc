@@ -14,20 +14,11 @@ CONTENTS OF THIS FILE
 
 INTRODUCTION
 ------------
-The Protected Reference Field (proc_refield) module creates an entity reference
-field to be populated with cipher text references that belong to the current
-user. It also provides an API for changing the field element. This can be used
-for appending to the description of the field an 'Add a new file' link that will
-fetch the UIDs of desired encryption recipients and, for example, open the
-encryption form (already set with UIDs of recipients) in a Simple Dialog window.
-After that you can implment hook_cipher_postsave (see Proc API) in order to
-automatically populate proc_refield with the newly created cipher text. This way
-it is possible to have encryption smothly integrated into any fieldable content
-creation form.
-And additionally to using proc_refield you can also enable Protected Content API
-on any Entity Reference field. This will allow you to have several Protected
-Content reference fields with 'Add a new file' link in any bundles or content
-types of your choice.
+The Protected Reference Field (proc_refield) module adds Protected Content 
+API settings to entity reference field settings, where Proc API can be enabled
+for an autocomplete entity reference field  and Recipient Fetcher View can be
+set. It also creates a field (proc_refield) enabled to Proc API by default and
+set to be autocompleted with ciphers belonging latu senso to the current user.
 
 REQUIREMENTS
 ------------
@@ -39,13 +30,13 @@ Install as usual.
 
 CONFIGURATION
 -------------
-Current version doesn't require/allow global configurations but you should
-enable Protected Content settings in the field settings form in order to use
-the API.
+Create an entity reference field, set autocomplete widget, check Enabled
+its Protected Content API and choose a user reference view as recipients
+fetcher. Check the API for adding a different widget.
 
 FUTURE ROADMAP
 --------------
-Add example module on the use of the API.
+None so far.
 
 MAINTAINERS
 -----------
