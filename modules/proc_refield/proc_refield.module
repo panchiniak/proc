@@ -28,19 +28,6 @@ function proc_refield_views_api() {
 }
 
 /**
- * Implements hook_element_info_alter().
- */
-function proc_refield_element_info_alter(&$types) {
-  // Append a process function as gateway for every type with process defined.
-  // This is needed for making the integration available for any widget chosen.
-  // foreach ($types as $type_key => $type) {
-  //   if (isset($type['#process'])) {
-  //     $types[$type_key]['#process'][] = 'proc_refield_process_widget';
-  //   }
-  // }
-}
-
-/**
  * Implements hook_field_widget_form_alter().
  */
 function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context) {
@@ -52,14 +39,17 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
 
   if (isset($field_instance['settings']['onclick']) && $field_instance['settings']['onclick']['enable']['1'] == '1') {
 
-    $add_file_link_text = '<span id="add-file-proc-link-' . $element['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
+    dpm($element['target_id']['#field_name']);
+    dpm($field_instance['settings']['onclick']['fetcher']);
+
+    $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
     $proc_message_fetcher_arguments = "
       var procRecipientsFetcherCriteria = 'x';
-      var procViewFecther = '" . $instance['settings']['onclick']['fetcher'] . "';
-      var procOriginFieldName = '" . $element['#field_name'] . "';
-      var procOriginFieldEntityBundle = '" . $element['#bundle'] . "';
-      var procOriginFieldEntityType = '" . $element['#entity_type'] . "';
-      var procOriginFieldEntityFetcher = '" . $instance['settings']['onclick']['fetcher'] . "';
+      var procViewFecther = '" . $field_instance['settings']['onclick']['fetcher'] . "';
+      var procOriginFieldName = '" . $element['target_id']['#field_name'] . "';
+      var procOriginFieldEntityBundle = '" . $element['target_id']['#bundle'] . "';
+      var procOriginFieldEntityType = '" . $element['target_id']['#entity_type'] . "';
+      var procOriginFieldEntityFetcher = '" . $field_instance['settings']['onclick']['fetcher'] . "';
     ";
     $add_file_link = l(
       $add_file_link_text,
@@ -68,7 +58,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
           'class' => ['autodialog'],
           'data-dialog-title' => t('File encryption'),
           'data-dialog-width' => '400',
-          'id' => ['add-file-proc-link-' . $element['#field_name']],
+          'id' => ['add-file-proc-link-' . $element['target_id']['#field_name']],
           'rel' => ['[center,60]'],
           'name' => ['-proc-encrypt-file'],
           'title' => t('File encryption'),
@@ -107,47 +97,21 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
       ]
     );
 
-    // $context = array(
-    //   'unalterable_field_instance' => clone $field_instance,
-    //   'unalterable_form_element' => clone $element,
-    // );
-    // drupal_alter('proc_refield_add_file_link', $add_file_link, $context);
+    $context = array(
+      'unalterable_field_instance' => clone (object)  $field_instance,
+      'unalterable_form_element' => clone (object) $element,
+    );
+  
+    drupal_alter('proc_refield_add_file_link', $add_file_link, $context);
 
     $element['target_id']['#description'] = $add_file_link;
-    if (isset($instance['target_id']['description'])){
-      $element['target_id']['#description'] = $instance['description'] . '<div>' . $add_file_link . '</div>';
+    if (isset($field_instance['target_id']['description'])){
+      $element['target_id']['#description'] = $field_instance['description'] . '<div>' . $add_file_link . '</div>';
     }
 
 
 
   }
-}
-
-/**
- * Process callback.
- */
-function proc_refield_process_widget($element) {
-  // if (!isset($element['#entity_type'])) {
-  //   return $element;
-  // }
- 
-  // $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
-  // if (isset($instance['settings']['onclick']) && $instance['settings']['onclick']['enable']['1'] == '1') {
-  //   // @TODO: rename this hook for proc_refield_widget_process_onclick.
-
-  //   $field = field_info_field($element['#field_name']);
-  //   $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
-
-  //   // Available at any implementation of entity reference fields:
-  //   // Define fetcher criteria in a field by field basis:
-  //   // If the element is disabled do not show Add a file button:
-  //   if (!isset($element['#attributes']['disabled'])){
-  //   // Apply recipients criteria defined at data-proc for all proc fields:
-
-  //   }
-  //   drupal_alter('proc_refield_widget_process', $element);
-  // }
-  // return $element;
 }
 
 /**
@@ -184,16 +148,6 @@ function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state, 
 
 
   }
-}
-
-function proc_refield_api_form_submit($form, &$form_state){
-  dpm('form submit');
-
-  // $instance_info = field_info_instance($entity_type, $field_name, $bundle);
-  // $instance_info['required'] = FALSE;
-  // field_update_instance($instance_info);
-
-
 }
 
 /**
