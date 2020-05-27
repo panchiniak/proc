@@ -39,8 +39,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
 
   if (isset($field_instance['settings']['onclick']) && $field_instance['settings']['onclick']['enable']['1'] == '1') {
 
-    dpm($element['target_id']['#field_name']);
-    dpm($field_instance['settings']['onclick']['fetcher']);
+    $field_instance['settings']['onclick']['fetcher'] = 'poc_key_holders';
 
     $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
     $proc_message_fetcher_arguments = "
@@ -63,13 +62,14 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
           'name' => ['-proc-encrypt-file'],
           'title' => t('File encryption'),
           'onclick' => $proc_message_fetcher_arguments . "
-            var inputElementId = this.parentNode.parentNode.previousElementSibling.previousElementSibling.id;
+            var inputElementId = this.parentNode.previousElementSibling.previousElementSibling.id;
             var currentLink = this;
             var viewAccessURL = window.location.origin +
               Drupal.settings.basePath +
               'proc/recipients/' +
               procViewFecther +
               '/' + procRecipientsFetcherCriteria;
+            console.log(viewAccessURL);
             jQuery.ajax({
               async: false,
               url: viewAccessURL,
@@ -109,8 +109,6 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
       $element['target_id']['#description'] = $field_instance['description'] . '<div>' . $add_file_link . '</div>';
     }
 
-
-
   }
 }
 
@@ -121,7 +119,7 @@ function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state, 
 
   $proc_refield_widget = _proc_refield_get_proc_refield_widget();
   if (in_array($form_state['build_info']['args'][0]['widget']['type'], $proc_refield_widget)){
-    $all_views = views_get_views_as_options($views_only = FALSE, $filter = 'all', $exclude_view = NULL, $optgroup = TRUE, $sort = FALSE);
+    $all_views = views_get_views_as_options($views_only = TRUE, $filter = 'all', $exclude_view = NULL, $optgroup = TRUE, $sort = FALSE);
 
     $settings = $form['#instance']['settings'];
     $form['instance']['settings']['onclick'] = array(
@@ -141,11 +139,10 @@ function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state, 
       '#title' => t('Recipients fetcher view'),
       '#options' => $all_views,
       '#default_value' => isset($settings['onclick']['fetcher']) ? $settings['onclick']['fetcher'] : '- None -',
-      '#description' => t('Choose a user reference view as recipient fecther.'),
+      '#description' => t('Choose a user reference view as recipient fecther. User IDs returned will be used to select encryption recipients.'),
     );
 
-    array_unshift($form['#submit'], 'proc_refield_api_form_submit');
-
+    // @todo: add validation to assure the view choosen is a view of users, if possible
 
   }
 }

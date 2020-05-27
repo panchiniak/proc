@@ -56,6 +56,7 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['fields']['proc_recipient']['field'] = 'proc_recipient';
   $handler->display->display_options['fields']['proc_recipient']['label'] = '';
   $handler->display->display_options['fields']['proc_recipient']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['proc_recipient']['alter']['ellipsis'] = FALSE;
   $handler->display->display_options['fields']['proc_recipient']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['proc_recipient']['hide_alter_empty'] = FALSE;
   $handler->display->display_options['fields']['proc_recipient']['click_sort_column'] = 'target_id';
@@ -72,6 +73,8 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['fields']['label']['label'] = '';
   $handler->display->display_options['fields']['label']['alter']['alter_text'] = TRUE;
   $handler->display->display_options['fields']['label']['alter']['text'] = '([pid]) [label] <b>Encrypted for:</b> [proc_recipient]';
+  $handler->display->display_options['fields']['label']['alter']['max_length'] = '1000';
+  $handler->display->display_options['fields']['label']['alter']['trim'] = TRUE;
   $handler->display->display_options['fields']['label']['element_label_colon'] = FALSE;
   /* Sort criterion: Protected Content: Proc Armored entity ID */
   $handler->display->display_options['sorts']['pid']['id'] = 'pid';
