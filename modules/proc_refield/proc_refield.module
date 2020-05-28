@@ -69,7 +69,6 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
               'proc/recipients/' +
               procViewFecther +
               '/' + procRecipientsFetcherCriteria;
-            console.log(viewAccessURL);
             jQuery.ajax({
               async: false,
               url: viewAccessURL,
@@ -216,44 +215,51 @@ function proc_refield_cipher_postsave($pid, $form_state) {
     var procRefieldFieldBundle = '" . $params['query']['proc_refield_field_bundle'] . "';
     var procInputElementId = '" . $params['query']['input_element_id'] . "';
   ";
+  dpm($proc_aruments);
+
+  // var procFieldId = 'field_super_top_sercret';
+  // var procRefieldEntittyType = 'node';
+  // var procRefieldFieldBundle = 'top_secret';
+  // var procInputElementId = 'edit-field-super-top-sercret-und-0-target-id';  
 
   if (isset($params['query']['proc_refield']) && $params['query']['proc_refield'] == 'proc_message') {
     watchdog('proc_refield', 'Created proc %pid on %module at field %fid.', [
       '%pid' => $pid,
+      // @TODO: remove hardcoded origin module identifier
       '%module' => 'proc_message',
       '%fid' => $proc_field_id,
     ], WATCHDOG_INFO);
-    $commands[] = ajax_command_append(
-      'body',
-      "
-        <script>
-          var height = document.getElementsByClassName('ui-dialog')[0].getBoundingClientRect().y;
-          // Center dialog before closing:
-          Drupal.autodialog.animatedMove(jQuery('.autodialog-content').dialog('widget'), height * 3 );
-          jQuery('.autodialog-content').dialog('close');
-        </script>
-        <script>".
-          $proc_aruments . "
-          // Available results in the entity reference for this field instance:
-            var url = window.location.origin +
-              Drupal.settings.basePath +
-              '/entityreference/autocomplete/single/' + procFieldId +
-              '/' + procRefieldEntittyType +
-              '/' + procRefieldFieldBundle + '/NULL/1';
-            jQuery.getJSON(url, function (data, result) {
-              if (result != 'success') {
-                  return;
-              }
-              // Get proc id
-              // var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
-              // @TODO: check pid instead of just using the latest
-              var procInputValue = Object.keys(data)[0];
-              jQuery('input[id=' + procInputElementId + ']')[0].value = procInputValue;
-            });
-        </script>
-      "
-    );
-    ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
+
+    // @TOBE added before the first script tag below
+    // <script>
+    //   var height = document.getElementsByClassName('ui-dialog')[0].getBoundingClientRect().y;
+    //   // Center dialog before closing:
+    //   Drupal.autodialog.animatedMove(jQuery('.autodialog-content').dialog('widget'), height * 3 );
+    //   jQuery('.autodialog-content').dialog('close');
+    // </script>
+
+    // $commands[] = ajax_command_append(
+    //   'body',
+    //   "
+    //     <script>".
+    //       $proc_aruments . "
+    //       // Available results in the entity reference for this field instance:
+    //         var url = window.location.origin + Drupal.settings.basePath + '/entityreference/autocomplete/single/' + procFieldId + '/' + procRefieldEntittyType + '/' + procRefieldFieldBundle + '/42345/a';
+
+    //         jQuery.getJSON(url, function (data, result) {
+    //           if (result != 'success') {
+    //               return;
+    //           }
+    //           // Get proc id
+    //           // var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
+    //           // @TODO: check pid instead of just using the latest
+    //           var procInputValue = Object.keys(data)[0];
+    //           jQuery('input[id=' + procInputElementId + ']')[0].value = procInputValue;
+    //         });
+    //     </script>
+    //   "
+    // );
+    // ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
   }
 }
 
