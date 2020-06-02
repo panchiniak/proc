@@ -56,7 +56,9 @@ function _proc_refield_get_proc_refield_widget(){
  *   Filter parameters.
  */
 function _proc_refield_recipients_menu_callback($view, $filter_arguments) {
-  $recipients_view = views_get_view($view);
+  $view_sanitized = check_plain($view);
+  $recipients_view = views_get_view($view_sanitized, TRUE);
+
   if ($recipients_view){
     $recipients_view->set_arguments([$filter_arguments]);
     $recipients_view->execute();
@@ -70,6 +72,6 @@ function _proc_refield_recipients_menu_callback($view, $filter_arguments) {
     drupal_json_output($uids_csv);
   }
   else{
-    drupal_json_output('Error: no view found.');
+    drupal_json_output('Error: view not found: ' . $view_sanitized);
   }
 }
