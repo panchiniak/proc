@@ -5,8 +5,7 @@
  */
 function proc_refield_views_default_views() {
   // This view lists cipher texts sent to and by the current user and is used to
-  // populate the available items in the entity reference field (proc_refield).
-  // This way the current user will be able to reuse user's own cipher texts.
+  // populate the available items in the entity reference fields.
   $view = new view();
   $view->name = 'my_proc_ciphers_ls';
   $view->description = 'My proc ciphers, lato sensu - sent to me and by me';
@@ -116,5 +115,71 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
   $handler->display->display_options['defaults']['row_options'] = FALSE;
   $views[$view->name] = $view;
+
+  $view = new view();
+  $view->name = 'proc_key_holders';
+  $view->description = 'Retrieval of proc key holders.';
+  $view->tag = 'default';
+  $view->base_table = 'users';
+  $view->human_name = 'Proc Key Holders';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['group_by'] = TRUE;
+  $handler->display->display_options['access']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['query']['options']['disable_sql_rewrite'] = TRUE;
+  $handler->display->display_options['query']['options']['distinct'] = TRUE;
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['style_plugin'] = 'default';
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
+  /* Relationship: User: Protected Content */
+  $handler->display->display_options['relationships']['proc']['id'] = 'proc';
+  $handler->display->display_options['relationships']['proc']['table'] = 'users';
+  $handler->display->display_options['relationships']['proc']['field'] = 'proc';
+  $handler->display->display_options['relationships']['proc']['required'] = TRUE;
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['proc_armoredown_target_id']['id'] = 'proc_armoredown_target_id';
+  $handler->display->display_options['relationships']['proc_armoredown_target_id']['table'] = 'field_data_proc_armoredown';
+  $handler->display->display_options['relationships']['proc_armoredown_target_id']['field'] = 'proc_armoredown_target_id';
+  $handler->display->display_options['relationships']['proc_armoredown_target_id']['relationship'] = 'proc';
+  $handler->display->display_options['relationships']['proc_armoredown_target_id']['required'] = TRUE;
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['label'] = '';
+  $handler->display->display_options['fields']['name']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['name']['alter']['ellipsis'] = FALSE;
+  /* Contextual filter: Global: Null */
+  $handler->display->display_options['arguments']['null']['id'] = 'null';
+  $handler->display->display_options['arguments']['null']['table'] = 'views';
+  $handler->display->display_options['arguments']['null']['field'] = 'null';
+  $handler->display->display_options['arguments']['null']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['null']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['null']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['null']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['filter_groups']['groups'] = array(
+    1 => 'AND',
+    2 => 'OR',
+  );
+  /* Filter criterion: User: Active */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'users';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = '1';
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+
   return $views;
 }
