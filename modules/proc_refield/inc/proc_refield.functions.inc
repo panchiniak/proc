@@ -42,6 +42,7 @@ function _proc_refield_field_create_instances(array $instances) {
  */
 function _proc_refield_get_proc_refield_widget(){
   $proc_refield_widget[] = 'entityreference_autocomplete';
+  //$proc_refield_widget[] = 'irma_entityreference_autocomplete_deluxe';
   drupal_alter('proc_refield_get_widget', $proc_refield_widget);
   return $proc_refield_widget;
 }

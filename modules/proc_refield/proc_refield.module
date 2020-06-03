@@ -39,8 +39,6 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
 
   if (isset($field_instance['settings']['onclick']) && $field_instance['settings']['onclick']['enable']['1'] == '1') {
 
-    $field_instance['settings']['onclick']['fetcher'] = 'poc_key_holders';
-
     $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
     $proc_message_fetcher_arguments = "
       var procRecipientsFetcherCriteria = '1';
@@ -49,6 +47,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
       var procOriginFieldEntityBundle = '" . $element['target_id']['#bundle'] . "';
       var procOriginFieldEntityType = '" . $element['target_id']['#entity_type'] . "';
       var procOriginFieldEntityFetcher = '" . $field_instance['settings']['onclick']['fetcher'] . "';
+      var procOriginModuleName = '" . basename(__FILE__, '.module') . "';
     ";
     $add_file_link = l(
       $add_file_link_text,
@@ -69,7 +68,6 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
               'proc/recipients/' +
               procViewFecther +
               '/' + procRecipientsFetcherCriteria;
-            console.log(viewAccessURL);
 
             jQuery.ajax({
               async: false,
@@ -80,7 +78,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
                   Drupal.settings.basePath +
                   'proc/add/' +
                   result +
-                  '?proc_refield=proc_message&proc_refield_field_id=' + procOriginFieldName +
+                  '?proc_refield=' + procOriginModuleName + '&proc_refield_field_id=' + procOriginFieldName +
                   '&proc_refield_field_bundle=' + procOriginFieldEntityBundle +
                   '&proc_refield_field_entity_type=' +procOriginFieldEntityType  +
                   '&proc_recipients_view_fetcher=' + procOriginFieldEntityFetcher +
@@ -217,45 +215,44 @@ function proc_refield_cipher_postsave($pid, $form_state) {
     var procRefieldFieldBundle = '" . $params['query']['proc_refield_field_bundle'] . "';
     var procInputElementId = '" . $params['query']['input_element_id'] . "';
   ";
-  dpm($proc_aruments);
 
-  // var procFieldId = 'field_super_top_sercret';
-  // var procRefieldEntittyType = 'node';
-  // var procRefieldFieldBundle = 'top_secret';
-  // var procInputElementId = 'edit-field-super-top-sercret-und-0-target-id';  
-
-  if (isset($params['query']['proc_refield']) && $params['query']['proc_refield'] == 'proc_message') {
+  if (isset($params['query']['proc_refield'])) {
     watchdog('proc_refield', 'Created proc %pid on %module at field %fid.', [
       '%pid' => $pid,
-      // @TODO: remove hardcoded origin module identifier
-      '%module' => 'proc_message',
+      '%module' => $params['query']['proc_refield'],
       '%fid' => $proc_field_id,
     ], WATCHDOG_INFO);
-
-    // @TOBE added before the first script tag below
 
     $commands[] = ajax_command_append(
       'body',
       "
         <script>
-          var height = document.getElementsByClassName('ui-dialog')[0].getBoundingClientRect().y;
-          // Center dialog before closing:
+          var height = document.getElementsByClassName('ui-dialog')[1].getBoundingClientRect().y;
           Drupal.autodialog.animatedMove(jQuery('.autodialog-content').dialog('widget'), height * 3 );
-          jQuery('.autodialog-content').dialog('close');
+          jQuery('.autodialog-content').dialog('close').trigger('close');
         </script>
         <script>".
           $proc_aruments . "
           // Available results in the entity reference for this field instance:
-            var url = window.location.origin + Drupal.settings.basePath + '/entityreference/autocomplete/single/' + procFieldId + '/' + procRefieldEntittyType + '/' + procRefieldFieldBundle + '/42345/a';
+            let resetCache = new Date().getTime();
+            let url =
+              window.location.origin +
+              Drupal.settings.basePath +
+              '/entityreference/autocomplete/single/' +
+              procFieldId + '/' +
+              procRefieldEntittyType + '/' +
+              procRefieldFieldBundle +
+              '/NULL' +
+              '?_=' +
+              resetCache;
 
             jQuery.getJSON(url, function (data, result) {
               if (result != 'success') {
                   return;
               }
               // Get proc id
-              // var pid = Object.keys(data)[0].match(/([0-9]+)/)[0];
               // @TODO: check pid instead of just using the latest
-              var procInputValue = Object.keys(data)[0];
+              let procInputValue = Object.keys(data)[0];
               jQuery('input[id=' + procInputElementId + ']')[0].value = procInputValue;
             });
         </script>
