@@ -69,7 +69,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
               'proc/recipients/' +
               procViewFecther +
               '/' + procRecipientsFetcherCriteria;
-            console.log(
+            console.log(viewAccessURL);
 
             jQuery.ajax({
               async: false,
