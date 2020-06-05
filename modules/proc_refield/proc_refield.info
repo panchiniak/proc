@@ -6,3 +6,5 @@ package = Cryptography
 dependencies[] = proc
 dependencies[] = views_ui
 dependencies[] = autodialog
+
+files[] = plugins/entityreference_behavior/ProcRefieldProcBehaviorPlugin.class.php

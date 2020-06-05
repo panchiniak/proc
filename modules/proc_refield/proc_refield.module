@@ -37,16 +37,19 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
 
   $field_instance = field_info_instance($element['target_id']['#entity_type'], $element['target_id']['#field_name'], $element['target_id']['#bundle']);
 
-  if (isset($field_instance['settings']['onclick']) && $field_instance['settings']['onclick']['enable']['1'] == '1') {
-
+  if (
+    isset($field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']) &&
+    $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'][1] == '1'
+  ) {
     $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
+    // @TODO: add behaviour for when there is no fetcher:
     $proc_message_fetcher_arguments = "
       var procRecipientsFetcherCriteria = '1';
-      var procViewFecther = '" . $field_instance['settings']['onclick']['fetcher'] . "';
+      var procViewFecther = '" . $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['fetcher'] . "';
       var procOriginFieldName = '" . $element['target_id']['#field_name'] . "';
       var procOriginFieldEntityBundle = '" . $element['target_id']['#bundle'] . "';
       var procOriginFieldEntityType = '" . $element['target_id']['#entity_type'] . "';
-      var procOriginFieldEntityFetcher = '" . $field_instance['settings']['onclick']['fetcher'] . "';
+      var procOriginFieldEntityFetcher = '" . $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['fetcher'] . "';
       var procOriginModuleName = '" . basename(__FILE__, '.module') . "';
     ";
     $add_file_link = l(
@@ -115,34 +118,9 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
  * Implements hook_form_alter().
  */
 function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id){
-
   $proc_refield_widget = _proc_refield_get_proc_refield_widget();
   if (in_array($form_state['build_info']['args'][0]['widget']['type'], $proc_refield_widget)){
-    $all_views = views_get_views_as_options($views_only = TRUE, $filter = 'all', $exclude_view = NULL, $optgroup = TRUE, $sort = FALSE);
-
-    $settings = $form['#instance']['settings'];
-    $form['instance']['settings']['onclick'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Protected content API'),
-      '#collapsible' => FALSE,
-      '#collapsed' => FALSE,
-    );
-    $form['instance']['settings']['onclick']['enable'] = array(
-      '#type' => 'checkboxes',
-      '#options' => array('1' => t('Enabled')),
-      '#default_value' => isset($settings['onclick']['enable']) ? $settings['onclick']['enable'] : 0,
-    );
-
-    $form['instance']['settings']['onclick']['fetcher'] = array(
-      '#type' => 'select',
-      '#title' => t('Recipients fetcher view'),
-      '#options' => $all_views,
-      '#default_value' => isset($settings['onclick']['fetcher']) ? $settings['onclick']['fetcher'] : '- None -',
-      '#description' => t('Choose a user reference view as recipient fecther. User IDs returned will be used to select encryption recipients.'),
-    );
-
     // @todo: add validation to assure the view choosen is a view of users, if possible
-
   }
 }
 
@@ -208,7 +186,6 @@ function proc_refield_cipher_postsave($pid, $form_state) {
     $proc_field_id = $params['query']['proc_refield_field_id'];
   }
 
-  // entityreference/autocomplete/single/<field-name>/<entity type>/<bundle>/NULL/1
   $proc_aruments = "
     var procFieldId = '" . $proc_field_id  . "';
     var procRefieldEntittyType = '" . $params['query']['proc_refield_field_entity_type'] . "';
@@ -262,3 +239,11 @@ function proc_refield_cipher_postsave($pid, $form_state) {
   }
 }
 
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function proc_refield_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'entityreference') {
+    return 'plugins/entityreference_' . $plugin;
+  }
+}
