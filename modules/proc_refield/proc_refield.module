@@ -43,8 +43,15 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
   ) {
     $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
     // @TODO: add behaviour for when there is no fetcher:
+    // @TODO: add hook alter to allow customization of procRecipientsFetcherCriteria
+    $recipients_argument = 'NULL';
+    $context = array(
+      'unalterable_field_instance' => $field_instance,
+    );
+    drupal_alter('recipients_fetcher_argument', $recipients_argument, $context);
+
     $proc_message_fetcher_arguments = "
-      var procRecipientsFetcherCriteria = '1';
+      var procRecipientsFetcherCriteria = '" . $recipients_argument . "';
       var procViewFecther = '" . $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['fetcher'] . "';
       var procOriginFieldName = '" . $element['target_id']['#field_name'] . "';
       var procOriginFieldEntityBundle = '" . $element['target_id']['#bundle'] . "';
@@ -52,6 +59,9 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
       var procOriginFieldEntityFetcher = '" . $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['fetcher'] . "';
       var procOriginModuleName = '" . basename(__FILE__, '.module') . "';
     ";
+
+
+
     $add_file_link = l(
       $add_file_link_text,
       '', [
@@ -66,6 +76,9 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
           'onclick' => $proc_message_fetcher_arguments . "
             var inputElementId = this.parentNode.previousElementSibling.previousElementSibling.id;
             var currentLink = this;
+
+            console.log(procViewFecther);
+
             var viewAccessURL = window.location.origin +
               Drupal.settings.basePath +
               'proc/recipients/' +
