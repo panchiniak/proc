@@ -31,5 +31,5 @@ function hook_proc_refield_get_widget_alter(array $proc_refield_widget) {
  * @param array $context
  *   Unalterable field instance and form element.
  */
-function hook_proc_refield_add_file_link_alter(string $add_file_link, array $context) {
+function hook_add_proc_file_link_alter(string $add_file_link, array $context) {
 }

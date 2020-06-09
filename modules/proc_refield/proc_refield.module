@@ -43,7 +43,6 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
   ) {
     $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
     // @TODO: add behaviour for when there is no fetcher:
-    // @TODO: add hook alter to allow customization of procRecipientsFetcherCriteria
     $recipients_argument = 'NULL';
     $context = array(
       'unalterable_field_instance' => $field_instance,
@@ -117,7 +116,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
       'unalterable_form_element' => clone (object) $element,
     );
   
-    drupal_alter('proc_refield_add_file_link', $add_file_link, $context);
+    drupal_alter('add_proc_file_link', $add_file_link, $context);
 
     $element['target_id']['#description'] = $add_file_link;
     if (isset($field_instance['target_id']['description'])){
