@@ -59,7 +59,12 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
       var procOriginModuleName = '" . basename(__FILE__, '.module') . "';
     ";
 
+    // Use comment line as a place holder for direct fetcher:
+    $direct_fetcher = "
+      \\\\
+    ";
 
+    drupal_alter('direct_recipients_fetcher', $direct_fetcher, $context);
 
     $add_file_link = l(
       $add_file_link_text,
@@ -76,35 +81,60 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
             var inputElementId = this.parentNode.previousElementSibling.previousElementSibling.id;
             var currentLink = this;
 
-            console.log(procViewFecther);
+            var directRecipientsFetcherResult = '0';
+            " . $direct_fetcher . "
 
-            var viewAccessURL = window.location.origin +
+            let procAddFilePathPrefix =
+              window.location.origin +
               Drupal.settings.basePath +
-              'proc/recipients/' +
-              procViewFecther +
-              '/' + procRecipientsFetcherCriteria;
+              'proc/add/';
 
-            jQuery.ajax({
-              async: false,
-              url: viewAccessURL,
-              success: function(result){
-                let procAddFilePath =
-                  window.location.origin +
-                  Drupal.settings.basePath +
-                  'proc/add/' +
-                  result +
-                  '?proc_refield=' + procOriginModuleName + '&proc_refield_field_id=' + procOriginFieldName +
-                  '&proc_refield_field_bundle=' + procOriginFieldEntityBundle +
-                  '&proc_refield_field_entity_type=' +procOriginFieldEntityType  +
-                  '&proc_recipients_view_fetcher=' + procOriginFieldEntityFetcher +
-                  '&proc_recipients_view_fetcher_arg=' + procRecipientsFetcherCriteria +
-                  '&input_element_id=' + inputElementId;
-                // Populate Add file link with UIDs of recipient users enriched
-                // with metadta for retuning the entity reference into the
-                // correspondent input element.
-                jQuery(currentLink).attr('href', procAddFilePath);
+            let procAddFilePathSufix =
+              '?proc_refield=' + procOriginModuleName +
+              '&proc_refield_field_id=' + procOriginFieldName +
+              '&proc_refield_field_bundle=' + procOriginFieldEntityBundle +
+              '&proc_refield_field_entity_type=' +procOriginFieldEntityType  +
+              '&proc_recipients_view_fetcher=' + procOriginFieldEntityFetcher +
+              '&proc_recipients_view_fetcher_arg=' + procRecipientsFetcherCriteria +
+              '&input_element_id=' + inputElementId;
+
+            if (procViewFecther != 0){
+              var viewAccessURL =
+                window.location.origin +
+                Drupal.settings.basePath +
+                'proc/recipients/' +
+                procViewFecther + '/' +
+                procRecipientsFetcherCriteria;
+
+              jQuery.ajax({
+                async: false,
+                url: viewAccessURL,
+                success: function(result){
+                  let procAddFilePath =
+                    procAddFilePathPrefix +
+                    result +
+                    procAddFilePathSufix;
+                  // Populate Add file link with UIDs of recipient users enriched
+                  // with metadta for retuning the entity reference into the
+                  // correspondent input element.
+                  jQuery(currentLink).attr('href', procAddFilePath);
+                }
+              });
+            }
+            else{
+              if (directRecipientsFetcherResult != '0'){
+                jQuery(currentLink).attr(
+                  'href',
+                  procAddFilePathPrefix +
+                  directRecipientsFetcherResult +
+                  procAddFilePathSufix
+                );
               }
-            });
+              else{
+                console.log('------------');
+              }
+            }
+            return false;
           ",
         ],
         'html' => TRUE,
