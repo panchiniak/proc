@@ -60,9 +60,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
     ";
 
     // Use comment line as a place holder for direct fetcher:
-    $direct_fetcher = "
-      \\\\
-    ";
+    $direct_fetcher = "";
 
     drupal_alter('direct_recipients_fetcher', $direct_fetcher, $context);
 
@@ -132,6 +130,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
               }
               else{
                 console.log('------------');
+                jQuery(currentLink).attr('href', '');
               }
             }
             return false;
