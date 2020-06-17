@@ -42,27 +42,32 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
     $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'][1] == '1'
   ) {
     $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
-    // @TODO: add behaviour for when there is no fetcher:
-    $recipients_argument = 'NULL';
+    // Default value and path are avaialble to be changed at hooks alter:
+    $recipients_argument['value'] = 'NULL';
+    $recipients_argument['path'] = 'proc/recipients';
     $context = array(
       'unalterable_field_instance' => $field_instance,
+      'unalterable_form_element' => $element,
     );
     drupal_alter('recipients_fetcher_argument', $recipients_argument, $context);
 
     $proc_message_fetcher_arguments = "
-      var procRecipientsFetcherCriteria = '" . $recipients_argument . "';
+      var procRecipientsFetcherCriteria = '" . $recipients_argument['value'] . "';
       var procViewFecther = '" . $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['fetcher'] . "';
       var procOriginFieldName = '" . $element['target_id']['#field_name'] . "';
       var procOriginFieldEntityBundle = '" . $element['target_id']['#bundle'] . "';
       var procOriginFieldEntityType = '" . $element['target_id']['#entity_type'] . "';
       var procOriginFieldEntityFetcher = '" . $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['fetcher'] . "';
       var procOriginModuleName = '" . basename(__FILE__, '.module') . "';
+      var procRecipientsCallbackMenuPath = '" . $recipients_argument['path'] . "';
     ";
 
     // Use comment line as a place holder for direct fetcher:
     $direct_fetcher = "";
-
     drupal_alter('direct_recipients_fetcher', $direct_fetcher, $context);
+
+    $view_recipients_fetcher_argument = "";
+    drupal_alter('view_recipients_fetcher_argument', $view_recipients_fetcher_argument, $context);
 
     $add_file_link = l(
       $add_file_link_text,
@@ -91,17 +96,18 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
               '?proc_refield=' + procOriginModuleName +
               '&proc_refield_field_id=' + procOriginFieldName +
               '&proc_refield_field_bundle=' + procOriginFieldEntityBundle +
-              '&proc_refield_field_entity_type=' +procOriginFieldEntityType  +
+              '&proc_refield_field_entity_type=' + procOriginFieldEntityType  +
               '&proc_recipients_view_fetcher=' + procOriginFieldEntityFetcher +
-              '&proc_recipients_view_fetcher_arg=' + procRecipientsFetcherCriteria +
               '&input_element_id=' + inputElementId;
+
+            " . $view_recipients_fetcher_argument . "
 
             if (procViewFecther != 0){
               var viewAccessURL =
                 window.location.origin +
                 Drupal.settings.basePath +
-                'proc/recipients/' +
-                procViewFecther + '/' +
+                procRecipientsCallbackMenuPath + '/' +
+                procViewFecther + '?' +
                 procRecipientsFetcherCriteria;
 
               jQuery.ajax({
@@ -129,7 +135,6 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
                 );
               }
               else{
-                console.log('------------');
                 jQuery(currentLink).attr('href', '');
               }
             }
@@ -170,9 +175,10 @@ function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state, 
  */
 function proc_refield_menu() {
   $items = array();
-  $items['proc/recipients/%/%'] = [
+  $items['proc/recipients/%'] = [
     'page callback' => '_proc_refield_recipients_menu_callback',
-    'page arguments' => [2,3],
+    // View name:
+    'page arguments' => [2],
     'access arguments' => ['new protected file'],
   ];
   return $items;

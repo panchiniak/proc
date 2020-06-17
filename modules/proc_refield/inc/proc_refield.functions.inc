@@ -55,12 +55,20 @@ function _proc_refield_get_proc_refield_widget(){
  * @param string $filter
  *   Filter parameters.
  */
-function _proc_refield_recipients_menu_callback($view, $filter_arguments) {
+function _proc_refield_recipients_menu_callback($view) {
+
+  $filter_arguments = drupal_get_query_parameters();
+  if (is_array($filter_arguments)){
+    foreach ($filter_arguments as $filter_arguments) {
+      $filter_arguments_set[] = $filter_arguments;
+    }
+  }
+
   $view_sanitized = check_plain($view);
   $recipients_view = views_get_view($view_sanitized, TRUE);
 
   if ($recipients_view){
-    $recipients_view->set_arguments([$filter_arguments]);
+    $recipients_view->set_arguments($filter_arguments_set);
     $recipients_view->execute();
     $selected_user_ids = array();
     foreach ($recipients_view->result as $row_key => $row) {
@@ -68,6 +76,9 @@ function _proc_refield_recipients_menu_callback($view, $filter_arguments) {
     }
     $uids = array_unique($selected_user_ids);
     asort($uids);
+
+    // @TODO: create a hook to allow definition of extra filters
+
     $uids_csv = implode(',', $uids);
     drupal_json_output($uids_csv);
   }
