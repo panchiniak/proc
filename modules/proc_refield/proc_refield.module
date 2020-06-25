@@ -152,9 +152,36 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
   
     drupal_alter('add_proc_file_link', $add_file_link, $context);
 
-    $element['target_id']['#description'] = $add_file_link;
+    $proc_file_op = $add_file_link;
+
+    // If element has already a default value add a decryption link
+    if ($element['target_id']['#default_value']){
+
+      $proc_uri = entity_uri('proc', entity_load_single('proc', $element['target_id']['#entity']->{$element['target_id']['#field_name']}[LANGUAGE_NONE][0]['target_id']))['path'];
+
+      // If current user has access to uri and so user is authorized recipient:
+      if ($proc_uri){
+        $decrypt_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('Decrypt') . '</span>';
+        $decrypt_file_link = l(
+          $decrypt_file_link_text,
+          $proc_uri, [
+            'attributes' => [
+              'id' => ['decrypt-file-proc-link-' . $element['target_id']['#field_name']],
+              'name' => ['-proc-decrypt-to-file'],
+              'title' => t('View Protected Content'),
+              'target' => '_blank',
+            ],
+            'html' => TRUE,
+          ]
+        );
+        $proc_file_op = $add_file_link . ' ' . $decrypt_file_link;
+      }
+    }
+
+    $element['target_id']['#description'] = $proc_file_op;
+
     if (isset($field_instance['target_id']['description'])){
-      $element['target_id']['#description'] = $field_instance['description'] . '<div>' . $add_file_link . '</div>';
+      $element['target_id']['#description'] = $field_instance['description'] . '<div>' . $proc_file_op . '</div>';
     }
 
   }
