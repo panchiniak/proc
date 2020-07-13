@@ -145,7 +145,7 @@ function _proc_get_keys($user_id) {
  * @return array
  *   Array containing ciphertext data.
  */
-function _proc_get_cipher($cid) {
+function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
   global $user;
 
   $proc_wrapper = entity_metadata_wrapper('proc', $cid);
@@ -167,6 +167,8 @@ function _proc_get_cipher($cid) {
 
   $context = array(
     'unalterable_cipher_object' => clone $proc_wrapper,
+    'unalterable_form' => clone $form,
+    'unalterable_form_state' => clone $form_state,
   );
   drupal_alter('get_cipher_text', $cipher_text_data, $context);
 
@@ -191,7 +193,8 @@ function _proc_recipient($cid) {
 
   if (isset($cid) && is_numeric($cid)) {
     $cid = (int) $cid;
-    $cipher = _proc_get_cipher($cid);
+    // @TODO: check if empty arguments are needed
+    $cipher = _proc_get_cipher($cid, NULL, NULL);
     // @TODO: add 'bypass cipher access control' restricted permission
     if (!empty($cipher) or ($user->uid == 1)) {
       return TRUE;

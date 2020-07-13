@@ -11,7 +11,7 @@
 function _proc_decrypt_to_file($form, &$form_state, $cid) {
   global $user;
 
-  $cid_cipher = _proc_get_cipher((int) $cid);
+  $cid_cipher = _proc_get_cipher((int) $cid, $form, $form_state);
 
   _proc_lib_load();
 
