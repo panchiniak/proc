@@ -170,7 +170,7 @@ function _proc_get_cipher($cid) {
   );
   drupal_alter('get_cipher_text', $cipher_text_data, $context);
 
-  if (!$is_recipient) {
+  if (empty($cipher_text_data) || !$is_recipient) {
     // Return empty if current user does not belong to recipients list.
     return array();
   }
