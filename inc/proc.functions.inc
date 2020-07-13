@@ -159,11 +159,6 @@ function _proc_get_cipher($cid) {
       }
     }
   }
-  if (!$is_recipient && !($user->uid == 1)) {
-    // Return empty if current user does not belong to recipients list and is
-    // not super user (super user has to access metadata):
-    return array();
-  }
 
   $cipher_text_data = array();
   $cipher_text_data['cipher_text'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
@@ -175,8 +170,11 @@ function _proc_get_cipher($cid) {
   );
   drupal_alter('get_cipher_text', $cipher_text_data, $context);
 
+  if (!$is_recipient) {
+    // Return empty if current user does not belong to recipients list.
+    return array();
+  }
   return $cipher_text_data;
-
 }
 
 /**
