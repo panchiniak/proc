@@ -164,6 +164,7 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
   $cipher_text_data['cipher_text'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
   $cipher_text_data['source_file_name'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']);
   $cipher_text_data['source_file_size'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);
+  $cipher_text_data['cipher_cid'] = check_plain($cid);
 
   $context = array(
     'unalterable_cipher_object' => clone $proc_wrapper,
