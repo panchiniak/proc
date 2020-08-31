@@ -180,7 +180,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
 
     $element['target_id']['#description'] = $proc_file_op;
 
-    // If there is a descrition and the field is not mltivalued:
+    // If there is a description and the field is not multivalued:
     if (!empty($field_instance['description'] && (!is_array($field_instance['default_value'])))){
       // Concatenate the description before encryption operations:
       $element['target_id']['#description'] = $field_instance['description'] . '<div>' . $proc_file_op . '</div>';
