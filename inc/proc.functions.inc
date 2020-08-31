@@ -166,6 +166,13 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
   $cipher_text_data['source_file_size'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);
   $cipher_text_data['cipher_cid'] = check_plain($cid);
 
+  if (!$form){
+    $form = new stdClass();
+  }
+  if (!$form_state){
+    $form_state = new stdClass();
+  }
+
   $context = array(
     'unalterable_cipher_object' => clone $proc_wrapper,
     'unalterable_form' => clone $form,
