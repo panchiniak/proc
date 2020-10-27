@@ -45,10 +45,10 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
     // Default value and path are avaialble to be changed at hooks alter:
     $recipients_argument['value'] = 'NULL';
     $recipients_argument['path'] = 'proc/recipients';
-    $context = array(
-      'unalterable_field_instance' => $field_instance,
-      'unalterable_form_element' => $element,
-    );
+
+    $context['unalterable_field_instance'] = $field_instance;
+    $context['unalterable_form_element'] = $element;
+
     drupal_alter('recipients_fetcher_argument', $recipients_argument, $context);
 
     $proc_message_fetcher_arguments = "
@@ -62,7 +62,6 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
       var procRecipientsCallbackMenuPath = '" . $recipients_argument['path'] . "';
     ";
 
-    // Use comment line as a place holder for direct fetcher:
     $direct_fetcher = "";
     drupal_alter('direct_recipients_fetcher', $direct_fetcher, $context);
 
@@ -145,10 +144,8 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
       ]
     );
 
-    $context = array(
-      'unalterable_field_instance' => clone (object)  $field_instance,
-      'unalterable_form_element' => clone (object) $element,
-    );
+    $context['unalterable_field_instance'] = clone (object)  $field_instance;
+    $context['unalterable_form_element'] = clone (object) $element;
   
     drupal_alter('add_proc_file_link', $add_file_link, $context);
 
@@ -157,7 +154,17 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
     // If element has already a default value add a decryption link
     if ($element['target_id']['#default_value']){
 
-      $proc_uri = entity_uri('proc', entity_load_single('proc', $element['target_id']['#entity']->{$element['target_id']['#field_name']}[LANGUAGE_NONE][0]['target_id']))['path'];
+      $delta = 0;
+      if (isset($element['_weight']['#default_value'])){
+        $delta = $element['_weight']['#default_value'];
+      }
+
+      $proc_uri = entity_uri(
+        'proc', entity_load_single(
+          'proc',
+          $element['target_id']['#entity']->{$element['target_id']['#field_name']}[LANGUAGE_NONE][$delta]['target_id']
+        )
+      )['path'];
 
       // If current user has access to uri and so user is authorized recipient:
       if ($proc_uri){
@@ -174,6 +181,9 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
             'html' => TRUE,
           ]
         );
+
+        drupal_alter('decrypt_proc_file_link', $decrypt_file_link, $context);
+
         $proc_file_op = $add_file_link . ' ' . $decrypt_file_link;
       }
     }
