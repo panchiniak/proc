@@ -169,7 +169,7 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
   if (!$form){
     $form = new stdClass();
   }
-  if (!$form_state){
+  if (!is_object($form_state)){
     $form_state = new stdClass();
   }
 
