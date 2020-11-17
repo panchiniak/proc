@@ -148,6 +148,18 @@ function _proc_get_keys($user_id) {
 function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
   global $user;
 
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'proc')
+    ->entityCondition('bundle', 'proc_ciphertxt')
+    ->propertyCondition('pid', $cid)
+    ->range(0, 1);
+  $result = $query->execute();
+
+  if (empty($result)){
+    // Entity not found also return access denied:
+    return array();
+  }
   $proc_wrapper = entity_metadata_wrapper('proc', $cid);
   $is_recipient = FALSE;
   // Check if cid matches a cipher text.
@@ -209,4 +221,49 @@ function _proc_recipient($cid) {
     }
   }
   return FALSE;
+}
+
+/**
+ * Helper function to get unique CSV arguments
+ *
+ * @param string $csv_data
+ *   CVS data sent as URL argument
+ *
+ * @return array
+ *   An array containing the unique entries of the CSV
+ */
+function _proc_get_csv_argument($csv_data){
+  if (isset($csv_data)) {
+    // Remove query string from the path if any.
+    $csv_data = preg_replace('/\?.+/', '', $csv_data);
+    $csv_data = check_plain($csv_data);
+    $csv_values = str_getcsv($csv_data);
+    $csv_data = array();
+    foreach ($csv_values as $csv_value) {
+      if (is_numeric($csv_value) && $csv_value = (int) $csv_value) {
+        $csv_data[] = $csv_value;
+      }
+    }
+    return array_unique($csv_data);
+  }
+  return NULL;
+}
+
+/**
+ * Helper function to check if current user is recipient of cipher texts.
+ *
+ * @param string $cids_csv
+ *   CSV list of Ciphertext IDs (proc entities).
+ *
+ * @return bool
+ *   A boolean indicating whether current user is recipient of all defined ciphertexts.
+ */
+function _proc_recipient_multiple($cids_csv) {
+  $cids = _proc_get_csv_argument($cids_csv);
+  foreach ($cids as $cid){
+    if (!_proc_recipient($cid)){
+      return FALSE;
+    }
+  }
+  return TRUE;
 }
