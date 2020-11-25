@@ -71,27 +71,154 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
 }
 
 /**
+ * Update proc cipher text entity.
+ */
+function _proc_update($form, &$form_state, $cids, $uids) {
+  global $user;
+
+  // Get arguments:
+  $cids = _proc_get_csv_argument($cids);
+  $cids_csv = implode(',', $cids);
+  $uids = _proc_get_csv_argument($uids);
+  $uids_csv = implode(',', $uids);
+
+
+  $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));
+
+  // If some UID does not return keys:
+  if (empty($recipients_pubkeys) || (count($uids) != count($recipients_pubkeys))) {
+    drupal_not_found();
+  }
+
+  // Get post_max_size to set dynamically maximum file size.
+  $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
+  $post_max_size_bytes = $post_max_size * 1000000;
+
+
+  foreach($cids as $cid){
+    $cid_cipher[$cid] = _proc_get_cipher((int) $cid, $form, $form_state);
+  }
+
+  foreach($cids as $cid){
+    $form['cipher_text_cid_' . $cid] = array(
+      '#type' => 'hidden',
+    );
+    $form['generation_timestamp_cid_' . $cid] = array(
+      '#type' => 'hidden',
+    );
+    $form['generation_timespan_cid_' . $cid] = array(
+      '#type' => 'hidden',
+    );
+    $form['browser_fingerprint_cid_' . $cid] = array(
+      '#type' => 'hidden',
+    );
+    $form['source_file_name_cid_' . $cid] = array(
+      '#type' => 'hidden',
+    );
+    $form['source_file_size_cid_' . $cid] = array(
+      '#type' => 'hidden',
+    );
+    $form['source_file_type_cid_' . $cid] = array(
+      '#type' => 'hidden',
+    );
+    $form['source_file_last_change_cid_' . $cid] = array(
+      '#type' => 'hidden',
+    );
+  }
+
+  _proc_lib_load();
+
+  // Get current user encrypted privkey.
+  $privkey = _proc_get_keys($user->uid)['encrypted_private_key'];
+
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'proc') . '/js/proc.update_protected.js' => array(
+      'type' => 'file',
+    ),
+  );
+
+  $form['#attached']['js'][] = array(
+    'data' => array(
+      'proc' => array(
+        'proc_uid' => $user->uid,
+        'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
+        'proc_mail' => $user->mail,
+        'proc_name' => $user->name,
+        'proc_privkey' => $privkey,
+        'proc_ciphers' => $cid_cipher,
+        'proc_ciphers_index' => $cids,
+        'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
+        'proc_post_max_size_bytes' => $post_max_size_bytes,
+        // 'proc_cipher' => $cid_cipher['cipher_text'],
+        // 'proc_source_file_name' => $cid_cipher['source_file_name'],
+        // 'proc_source_file_size' => $cid_cipher['source_file_size'],
+      ),
+    ),
+    'type' => 'setting',
+  );
+
+
+
+  $form['pass'] = array(
+    '#type' => 'password',
+    '#title' => t('Protected Content Password'),
+    '#description' => t('You must type in the password you have used when registering your Protected Content Key.'),
+    '#required' => TRUE,
+  );
+
+  $get_proc_link_fragment = md5(drupal_random_bytes(32));
+  $get_proc_link = l(
+    t('Update'),
+    current_path(),
+    array(
+      'attributes' => array(
+        'id' => 'update-link',
+        'class' => array(
+          'btn',
+          'btn-default',
+        ),
+      ),
+      'fragment' => $get_proc_link_fragment,
+    )
+  );
+
+
+  $form['pc_access_link'] = array(
+    '#markup' => $get_proc_link,
+  );
+
+  $form['#submit'][] = '_proc_update_submit';
+  $form['actions']['submit']['#submit'][] = '_proc_update_submit';
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Update via submit'),
+    '#attributes' => array(
+      'class' => array('hidden')
+    ),
+  );
+
+  return $form;  
+  
+
+}
+
+function _proc_update_submit($form, &$form_state){
+  // dpm('$form');
+  // dpm($form);
+  dpm($form['cipher_text_cid_5425']['#value']);
+  // dpm('$form_state');
+  // dpm($form_state);
+
+}
+
+/**
  * Helper function for encryption of files.
  */
 function _proc_encrypt_file($form, &$form_state, $uids) {
   global $user;
 
-  // @TODO: allow other modules to alter selected recipients based on required
-  // criteria
-  if (isset($uids)) {
-    // Remove query string from the path if any.
-    $uids = preg_replace('/\?.+/', '', $uids);
-    $uids = check_plain($uids);
-    $csv_values = str_getcsv($uids);
-    $uids = array();
-    foreach ($csv_values as $csv_value) {
-      if (is_numeric($csv_value) && $csv_value = (int) $csv_value) {
-        $uids[] = $csv_value;
-      }
-    }
-  }
-  // Check uniqueness.
-  $uids = array_unique($uids);
+  $uids = _proc_get_csv_argument($uids);
   $uids_csv = implode(',', $uids);
 
   $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));

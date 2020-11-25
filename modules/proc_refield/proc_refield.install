@@ -55,10 +55,3 @@ function proc_refield_update_7000() {
     views_delete_view($view);
   }
 }
-
-/**
- * Set my_proc_ciphers_ls for proc_refield instace.
- */
-// function proc_refield_update_7001() {
-//   // Do logics here.
-// }

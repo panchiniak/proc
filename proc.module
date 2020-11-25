@@ -79,6 +79,15 @@ function proc_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   );
+  $items['proc/update/%/%'] = array(
+    'title' => 'Update Protected Content',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_proc_update', 2, 3),
+    'access callback' => '_proc_recipient_multiple',
+    'access arguments' => array(2),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'inc/proc.forms.inc',
+  );
   return $items;
 }
 
