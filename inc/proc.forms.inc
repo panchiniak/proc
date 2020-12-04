@@ -149,9 +149,6 @@ function _proc_update($form, &$form_state, $cids, $uids) {
         'proc_ciphers_index' => $cids,
         'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
         'proc_post_max_size_bytes' => $post_max_size_bytes,
-        // 'proc_cipher' => $cid_cipher['cipher_text'],
-        // 'proc_source_file_name' => $cid_cipher['source_file_name'],
-        // 'proc_source_file_size' => $cid_cipher['source_file_size'],
       ),
     ),
     'type' => 'setting',
@@ -166,50 +163,58 @@ function _proc_update($form, &$form_state, $cids, $uids) {
     '#required' => TRUE,
   );
 
-  $get_proc_link_fragment = md5(drupal_random_bytes(32));
-  $get_proc_link = l(
-    t('Update'),
-    current_path(),
-    array(
-      'attributes' => array(
-        'id' => 'update-link',
-        'class' => array(
-          'btn',
-          'btn-default',
-        ),
-      ),
-      'fragment' => $get_proc_link_fragment,
-    )
-  );
-
-
-  $form['pc_access_link'] = array(
-    '#markup' => $get_proc_link,
-  );
-
   $form['#submit'][] = '_proc_update_submit';
   $form['actions']['submit']['#submit'][] = '_proc_update_submit';
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Update via submit'),
+    '#value' => t('Update'),
     '#attributes' => array(
-      'class' => array('hidden')
+      'class' => array('proc-update-submit'),
+      'onclick' => array(
+        // @TODO: make this in a JS file
+       'javascript:var s=this;setTimeout(function(){s.value="Saving...";s.disabled=true;},1);',
+      ),
     ),
   );
-
-  return $form;  
-  
-
+  return $form;
 }
 
+/**
+ * Update proc cipher text entity submit callback
+ */
 function _proc_update_submit($form, &$form_state){
-  // dpm('$form');
-  // dpm($form);
-  dpm($form['cipher_text_cid_5425']['#value']);
-  // dpm('$form_state');
-  // dpm($form_state);
+  $recipients_uids_new = str_getcsv($form_state['build_info']['args'][1]);
 
+  asort($recipients_uids_new);
+  $recipients_uids_new = array_values($recipients_uids_new);
+
+  foreach ($form['#attached']['js'][0]['data']['proc']['proc_ciphers_index'] as $cid){
+    $proc_wrapper = entity_metadata_wrapper('proc', $cid);
+    $file_name = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']);
+    $file_size = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);
+    $cid_cipher_field_id = 'cipher_text_cid_' . $cid;
+    $generation_timespan_field_id = 'generation_timespan_cid_' . $cid;
+    $browser_fingerprint_field_id = 'browser_fingerprint_cid_' . $cid;
+    $generation_timestamp_field_id = 'generation_timestamp_cid_' . $cid;
+    // Merge current and new data and metadata:
+    $ciphertxt_data[$cid] = array(
+      // Reuse unchanged values on encryption update:
+      'source_file_size' => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']),
+      'source_file_name' => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']),
+      'source_file_type' => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_type']),
+      // Set new changed values on encryption update:
+      'generation_timespan' => check_plain($form_state['values'][$generation_timespan_field_id]),
+      'generation_timestamp' => check_plain($form_state['values'][$generation_timestamp_field_id]),
+      'browser_fingerprint' => check_plain($form_state['values'][$browser_fingerprint_field_id]),
+      'cipher_text' => check_plain($form_state['values'][$cid_cipher_field_id]),
+    );
+
+    $proc_wrapper->proc_armored = serialize($ciphertxt_data[$cid]);
+    $proc_wrapper->changed = time();
+    $proc_wrapper->proc_recipient->set($recipients_uids_new);
+    $proc_wrapper->save();
+  }
 }
 
 /**
@@ -399,7 +404,9 @@ function _proc_generate_keys_submit($form, &$form_state) {
     // @TODO: implement full cipher indentifier:
     // client side source domain name:user email.
     $wrapper->label->set($user->mail);
-    $wrapper->created = time();
+    $current_timestamp = time();
+    $wrapper->created = $current_timestamp;
+    $wrapper->changed = $current_timestamp;
     $wrapper->save();
   }
 
@@ -462,7 +469,9 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     $wrapper->proc_recipient->set($recipients_uids_new);
     $wrapper->language($language->language);
     $wrapper->label = $ciphertxt_data['source_file_name'];
-    $wrapper->created = time();
+    $current_timestamp = time();
+    $wrapper->created = $current_timestamp;
+    $wrapper->changed = $current_timestamp;
     $wrapper->save();
   }
   // @TODO: add option to turn off cipher post save default messages.

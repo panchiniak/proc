@@ -223,6 +223,13 @@ function proc_entity_property_info() {
     'label' => t('Proc Armored created timestamp'),
     'setter callback' => 'entity_property_verbatim_set',
   );
+  $properties['changed'] = array(
+    'type' => 'date',
+    'schema field' => 'changed',
+    'required' => TRUE,
+    'label' => t('Proc Armored changed timestamp'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
 
   return $info;
 }
@@ -248,7 +255,6 @@ class Proc extends Entity {
   protected function defaultLabel() {
     return $this->label;
   }
-
 }
 
 /**
@@ -272,5 +278,15 @@ function proc_access($op, $task, $account = NULL, $entity_type = NULL) {
 
     case 'update':
       return user_access('update cipher', $account);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function proc_entity_update($entity, $type){
+  $success_update_message = t('File re-encrypted suceffuly');
+  if ($entity->changed > $entity->original->changed){
+    drupal_set_message($success_update_message);
   }
 }

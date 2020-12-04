@@ -15,7 +15,6 @@
                 document.getElementById('edit-button--2').disabled = "TRUE";
             }
 
-
             let passDrupal = Drupal.settings.proc.proc_pass;
             let privkey = Drupal.settings.proc.proc_privkey;
             let cipherTexts = Drupal.settings.proc.proc_ciphers;
@@ -23,11 +22,10 @@
 
             var ready = 0;
 
-            // Do not submit the form at all.
+            // Do not submit the form if encryption has not happend:
             $('#-proc-update').submit(
                 function (event) {
                     if (ready == 0){
-                        $('form#-proc-update').prepend(Drupal.t('<div class="messages error">You can\'t and you don\'t need to submit this form. Instead just click or tap on "Update".</div>'));
                         return false;    
                     }
                 }
@@ -37,16 +35,11 @@
             $('input#edit-pass').once().on(
                 'focusin', function () {
                     $('.messages').remove();
-                    document.getElementById('update-link').innerText = Drupal.t('Update');
-                    // let actionLink = $('#update-link');
-                    // if (!(actionLink.hasClass('active'))) {
-                    //     //actionLink.text('Update').removeClass('active').removeAttr('download').removeAttr('href');
-                    // }
+                    document.querySelector('.proc-update-submit').innerText = Drupal.t('Update');
                 }
             );
 
-            // $('#update-link').on(
-            $('#update-link').on(                
+            $('.proc-update-submit').on(
                 'click', async function () {
                     let secretPass = $('input[name=pass]')[0].value;
                     let secretPassString = new String(secretPass);
@@ -57,12 +50,6 @@
                         function (err) {
                             // @TODO: save error log.
                             $('form#-proc-update').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
-
-                            // if ($('a#update-link')[0].href) {
-                            //     const fileUrl = $('a#update-link')[0].href;
-                            //     URL.revokeObjectURL(fileUrl);
-                            //     $('a#update-link').removeAttr('href');
-                            // }
                         }
                     );
 
@@ -82,13 +69,11 @@
                     );
 
                     var procID = [];
+                    const BROWSER_FINGERPRINT = navigator.userAgent + ', (' + screen.width + ' x ' + screen.height + ')';
                     
                     for (i = 0; i < cipherTextsIndex.length; i++) {
-                        document.getElementById('update-link').innerText = Drupal.t('Processing...');
-
+                        document.querySelector('.proc-update-submit').innerText = Drupal.t('Processing...');
                         procID.push(cipherTextsIndex[i]);
-
-
                         const optionsDecription = {
                             message: await openpgp.message.readArmored(cipherTexts[cipherTextsIndex[i]].cipher_text).catch(
                                 function(err){
@@ -160,24 +145,23 @@
                                 let endSeconds = new Date().getTime() / 1000;
                                 let total = endSeconds - startSeconds;
 
-                                await (document.querySelector('[name=cipher_text_cid_' + procID.pop().toString() + ']').value = cipherPlaintext);
-                                // $('input[name=source_file_name]')[0].value = files[0].name;
-                                // $('input[name=source_file_size]')[0].value = files[0].size;
-                                // $('input[name=source_file_type]')[0].value = files[0].type;
-                                // $('input[name=source_file_last_change]')[0].value = files[0].lastModified;
-                                // $('input[name=browser_fingerprint]')[0].value = navigator.userAgent + ', (' + screen.width + ' x ' + screen.height + ')';
-                                // $('input[name=generation_timestamp]')[0].value = startSeconds;
-                                // $('input[name=generation_timespan]')[0].value = total;
+                                var procIDString = procID.pop().toString();
+                                await (document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = cipherPlaintext);
 
-                                console.log('-----cipherTextsIndex------');
-                                console.log(cipherTextsIndex.length);
-                                console.log('-----procID.length------');
-                                console.log(procID.length);
+                                document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total;
+                                document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT;
+                                document.querySelector('[name=generation_timestamp_cid_' + procIDString + ']').value = startSeconds;
 
                                 if (procID.length == 0){
                                     ready = 1;
-                                    document.getElementById('update-link').innerText = Drupal.t('Saving...');
-                                    $('#-proc-update').submit();
+                                    document.querySelector('.proc-update-submit').innerText = Drupal.t('Saving...');
+                                    // Do not submit the password:
+                                    var passPlaceHolder = new Array($('input[name=pass]')[0].value.length + 1).join( Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 1));
+                                    $('input[name=pass]')[0].value = passPlaceHolder;
+                                    // Make sure password is not submited:
+                                    if ($('input[name=pass]')[0].value != secretPass){
+                                        $('#-proc-update').submit();
+                                    }
                                 }
                             }
                         }
