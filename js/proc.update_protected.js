@@ -11,9 +11,20 @@
                 alert(Drupal.t('The File APIs are not fully supported in this browser.'));
             }
 
-            if (document.getElementById('edit-button--2')) {
-                document.getElementById('edit-button--2').disabled = "TRUE";
-            }
+            // Reset messages and action.
+            $('input#edit-pass').once().on(
+                'focusin', function () {
+                    const submit = document.querySelector('.proc-update-submit');
+
+                    if (submit.disabled == true){
+                        $('.messages').remove();
+                        submit.value = Drupal.t('Update');
+                        submit.classList.add('active');
+                        submit.disabled = false;
+                        document.querySelector('#edit-pass').value = '';
+                    }
+                }
+            );
 
             let passDrupal = Drupal.settings.proc.proc_pass;
             let privkey = Drupal.settings.proc.proc_privkey;
@@ -91,76 +102,73 @@
                             }
                         );
 
-                        const plaintext = await openpgp.stream.readToEnd(decrypted.data);
+                        if (decrypted){
+                            const plaintext = await openpgp.stream.readToEnd(decrypted.data);
 
-                        const blob = new Blob(
-                            [plaintext], {
-                                type: 'application/octet-binary',
-                                endings: 'native'
-                            }
-                        );
-    
-                        let reader = new FileReader();
-                        reader.readAsArrayBuffer(blob);
-
-                        let fileByteArray = [];
-
-                        reader.onloadend = async function (evt) {
-                            if (evt.target.readyState == FileReader.DONE) {
-                                let arrayBuffer = evt.target.result;
-                                let array = new Uint8Array(arrayBuffer);
-                                for (let i = 0; i < array.length; i++) {
-                                    fileByteArray.push(array[i]);
+                            const blob = new Blob(
+                                [plaintext], {
+                                    type: 'application/octet-binary',
+                                    endings: 'native'
                                 }
-                                // False for production.
-                                openpgp.config.debug = false;
-                                openpgp.config.show_comment = false;
-                                openpgp.config.show_version = false;
+                            );
         
-                                let recipientsPubkeys = await Drupal.settings.proc.proc_recipients_pubkeys;
-                                recipientsPubkeys = JSON.parse(recipientsPubkeys);
-        
-                                const readableStream = new ReadableStream(
-                                    {
-                                        start(controller) {
-                                            controller.enqueue(array);
-                                            controller.close();
-                                        }
+                            let reader = new FileReader();
+                            reader.readAsArrayBuffer(blob);
+                            let fileByteArray = [];
+                            reader.onloadend = async function (evt) {
+                                if (evt.target.readyState == FileReader.DONE) {
+                                    let arrayBuffer = evt.target.result;
+                                    let array = new Uint8Array(arrayBuffer);
+                                    for (let i = 0; i < array.length; i++) {
+                                        fileByteArray.push(array[i]);
                                     }
-                                );
+                                    // False for production.
+                                    openpgp.config.debug = false;
+                                    openpgp.config.show_comment = false;
+                                    openpgp.config.show_version = false;
+                                    let recipientsPubkeys = await Drupal.settings.proc.proc_recipients_pubkeys;
+                                    recipientsPubkeys = JSON.parse(recipientsPubkeys);
+                                    const readableStream = new ReadableStream(
+                                        {
+                                            start(controller) {
+                                                controller.enqueue(array);
+                                                controller.close();
+                                            }
+                                        }
+                                    );
+                                    const options = {
+                                        message: openpgp.message.fromBinary(readableStream),
+                                        publicKeys: recipientsKeys,
+                                        compression: openpgp.enums.compression.zip
+                                    };
 
-                                const options = {
-                                    message: openpgp.message.fromBinary(readableStream),
-                                    publicKeys: recipientsKeys,
-                                    compression: openpgp.enums.compression.zip
-                                };
-        
-                                let startSeconds = new Date().getTime() / 1000;
-                                const encrypted = await openpgp.encrypt(options);
-        
-                                const ciphertext = encrypted.data;
-                                // Warning: Readable Stream expires if used twice.
-                                const cipherPlaintext = await openpgp.stream.readToEnd(ciphertext);
-        
-                                let endSeconds = new Date().getTime() / 1000;
-                                let total = endSeconds - startSeconds;
+                                    let startSeconds = new Date().getTime() / 1000;
+                                    const encrypted = await openpgp.encrypt(options);
 
-                                var procIDString = procID.pop().toString();
-                                await (document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = cipherPlaintext);
+                                    const ciphertext = encrypted.data;
+                                    // Warning: Readable Stream expires if used twice.
+                                    const cipherPlaintext = await openpgp.stream.readToEnd(ciphertext);
 
-                                document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total;
-                                document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT;
-                                document.querySelector('[name=generation_timestamp_cid_' + procIDString + ']').value = startSeconds;
+                                    let endSeconds = new Date().getTime() / 1000;
+                                    let total = endSeconds - startSeconds;
 
-                                if (procID.length == 0){
-                                    ready = 1;
-                                    document.querySelector('.proc-update-submit').innerText = Drupal.t('Saving...');
-                                    // Do not submit the password:
-                                    var passPlaceHolder = new Array($('input[name=pass]')[0].value.length + 1).join( Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 1));
-                                    $('input[name=pass]')[0].value = passPlaceHolder;
-                                    // Make sure password is not submited:
-                                    if ($('input[name=pass]')[0].value != secretPass){
-                                        $('#-proc-update').submit();
+                                    var procIDString = procID.pop().toString();
+                                    await (document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = cipherPlaintext);
+
+                                    document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total;
+                                    document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT;
+                                    document.querySelector('[name=generation_timestamp_cid_' + procIDString + ']').value = startSeconds;
+
+                                    if (procID.length == 0){
+                                        ready = 1;
+                                        document.querySelector('.proc-update-submit').innerText = Drupal.t('Saving...');
+                                        // Do not submit the password:
+                                        var passPlaceHolder = new Array($('input[name=pass]')[0].value.length + 1).join( Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 1));
+                                        $('input[name=pass]')[0].value = passPlaceHolder;
+                                        // Make sure password is not submited:
+                                        if ($('input[name=pass]')[0].value != secretPass){
+                                            $('#-proc-update').submit();
+                                        }
                                     }
                                 }
                             }
