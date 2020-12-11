@@ -7,8 +7,19 @@
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
-            if (!(window.Blob)) {
-                alert(Drupal.t('The File APIs are not fully supported in this browser.'));
+            let passDrupal = Drupal.settings.proc.proc_pass;
+            let privkey    = Drupal.settings.proc.proc_privkey;
+
+            let cipherTexts      = Drupal.settings.proc.proc_ciphers;
+            let cipherTextsIndex = Drupal.settings.proc.proc_ciphers_index;
+
+            let fileApiErrMsg = Drupal.settings.proc.proc_fileapi_err_msg;
+
+            const introducingKeyDecryptionMsg = Drupal.t('Indroducing key passphrase for decryption...');
+            const introducingKeyDecryptionMsgElement = `<div class="messages info proc-info" id="proc-decrypting-info">${introducingKeyDecryptionMsg}</div>`;
+
+            if (!(window.Blob) || !(window.FileReader)) {
+                alert(fileApiErrMsg);
             }
 
             // Reset messages and action.
@@ -26,29 +37,16 @@
                 }
             );
 
-            let passDrupal = Drupal.settings.proc.proc_pass;
-            let privkey = Drupal.settings.proc.proc_privkey;
-            let cipherTexts = Drupal.settings.proc.proc_ciphers;
-            let cipherTextsIndex = Drupal.settings.proc.proc_ciphers_index;
-
+            // Do not submit the form if encryption did not happen:
             var ready = 0;
-
-            // Do not submit the form if encryption has not happend:
             $('#-proc-update').submit(
-                function (event) {
+                function () {
                     if (ready == 0){
                         return false;    
                     }
                 }
             );
 
-            // Reset messages and action.
-            $('input#edit-pass').once().on(
-                'focusin', function () {
-                    $('.messages').remove();
-                    document.querySelector('.proc-update-submit').innerText = Drupal.t('Update');
-                }
-            );
 
             $('.proc-update-submit').on(
                 'click', async function () {
@@ -59,13 +57,12 @@
 
                     await privKeyObj.decrypt(passphrase).catch(
                         function (err) {
-                            // @TODO: save error log.
-                            $('form#-proc-update').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
+                            $('form#-proc-update').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
                         }
                     );
 
                     if (!$('#proc-decrypting-info')[0]) {
-                        $('form#-proc-update').prepend(Drupal.t('<div class="messages info" id="proc-decrypting-info">Indroducing key passphrase for decryption...</div>'));
+                        $('form#-proc-update').prepend(introducingKeyDecryptionMsgElement);
                     }
 
 
@@ -87,8 +84,10 @@
                         procID.push(cipherTextsIndex[i]);
                         const optionsDecription = {
                             message: await openpgp.message.readArmored(cipherTexts[cipherTextsIndex[i]].cipher_text).catch(
-                                function(err){
-                                    $('form#-proc-update').prepend('<div class="messages error">' + Drupal.t(err) + '</div>')
+                                function (err) {
+                                    let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
+                                    //$('form#-proc-update').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
+                                    $('form#-proc-update').prepend(messageError);
                                 }
                             ),
                             privateKeys: [privKeyObj],
@@ -97,8 +96,11 @@
                         };
 
                         const decrypted = await openpgp.decrypt(optionsDecription).catch(
-                            function(err){
-                                $('form#-proc-update').prepend('<div class="messages error">' + Drupal.t(err) + '</div>')
+                            function (err) {
+                                $('form#-proc-update').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
+                                if ($('.messages.info.proc-info:first')){
+                                    $('.messages.info.proc-info:first').remove();
+                                }
                             }
                         );
 
@@ -171,11 +173,11 @@
                                         }
                                     }
                                 }
-                            }
+                            };
                         }
                     }
                 }
             );
         }
-    }
+    };
 })(jQuery);

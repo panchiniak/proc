@@ -25,6 +25,11 @@ It is very simple to use. Once it is installed (see Installation below):
    Content will provide an Exclusive Access Link for the recipients to decrypt
    the file.
 
+ * As recipient, access proc/update/&lt;pids_csv&gt;/&lt;uids_csv&gt; to
+   re-encrypt the files identified in &lt;pids_csv&gt; for the users identified
+   in &lt;uids_csv&gt;.
+
+
 REQUIREMENTS
 ------------
 OpenPGP.js v4.7.2

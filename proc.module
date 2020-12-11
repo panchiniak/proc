@@ -287,7 +287,7 @@ function proc_access($op, $task, $account = NULL, $entity_type = NULL) {
 function proc_entity_update($entity, $type){
   if ($entity->changed > $entity->original->changed){
     $success_update_message = t(
-      'File %file_label (%file_id) updated suceffuly for %number_recipients user(s)',
+      'File %file_label (%file_id) updated successfully for %number_recipients user(s)',
       array(
         '%file_label' => $entity->label,
         '%file_id' => $entity->pid,

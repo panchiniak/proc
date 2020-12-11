@@ -83,8 +83,7 @@
                             let encryptionData = await openpgp.generateKey(options).catch(
                                 function (err) {
                                     // This error is possibly due to tampering
-                                    // atempt.
-                                    // @TODO: watch the dog.
+                                    // atempt
                                     $('form#-proc-generate-keys').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
                                     // Reset password and action label.
                                     resetPassword();
@@ -124,5 +123,5 @@
                 }
             );
         }
-    }
+    };
 })(jQuery);

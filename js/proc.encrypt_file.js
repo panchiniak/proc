@@ -1,6 +1,6 @@
 /**
  * @file
- * Provides encryption of file given a public PGP armored key.
+ * Encryption of file given a public PGP armored key.
  */
 
 (function ($) {
@@ -8,17 +8,17 @@
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
-            // Check for the various File API support.
+            let fileApiErrMsg = Drupal.settings.proc.proc_fileapi_err_msg;
+
             if (!(window.FileReader)) {
-                // Error.
-                alert(Drupal.t('The File APIs are not fully supported in this browser.'));
+                alert(fileApiErrMsg);
             }
+
             if (document.getElementById('edit-button')) {
                 document.getElementById('edit-button').disabled = "TRUE";
             }
 
-            function handleFileSelect(evt)
-            {
+            function handleFileSelect(evt) {
 
                 document.getElementById('edit-button').value = Drupal.t('Processing...');
 
@@ -109,11 +109,11 @@
                         document.getElementById('edit-button').removeAttribute("disabled");
                         document.getElementById('edit-button').value = Drupal.settings.proc.proc_save_button_label;
                     }
-                }
+                };
             }
             if (document.getElementById('edit-upload')) {
                 document.getElementById('edit-upload').addEventListener('change', handleFileSelect, false);
             }
         }
-    }
+    };
 })(jQuery);

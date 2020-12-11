@@ -11,42 +11,24 @@
 function _proc_decrypt_to_file($form, &$form_state, $cid) {
   global $user;
 
-  $cid_cipher = _proc_get_cipher((int) $cid, $form, $form_state);
+  $ciphers_data = _proc_common_get_ciphers(array($cid));
+  $privkey      = $ciphers_data['privkey'];
+  $cid_cipher   = $ciphers_data['ciphers'][$cid];
+  $form['pass'] = $ciphers_data['form_pass'];
 
-  _proc_lib_load();
+  $form['#attached']['js'] = _proc_common_inject_lib('decrypt_protected_to_file');
 
-  // Get current user encrypted privkey.
-  $privkey = _proc_get_keys($user->uid)['encrypted_private_key'];
-
-  $form['#attached']['js'] = array(
-    drupal_get_path('module', 'proc') . '/js/proc.decrypt_protected_to_file.js' => array(
-      'type' => 'file',
-    ),
+  $decryption_form_elements = array(
+    'proc_cipher' => $cid_cipher['cipher_text'],
+    'proc_source_file_name' => $cid_cipher['source_file_name'],
+    'proc_source_file_size' => $cid_cipher['source_file_size'],
   );
 
   $form['#attached']['js'][] = array(
-    'data' => array(
-      'proc' => array(
-        'proc_uid' => $user->uid,
-        'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
-        'proc_mail' => $user->mail,
-        'proc_name' => $user->name,
-        'proc_privkey' => $privkey,
-        'proc_cipher' => $cid_cipher['cipher_text'],
-        'proc_source_file_name' => $cid_cipher['source_file_name'],
-        'proc_source_file_size' => $cid_cipher['source_file_size'],
-
-      ),
-    ),
+    'data' => array('proc' => _proc_common_get_decryption_form_data($privkey)),
     'type' => 'setting',
   );
-
-  $form['pass'] = array(
-    '#type' => 'password',
-    '#title' => t('Protected Content Password'),
-    '#description' => t('You must type in the password you have used when registering your Protected Content Key.'),
-    '#required' => TRUE,
-  );
+  $form['#attached']['js'][0]['data']['proc'] += $decryption_form_elements;
 
   $get_proc_link_fragment = md5(drupal_random_bytes(32));
   $get_proc_link = l(
@@ -76,28 +58,36 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
 function _proc_update($form, &$form_state, $cids, $uids) {
   global $user;
 
-  // Get arguments:
-  $cids = _proc_get_csv_argument($cids);
-  $cids_csv = implode(',', $cids);
-  $uids = _proc_get_csv_argument($uids);
-  $uids_csv = implode(',', $uids);
+  // Sanitize and preprocess arguments:
+  $csvs     = _proc_get_csv_arguments(array('cids_csv' => $cids, 'uids_csv' => $uids));
+  $uids     = $csvs['uids_csv']['array'];
+  $uids_csv = $csvs['uids_csv']['string'];
+  $cids     = $csvs['cids_csv']['array'];
+  $cids_csv = $csvs['cids_csv']['string'];
 
+  $ciphers_data = _proc_common_get_ciphers($cids);
+  $privkey      = $ciphers_data['privkey'];
+  $cid_cipher   = $ciphers_data['ciphers'];
+  $form['pass'] = $ciphers_data['form_pass'];
 
-  $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));
+  $pubkeys_data        = _proc_common_get_pubkeys($uids);
+  $recipients_pubkeys  = $pubkeys_data['recipients_pubkeys'];
+  $post_max_size_bytes = $pubkeys_data['post_max_size_bytes'];
 
-  // If some UID does not return keys:
-  if (empty($recipients_pubkeys) || (count($uids) != count($recipients_pubkeys))) {
-    drupal_not_found();
-  }
+  $form['#attached']['js'] = _proc_common_inject_lib('update_protected');
 
-  // Get post_max_size to set dynamically maximum file size.
-  $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
-  $post_max_size_bytes = $post_max_size * 1000000;
+  $encryption_form_elements = array(
+    'proc_ciphers' => $cid_cipher,
+    'proc_ciphers_index' => $cids,
+    'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
+    'proc_post_max_size_bytes' => $post_max_size_bytes,
+  );
 
-
-  foreach($cids as $cid){
-    $cid_cipher[$cid] = _proc_get_cipher((int) $cid, $form, $form_state);
-  }
+  $form['#attached']['js'][] = array(
+    'data' => array('proc' => _proc_common_get_decryption_form_data($privkey)),
+    'type' => 'setting',
+  );
+  $form['#attached']['js'][0]['data']['proc'] += $encryption_form_elements;
 
   foreach($cids as $cid){
     $form['cipher_text_cid_' . $cid] = array(
@@ -126,43 +116,6 @@ function _proc_update($form, &$form_state, $cids, $uids) {
     );
   }
 
-  _proc_lib_load();
-
-  // Get current user encrypted privkey.
-  $privkey = _proc_get_keys($user->uid)['encrypted_private_key'];
-
-  $form['#attached']['js'] = array(
-    drupal_get_path('module', 'proc') . '/js/proc.update_protected.js' => array(
-      'type' => 'file',
-    ),
-  );
-
-  $form['#attached']['js'][] = array(
-    'data' => array(
-      'proc' => array(
-        'proc_uid' => $user->uid,
-        'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
-        'proc_mail' => $user->mail,
-        'proc_name' => $user->name,
-        'proc_privkey' => $privkey,
-        'proc_ciphers' => $cid_cipher,
-        'proc_ciphers_index' => $cids,
-        'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
-        'proc_post_max_size_bytes' => $post_max_size_bytes,
-      ),
-    ),
-    'type' => 'setting',
-  );
-
-
-
-  $form['pass'] = array(
-    '#type' => 'password',
-    '#title' => t('Protected Content Password'),
-    '#description' => t('You must type in the password you have used when registering your Protected Content Key.'),
-    '#required' => TRUE,
-  );
-
   $form['#submit'][] = '_proc_update_submit';
   $form['actions']['submit']['#submit'][] = '_proc_update_submit';
 
@@ -172,8 +125,7 @@ function _proc_update($form, &$form_state, $cids, $uids) {
     '#attributes' => array(
       'class' => array('proc-update-submit'),
       'onclick' => array(
-        // @TODO: make this in a JS file
-       'javascript:var s=this;setTimeout(function(){s.value="Saving...";s.disabled=true;},1);',
+        _proc_get_onclick_saving(),
       ),
     ),
   );
@@ -200,14 +152,14 @@ function _proc_update_submit($form, &$form_state){
     // Merge current and new data and metadata:
     $ciphertxt_data[$cid] = array(
       // Reuse unchanged values on encryption update:
-      'source_file_size' => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']),
-      'source_file_name' => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']),
-      'source_file_type' => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_type']),
+      'source_file_size'     => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']),
+      'source_file_name'     => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']),
+      'source_file_type'     => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_type']),
       // Set new changed values on encryption update:
-      'generation_timespan' => check_plain($form_state['values'][$generation_timespan_field_id]),
+      'generation_timespan'  => check_plain($form_state['values'][$generation_timespan_field_id]),
       'generation_timestamp' => check_plain($form_state['values'][$generation_timestamp_field_id]),
-      'browser_fingerprint' => check_plain($form_state['values'][$browser_fingerprint_field_id]),
-      'cipher_text' => check_plain($form_state['values'][$cid_cipher_field_id]),
+      'browser_fingerprint'  => check_plain($form_state['values'][$browser_fingerprint_field_id]),
+      'cipher_text'          => check_plain($form_state['values'][$cid_cipher_field_id]),
     );
 
     $proc_wrapper->proc_armored = serialize($ciphertxt_data[$cid]);
@@ -223,43 +175,29 @@ function _proc_update_submit($form, &$form_state){
 function _proc_encrypt_file($form, &$form_state, $uids) {
   global $user;
 
-  $uids = _proc_get_csv_argument($uids);
-  $uids_csv = implode(',', $uids);
+  // Sanitize and preprocess argument:
+  $csv      = _proc_get_csv_arguments(array('uids_csv' => $uids));
+  $uids     = $csv['uids_csv']['array'];
+  $uids_csv = $csv['uids_csv']['string'];
 
-  $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));
+  $pubkeys_data = _proc_common_get_pubkeys($uids);
+  $recipients_pubkeys = $pubkeys_data['recipients_pubkeys'];
+  $post_max_size_bytes = $pubkeys_data['post_max_size_bytes'];
 
-  // If some UID does not return keys:
-  if (empty($recipients_pubkeys) || (count($uids) != count($recipients_pubkeys))) {
-    drupal_not_found();
-  }
-
-  // Get post_max_size to set dynamically maximum file size.
-  $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
-  $post_max_size_bytes = $post_max_size * 1000000;
-
-  // @TODO: add error handling to _proc_lib_load()
-  _proc_lib_load();
-
-  $form['#attached']['js'] = array(
-    drupal_get_path('module', 'proc') . '/js/proc.encrypt_file.js' => array(
-      'type' => 'file',
-    ),
-  );
+  $form['#attached']['js'] = _proc_common_inject_lib('encrypt_file');
 
   $form['#attached']['js'][] = array(
     'data' => array(
       'proc' => array(
-        'proc_uid' => $user->uid,
         'proc_save_button_label' => t('Save'),
-        'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
-        'proc_mail' => $user->mail,
-        'proc_name' => $user->name,
         'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
         'proc_post_max_size_bytes' => $post_max_size_bytes,
       ),
     ),
     'type' => 'setting',
   );
+
+  $form['#attached']['js'][0]['data']['proc'] += _proc_common_get_decryption_form_data(NULL);
 
   $form['upload'] = array(
     '#name' => 'files[]',
@@ -295,16 +233,18 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   $form['source_file_last_change'] = array(
     '#type' => 'hidden',
   );
+
+
   $form['button'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
     '#attributes' => array(
       'onclick' => array(
-         // @TODO: make this in a JS file
-        'javascript:var s=this;setTimeout(function(){s.value="Saving...";s.disabled=true;},1);',
+        _proc_get_onclick_saving(),
       ),
     ),
   );
+
   $form['button']['#ajax'] = array(
     'callback' => '_proc_encrypt_file_submit_callback',
     'wrapper' => '-proc-encrypt-file-form',
@@ -331,22 +271,12 @@ function _proc_generate_keys($form, &$form_state) {
       drupal_set_message(t('Warning: if you generate new encryption keys, you will lose access to all encrypted files which were previously sent to you.'), 'warning', FALSE);
     }
   };
-  _proc_lib_load();
 
-  $form['#attached']['js'] = array(
-    drupal_get_path('module', 'proc') . '/js/proc.create_keys_protected.js' => array(
-      'type' => 'file',
-    ),
-  );
+  $form['#attached']['js'] = _proc_common_inject_lib('create_keys_protected');
 
   $form['#attached']['js'][] = array(
     'data' => array(
-      'proc' => array(
-        'proc_uid' => $user->uid,
-        'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
-        'proc_mail' => $user->mail,
-        'proc_name' => $user->name,
-      ),
+      'proc' => _proc_common_get_decryption_form_data(NULL),
     ),
     'type' => 'setting',
   );
@@ -436,7 +366,6 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   global $base_url;
   global $language;
 
-  $recipients_uids = array();
   $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);
   $recipients_uids_new = str_getcsv($form_state['build_info']['args'][0]);
   // Sorting UIDs just because sorting is beautiful.
@@ -449,13 +378,13 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
 
   // Prepare the form values for submission.
   $ciphertxt_data = array(
-    'source_file_size' => check_plain($form_state['values']['source_file_size']),
-    'cipher_text' => check_plain($form_state['values']['cipher_text']),
-    'generation_timespan' => check_plain($form_state['values']['generation_timespan']),
-    'source_file_type' => check_plain($form_state['values']['source_file_type']),
-    'browser_fingerprint' => check_plain($form_state['values']['browser_fingerprint']),
+    'source_file_size'     => check_plain($form_state['values']['source_file_size']),
+    'cipher_text'          => check_plain($form_state['values']['cipher_text']),
+    'generation_timespan'  => check_plain($form_state['values']['generation_timespan']),
+    'source_file_type'     => check_plain($form_state['values']['source_file_type']),
+    'browser_fingerprint'  => check_plain($form_state['values']['browser_fingerprint']),
     'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
-    'source_file_name' => check_plain($form_state['values']['source_file_name']),
+    'source_file_name'     => check_plain($form_state['values']['source_file_name']),
   );
 
   $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
