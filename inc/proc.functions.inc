@@ -157,7 +157,7 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
     ->range(0, 1);
   $result = $query->execute();
 
-  if (empty($result)){
+  if (empty($result)) {
     // Entity not found also return access denied:
     return array();
   }
@@ -179,10 +179,10 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
   $cipher_text_data['source_file_size'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);
   $cipher_text_data['cipher_cid'] = check_plain($cid);
 
-  if (!$form){
+  if (!$form) {
     $form = new stdClass();
   }
-  if (!is_object($form_state)){
+  if (!is_object($form_state)) {
     $form_state = new stdClass();
   }
 
@@ -214,9 +214,9 @@ function _proc_recipient($cid) {
 
   if (isset($cid) && is_numeric($cid)) {
     $cid = (int) $cid;
-    // @TODO: check if empty arguments are needed
+    // @todo check if empty arguments are needed
     $cipher = _proc_get_cipher($cid, NULL, NULL);
-    // @TODO: add 'bypass cipher access control' restricted permission
+    // @todo add 'bypass cipher access control' restricted permission
     if (!empty($cipher) or ($user->uid == 1)) {
       return TRUE;
     }
@@ -225,15 +225,15 @@ function _proc_recipient($cid) {
 }
 
 /**
- * Helper function to get unique CSV arguments
+ * Helper function to get unique CSV arguments.
  *
  * @param string $csv_data
- *   CVS data sent as URL argument
+ *   CVS data sent as URL argument.
  *
  * @return array
  *   An array containing the unique entries of the CSV
  */
-function _proc_get_csv_argument($csv_data){
+function _proc_get_csv_argument($csv_data) {
   if (isset($csv_data)) {
     // Remove query string from the path if any.
     $csv_data = preg_replace('/\?.+/', '', $csv_data);
@@ -261,8 +261,8 @@ function _proc_get_csv_argument($csv_data){
  */
 function _proc_recipient_multiple($cids_csv) {
   $cids = _proc_get_csv_argument($cids_csv);
-  foreach ($cids as $cid){
-    if (!_proc_recipient($cid)){
+  foreach ($cids as $cid) {
+    if (!_proc_recipient($cid)) {
       return FALSE;
     }
   }
@@ -275,32 +275,32 @@ function _proc_recipient_multiple($cids_csv) {
  * @return string
  *   Dimicaly deined max file size.
  */
-function _proc_get_post_max_size_bytes(){
+function _proc_get_post_max_size_bytes() {
   $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
   $post_max_size_bytes = $post_max_size * 1000000;
   return $post_max_size_bytes;
 }
 
 /**
- * Helper function to get multiple unique CSV arguments
+ * Helper function to get multiple unique CSV arguments.
  *
  * @param array $csvs
- *   List of csvs
+ *   List of csvs.
  *
  * @return array
  *   Array containing sanitized CSVs strings and arrays
  */
-function _proc_get_csv_arguments($csvs){
+function _proc_get_csv_arguments($csvs) {
   $csvs_strings = array();
-  foreach ($csvs as $csvs_key => $csv_data){
+  foreach ($csvs as $csvs_key => $csv_data) {
     $csv_data = _proc_get_csv_argument($csv_data);
-    if (is_array($csv_data)){
-      //dpm($csv_data);
+    if (is_array($csv_data)) {
+      // dpm($csv_data);
       $csvs_strings[$csvs_key]['array'] = $csv_data;
       $csvs_strings[$csvs_key]['string'] = implode(',', $csv_data);
     }
   }
-  if (!empty($csvs_strings)){
+  if (!empty($csvs_strings)) {
     return $csvs_strings;
   }
   return NULL;
@@ -308,33 +308,33 @@ function _proc_get_csv_arguments($csvs){
 }
 
 /**
- * Helper function to get saving behaviour
+ * Helper function to get saving behaviour.
  */
-function _proc_get_onclick_saving(){
+function _proc_get_onclick_saving() {
   return 'javascript:var s = this; setTimeout( function () { s.value = "' . t('Saving...') . '"; s.disabled = true; jQuery(":focus").blur();}, 1);';
 }
 
 /**
- * Helper function to get file API error message
+ * Helper function to get file API error message.
  */
-function _proc_get_fileapi_err_msg(){
+function _proc_get_fileapi_err_msg() {
   return t('The File APIs are not fully supported in this browser.');
 }
 
 /**
- * Helper common function to get ciphers for decryption
+ * Helper common function to get ciphers for decryption.
  *
  * @param array $cids
- *   List of cids
+ *   List of cids.
  *
  * @return array
  *   Array containing cihpers, encrypted priv key and pass form element.
  */
-function _proc_common_get_ciphers($cids){
+function _proc_common_get_ciphers($cids) {
   global $user;
 
   $privkey = _proc_get_keys($user->uid)['encrypted_private_key'];
-  foreach($cids as $cid){
+  foreach ($cids as $cid) {
     $cid_cipher[$cid] = _proc_get_cipher((int) $cid, $form, $form_state);
   }
   $form_pass = array(
@@ -349,16 +349,17 @@ function _proc_common_get_ciphers($cids){
     'form_pass' => $form_pass,
   ];
 }
+
 /**
- * Helper common function to get pubkeys for encryption
+ * Helper common function to get pubkeys for encryption.
  *
  * @param array $uids
- *   List of uids
+ *   List of uids.
  *
  * @return array
  *   Array containing pubkeys and max file size.
  */
-function _proc_common_get_pubkeys($uids){
+function _proc_common_get_pubkeys($uids) {
   $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));
   // If some UID does not return keys:
   if (empty($recipients_pubkeys) || (count($uids) != count($recipients_pubkeys))) {
@@ -373,7 +374,7 @@ function _proc_common_get_pubkeys($uids){
 }
 
 /**
- * Helper common function to inject crypto lib
+ * Helper common function to inject crypto lib.
  *
  * @param string $op
  *   Cryptographic operation
@@ -382,7 +383,7 @@ function _proc_common_get_pubkeys($uids){
  * @return array
  *   Array containing js form attachment.
  */
-function _proc_common_inject_lib($op){
+function _proc_common_inject_lib($op) {
   _proc_lib_load();
   $form_attachment = array(
     drupal_get_path('module', 'proc') . '/js/proc.' . $op . '.js' => array(
@@ -393,15 +394,15 @@ function _proc_common_inject_lib($op){
 }
 
 /**
- * Helper common to get proc decryption form data
+ * Helper common to get proc decryption form data.
  *
  * @param string $privkey
- *   Current user encrypted privkey
+ *   Current user encrypted privkey.
  *
  * @return array
  *   Array containing proc form data.
  */
-function _proc_common_get_decryption_form_data($privkey){
+function _proc_common_get_decryption_form_data($privkey) {
   global $user;
   return [
     'proc_uid' => $user->uid,

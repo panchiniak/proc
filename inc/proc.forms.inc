@@ -89,7 +89,7 @@ function _proc_update($form, &$form_state, $cids, $uids) {
   );
   $form['#attached']['js'][0]['data']['proc'] += $encryption_form_elements;
 
-  foreach($cids as $cid){
+  foreach ($cids as $cid) {
     $form['cipher_text_cid_' . $cid] = array(
       '#type' => 'hidden',
     );
@@ -133,15 +133,15 @@ function _proc_update($form, &$form_state, $cids, $uids) {
 }
 
 /**
- * Update proc cipher text entity submit callback
+ * Update proc cipher text entity submit callback.
  */
-function _proc_update_submit($form, &$form_state){
+function _proc_update_submit($form, &$form_state) {
   $recipients_uids_new = str_getcsv($form_state['build_info']['args'][1]);
 
   asort($recipients_uids_new);
   $recipients_uids_new = array_values($recipients_uids_new);
 
-  foreach ($form['#attached']['js'][0]['data']['proc']['proc_ciphers_index'] as $cid){
+  foreach ($form['#attached']['js'][0]['data']['proc']['proc_ciphers_index'] as $cid) {
     $proc_wrapper = entity_metadata_wrapper('proc', $cid);
     $file_name = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']);
     $file_size = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);
@@ -233,7 +233,6 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   $form['source_file_last_change'] = array(
     '#type' => 'hidden',
   );
-
 
   $form['button'] = array(
     '#type' => 'submit',
@@ -327,11 +326,11 @@ function _proc_generate_keys_submit($form, &$form_state) {
   // Save only if key has been effectively generated:
   if (substr($keyring_data['public_key'], 5, 26) == 'BEGIN PGP PUBLIC KEY BLOCK') {
     $wrapper = entity_metadata_wrapper('proc', $entity);
-    // @TODO: deprecate property uid in favor of proc_armoredown field.
+    // @todo deprecate property uid in favor of proc_armoredown field.
     $wrapper->uid = $user->uid;
     $wrapper->proc_armoredown->set($user->uid);
     $wrapper->proc_armored = serialize($keyring_data);
-    // @TODO: implement full cipher indentifier:
+    // @todo implement full cipher indentifier:
     // client side source domain name:user email.
     $wrapper->label->set($user->mail);
     $current_timestamp = time();
@@ -346,7 +345,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
     drupal_set_message(t("Your password can't be recovered. You must remember it. If you create new keys all previously Protected Content sent to you will be forever lost (and there is nothing we can do about that)."), 'info');
   }
   else {
-    // @TODO: add keyring generation failure hook
+    // @todo add keyring generation failure hook
     if (!_proc_browser_supported()) {
       drupal_set_message(t('Key generation error. It looks like you are using some unsupported browser. Please try it again using another one.'), 'error');
     }
@@ -373,7 +372,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   $recipients_uids_new = array_values($recipients_uids_new);
 
   // At this moment UIDs have been alredy checked.
-  // @TODO: consider using drupal_check_token to assure form data integrity.
+  // @todo consider using drupal_check_token to assure form data integrity.
   $recipients_uids = serialize($recipients_uids);
 
   // Prepare the form values for submission.
@@ -391,7 +390,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
 
   if (!empty($ciphertxt_data['source_file_name'])) {
     $wrapper = entity_metadata_wrapper('proc', $entity);
-    // @TODO: deprecate property uid in favor of proc_armoredown field.
+    // @todo deprecate property uid in favor of proc_armoredown field.
     $wrapper->uid = $user->uid;
     $wrapper->proc_armoredown->set($user->uid);
     $wrapper->proc_armored = serialize($ciphertxt_data);
@@ -403,7 +402,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     $wrapper->changed = $current_timestamp;
     $wrapper->save();
   }
-  // @TODO: add option to turn off cipher post save default messages.
+  // @todo add option to turn off cipher post save default messages.
   if (isset($entity->pid)) {
     $success_encryption_message = t(
       'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',

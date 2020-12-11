@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ */
+
 $plugin = array(
   'title' => t('Protected Content Reference Field Behavior'),
   'description' => t('Enable Protectec Content API.'),

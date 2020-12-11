@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Implements hook_views_default_views().
  */
 function proc_refield_views_default_views() {

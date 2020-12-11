@@ -1,7 +1,10 @@
 <?php
 
-
+/**
+ *
+ */
 class ProcRefieldProcBehaviorPlugin extends EntityReference_BehaviorHandler_Abstract {
+
   /**
    * Generate a settings form.
    */
@@ -10,8 +13,8 @@ class ProcRefieldProcBehaviorPlugin extends EntityReference_BehaviorHandler_Abst
     $all_user_views = array(
       '0' => ' - None - ',
     );
-    foreach ($all_views as $view){
-      if ($view->base_table == 'users'){
+    foreach ($all_views as $view) {
+      if ($view->base_table == 'users') {
         $all_user_views[$view->name] = $view->human_name . ' - ' . $view->name;
       }
     }
@@ -37,4 +40,5 @@ class ProcRefieldProcBehaviorPlugin extends EntityReference_BehaviorHandler_Abst
 
     return $form;
   }
+
 }

@@ -16,7 +16,7 @@
             let fileApiErrMsg = Drupal.settings.proc.proc_fileapi_err_msg;
 
             const introducingKeyDecryptionMsg = Drupal.t('Indroducing key passphrase for decryption...');
-            const introducingKeyDecryptionMsgElement = `<div class="messages info proc-info" id="proc-decrypting-info">${introducingKeyDecryptionMsg}</div>`;
+            const introducingKeyDecryptionMsgElement = ` < div class = "messages info proc-info" id = "proc-decrypting-info" > ${introducingKeyDecryptionMsg} < / div > `;
 
             if (!(window.Blob) || !(window.FileReader)) {
                 alert(fileApiErrMsg);
@@ -42,11 +42,10 @@
             $('#-proc-update').submit(
                 function () {
                     if (ready == 0){
-                        return false;    
+                        return false;
                     }
                 }
             );
-
 
             $('.proc-update-submit').on(
                 'click', async function () {
@@ -57,14 +56,13 @@
 
                     await privKeyObj.decrypt(passphrase).catch(
                         function (err) {
-                            $('form#-proc-update').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
+                            $('form#-proc-update').prepend(` < div class = "messages error" > ${Drupal.t(err)} < / div > `);
                         }
                     );
 
                     if (!$('#proc-decrypting-info')[0]) {
                         $('form#-proc-update').prepend(introducingKeyDecryptionMsgElement);
                     }
-
 
                     let recipientsPubkeys = await Drupal.settings.proc.proc_recipients_pubkeys;
                     recipientsPubkeys = JSON.parse(recipientsPubkeys);
@@ -78,14 +76,14 @@
 
                     var procID = [];
                     const BROWSER_FINGERPRINT = navigator.userAgent + ', (' + screen.width + ' x ' + screen.height + ')';
-                    
+
                     for (i = 0; i < cipherTextsIndex.length; i++) {
                         document.querySelector('.proc-update-submit').innerText = Drupal.t('Processing...');
                         procID.push(cipherTextsIndex[i]);
                         const optionsDecription = {
                             message: await openpgp.message.readArmored(cipherTexts[cipherTextsIndex[i]].cipher_text).catch(
                                 function (err) {
-                                    let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
+                                    let messageError = ` < div class = "messages error" > ${Drupal.t(err)} < / div > `;
                                     //$('form#-proc-update').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
                                     $('form#-proc-update').prepend(messageError);
                                 }
@@ -113,7 +111,7 @@
                                     endings: 'native'
                                 }
                             );
-        
+
                             let reader = new FileReader();
                             reader.readAsArrayBuffer(blob);
                             let fileByteArray = [];
@@ -155,7 +153,7 @@
                                     let total = endSeconds - startSeconds;
 
                                     var procIDString = procID.pop().toString();
-                                    await (document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = cipherPlaintext);
+                                    await(document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = cipherPlaintext);
 
                                     document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total;
                                     document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT;

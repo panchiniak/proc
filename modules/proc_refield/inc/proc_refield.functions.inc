@@ -40,7 +40,7 @@ function _proc_refield_field_create_instances(array $instances) {
  * @return array
  *   Array containing entity reference widget identifiers.
  */
-function _proc_refield_get_proc_refield_widget(){
+function _proc_refield_get_proc_refield_widget() {
   $proc_refield_widget[] = 'entityreference_autocomplete';
   drupal_alter('proc_refield_get_widget', $proc_refield_widget);
   return $proc_refield_widget;
@@ -58,7 +58,7 @@ function _proc_refield_get_proc_refield_widget(){
 function _proc_refield_recipients_menu_callback($view) {
 
   $filter_arguments = drupal_get_query_parameters();
-  if (is_array($filter_arguments)){
+  if (is_array($filter_arguments)) {
     foreach ($filter_arguments as $filter_arguments) {
       $filter_arguments_set[] = $filter_arguments;
     }
@@ -67,7 +67,7 @@ function _proc_refield_recipients_menu_callback($view) {
   $view_sanitized = check_plain($view);
   $recipients_view = views_get_view($view_sanitized, TRUE);
 
-  if ($recipients_view){
+  if ($recipients_view) {
     $recipients_view->set_arguments($filter_arguments_set);
     $recipients_view->execute();
     $selected_user_ids = array();
@@ -77,12 +77,11 @@ function _proc_refield_recipients_menu_callback($view) {
     $uids = array_unique($selected_user_ids);
     asort($uids);
 
-    // @TODO: create a hook to allow definition of extra filters
-
+    // @todo create a hook to allow definition of extra filters
     $uids_csv = implode(',', $uids);
     drupal_json_output($uids_csv);
   }
-  else{
+  else {
     drupal_json_output('Error: view not found: ' . $view_sanitized);
   }
 }
