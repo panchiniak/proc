@@ -18,7 +18,7 @@
             let fileApiErrMsg = Drupal.settings.proc.proc_fileapi_err_msg;
 
             const introducingKeyDecryptionMsg = Drupal.t('Indroducing key passphrase for decryption...');
-            const introducingKeyDecryptionMsgElement = ` < div class = "messages info proc-info" id = "proc-decrypting-info" > ${introducingKeyDecryptionMsg} < / div > `;
+            const introducingKeyDecryptionMsgElement = ` <div class="messages info proc-info" id="proc-decrypting-info">${introducingKeyDecryptionMsg}</div>`;
 
             if (!(window.Blob)) {
                 alert(fileApiErrMsg);
@@ -54,7 +54,7 @@
 
                     await privKeyObj.decrypt(passphrase).catch(
                         function (err) {
-                            $('form#-proc-decrypt-to-file').prepend(` < div class = "messages error" > ${Drupal.t(err)} < / div > `);
+                            $('form#-proc-decrypt-to-file').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
                             if ($('a#decryption-link')[0].href) {
                                 const fileUrl = $('a#decryption-link')[0].href;
                                 URL.revokeObjectURL(fileUrl);
@@ -70,7 +70,7 @@
                     const optionsDecription = {
                         message: await openpgp.message.readArmored(cipherText).catch(
                             function (err) {
-                                let messageError = ` < div class = "messages error" > ${Drupal.t(err)} < / div > `;
+                                let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
                                 $('form#-proc-decrypt-to-file').prepend(messageError);
                             }
                         ),
@@ -81,7 +81,7 @@
 
                     const decrypted = await openpgp.decrypt(optionsDecription).catch(
                         function (err) {
-                            let messageError = ` < div class = "messages error" > ${Drupal.t(err)} < / div > `;
+                            let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
                             $('form#-proc-decrypt-to-file').prepend(messageError);
                             $(":focus").blur();
                             if ($('.messages.info.proc-info:first')){

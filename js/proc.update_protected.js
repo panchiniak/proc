@@ -16,7 +16,7 @@
             let fileApiErrMsg = Drupal.settings.proc.proc_fileapi_err_msg;
 
             const introducingKeyDecryptionMsg = Drupal.t('Indroducing key passphrase for decryption...');
-            const introducingKeyDecryptionMsgElement = ` < div class = "messages info proc-info" id = "proc-decrypting-info" > ${introducingKeyDecryptionMsg} < / div > `;
+            const introducingKeyDecryptionMsgElement = `<div class="messages info proc-info" id="proc-decrypting-info">${introducingKeyDecryptionMsg}</div>`;
 
             if (!(window.Blob) || !(window.FileReader)) {
                 alert(fileApiErrMsg);
@@ -56,7 +56,7 @@
 
                     await privKeyObj.decrypt(passphrase).catch(
                         function (err) {
-                            $('form#-proc-update').prepend(` < div class = "messages error" > ${Drupal.t(err)} < / div > `);
+                            $('form#-proc-update').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
                         }
                     );
 
@@ -83,7 +83,7 @@
                         const optionsDecription = {
                             message: await openpgp.message.readArmored(cipherTexts[cipherTextsIndex[i]].cipher_text).catch(
                                 function (err) {
-                                    let messageError = ` < div class = "messages error" > ${Drupal.t(err)} < / div > `;
+                                    let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
                                     //$('form#-proc-update').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
                                     $('form#-proc-update').prepend(messageError);
                                 }
