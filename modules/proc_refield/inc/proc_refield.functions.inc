@@ -51,9 +51,6 @@ function _proc_refield_get_proc_refield_widget() {
  *
  * @param string $view
  *   View for retrieval of users.
- *
- * @param string $filter
- *   Filter parameters.
  */
 function _proc_refield_recipients_menu_callback($view) {
 
