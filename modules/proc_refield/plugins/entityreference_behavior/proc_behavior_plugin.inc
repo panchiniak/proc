@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Plugin definition.
  */
 
 $plugin = array(

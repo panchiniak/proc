@@ -59,7 +59,12 @@ function _proc_update($form, &$form_state, $cids, $uids) {
   global $user;
 
   // Sanitize and preprocess arguments:
-  $csvs     = _proc_get_csv_arguments(array('cids_csv' => $cids, 'uids_csv' => $uids));
+  $csvs     = _proc_get_csv_arguments(
+    array(
+      'cids_csv' => $cids,
+      'uids_csv' => $uids,
+    )
+  );
   $uids     = $csvs['uids_csv']['array'];
   $uids_csv = $csvs['uids_csv']['string'];
   $cids     = $csvs['cids_csv']['array'];

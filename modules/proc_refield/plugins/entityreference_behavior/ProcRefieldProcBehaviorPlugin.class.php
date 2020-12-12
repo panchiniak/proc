@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+ * Class extension.
  */
 class ProcRefieldProcBehaviorPlugin extends EntityReference_BehaviorHandler_Abstract {
 

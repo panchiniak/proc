@@ -40,7 +40,8 @@ function hook_add_proc_file_link_alter(string $add_file_link, array $context) {
  * @param string $decrypt_file_link
  *   Alterable string of decryption link.
  * @param array $context
- *   Unalterable field widget context enriched by field instance and form element objects.
+ *   Unalterable field widget context enriched by field instance and form
+ *   element objects.
  */
 function hook_decrypt_proc_file_link_alter(string $decrypt_file_link, array $context) {
 }

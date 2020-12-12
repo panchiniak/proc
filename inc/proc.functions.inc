@@ -257,7 +257,8 @@ function _proc_get_csv_argument($csv_data) {
  *   CSV list of Ciphertext IDs (proc entities).
  *
  * @return bool
- *   A boolean indicating whether current user is recipient of all defined ciphertexts.
+ *   A boolean indicating whether current user is recipient of all
+ *   defined ciphertexts.
  */
 function _proc_recipient_multiple($cids_csv) {
   $cids = _proc_get_csv_argument($cids_csv);
@@ -290,7 +291,7 @@ function _proc_get_post_max_size_bytes() {
  * @return array
  *   Array containing sanitized CSVs strings and arrays
  */
-function _proc_get_csv_arguments($csvs) {
+function _proc_get_csv_arguments(array $csvs) {
   $csvs_strings = array();
   foreach ($csvs as $csvs_key => $csv_data) {
     $csv_data = _proc_get_csv_argument($csv_data);
@@ -311,7 +312,8 @@ function _proc_get_csv_arguments($csvs) {
  * Helper function to get saving behaviour.
  */
 function _proc_get_onclick_saving() {
-  return 'javascript:var s = this; setTimeout( function () { s.value = "' . t('Saving...') . '"; s.disabled = true; jQuery(":focus").blur();}, 1);';
+  $message_txt = t('Saving...');
+  return 'javascript:var s = this; setTimeout( function () { s.value = "' . $message_txt . '"; s.disabled = true; jQuery(":focus").blur();}, 1);';
 }
 
 /**
@@ -330,7 +332,7 @@ function _proc_get_fileapi_err_msg() {
  * @return array
  *   Array containing cihpers, encrypted priv key and pass form element.
  */
-function _proc_common_get_ciphers($cids) {
+function _proc_common_get_ciphers(array $cids) {
   global $user;
 
   $privkey = _proc_get_keys($user->uid)['encrypted_private_key'];
@@ -359,7 +361,7 @@ function _proc_common_get_ciphers($cids) {
  * @return array
  *   Array containing pubkeys and max file size.
  */
-function _proc_common_get_pubkeys($uids) {
+function _proc_common_get_pubkeys(array $uids) {
   $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));
   // If some UID does not return keys:
   if (empty($recipients_pubkeys) || (count($uids) != count($recipients_pubkeys))) {
