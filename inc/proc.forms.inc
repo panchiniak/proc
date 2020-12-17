@@ -75,6 +75,24 @@ function _proc_update($form, &$form_state, $cids, $uids) {
   $cid_cipher   = $ciphers_data['ciphers'];
   $form['pass'] = $ciphers_data['form_pass'];
 
+  // If some recipient is being removed of some content, allow update to proceed
+  // only if current user is also the author of the content:
+  $recipients = array();
+  foreach ($ciphers_data['ciphers'] as $cipher_data) {
+    if ($cipher_data['proc_owner_uid'] != $user->uid) {
+      // Curent recipients:
+      foreach ($cipher_data['proc_recipients'] as $recipient) {
+        $recipients[] = $recipient->uid;
+      }
+    }
+  }
+  if (!empty($recipients)) {
+    $all_current_recipients = array_unique($recipients);
+    if (array_diff($all_current_recipients, $uids)) {
+      drupal_access_denied();
+    }
+  }
+
   $pubkeys_data        = _proc_common_get_pubkeys($uids);
   $recipients_pubkeys  = $pubkeys_data['recipients_pubkeys'];
   $post_max_size_bytes = $pubkeys_data['post_max_size_bytes'];

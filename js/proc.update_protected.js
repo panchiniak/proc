@@ -84,7 +84,6 @@
                             message: await openpgp.message.readArmored(cipherTexts[cipherTextsIndex[i]].cipher_text).catch(
                                 function (err) {
                                     let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
-                                    //$('form#-proc-update').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
                                     $('form#-proc-update').prepend(messageError);
                                 }
                             ),

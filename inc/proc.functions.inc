@@ -158,7 +158,7 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
   $result = $query->execute();
 
   if (empty($result)) {
-    // Entity not found also return access denied:
+    // Entity not found also returns access denied:
     return array();
   }
   $proc_wrapper = entity_metadata_wrapper('proc', $cid);
@@ -174,10 +174,13 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
   }
 
   $cipher_text_data = array();
-  $cipher_text_data['cipher_text'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
+
+  $cipher_text_data['cipher_text']      = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
   $cipher_text_data['source_file_name'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']);
   $cipher_text_data['source_file_size'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);
-  $cipher_text_data['cipher_cid'] = check_plain($cid);
+  $cipher_text_data['cipher_cid']       = check_plain($cid);
+  $cipher_text_data['proc_owner_uid']   = check_plain($proc_wrapper->proc_armoredown->value()->uid);
+  $cipher_text_data['proc_recipients']  = $proc_wrapper->proc_recipient->value();
 
   if (!$form) {
     $form = new stdClass();
@@ -296,7 +299,6 @@ function _proc_get_csv_arguments(array $csvs) {
   foreach ($csvs as $csvs_key => $csv_data) {
     $csv_data = _proc_get_csv_argument($csv_data);
     if (is_array($csv_data)) {
-      // dpm($csv_data);
       $csvs_strings[$csvs_key]['array'] = $csv_data;
       $csvs_strings[$csvs_key]['string'] = implode(',', $csv_data);
     }
