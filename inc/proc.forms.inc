@@ -166,8 +166,8 @@ function _proc_update_submit($form, &$form_state) {
 
   foreach ($form['#attached']['js'][0]['data']['proc']['proc_ciphers_index'] as $cid) {
     $proc_wrapper = entity_metadata_wrapper('proc', $cid);
-    $file_name = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']);
-    $file_size = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);
+    $file_name = check_plain(unserialize($proc_wrapper->meta->value())['source_file_name']);
+    $file_size = check_plain(unserialize($proc_wrapper->meta->value())['source_file_size']);
     $cid_cipher_field_id = 'cipher_text_cid_' . $cid;
     $generation_timespan_field_id = 'generation_timespan_cid_' . $cid;
     $browser_fingerprint_field_id = 'browser_fingerprint_cid_' . $cid;
@@ -175,9 +175,9 @@ function _proc_update_submit($form, &$form_state) {
     // Merge current and new data and metadata:
     $ciphertxt_data[$cid] = array(
       // Reuse unchanged values on encryption update:
-      'source_file_size'     => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']),
-      'source_file_name'     => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']),
-      'source_file_type'     => check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_type']),
+      'source_file_size'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_size']),
+      'source_file_name'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_name']),
+      'source_file_type'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_type']),
       // Set new changed values on encryption update:
       'generation_timespan'  => check_plain($form_state['values'][$generation_timespan_field_id]),
       'generation_timestamp' => check_plain($form_state['values'][$generation_timestamp_field_id]),
@@ -339,9 +339,11 @@ function _proc_generate_keys_submit($form, &$form_state) {
   $keyring_data = array(
     'public_key' => check_plain($form_state['values']['public_key']),
     'encrypted_private_key' => check_plain($form_state['values']['encrypted_private_key']),
+  );
+  $keyring_metadata = array(
     'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
-    'generation_timespan' => check_plain($form_state['values']['generation_timespan']),
-    'browser_fingerprint' => check_plain($form_state['values']['browser_fingerprint']),
+    'generation_timespan'  => check_plain($form_state['values']['generation_timespan']),
+    'browser_fingerprint'  => check_plain($form_state['values']['browser_fingerprint']),
   );
 
   $entity = entity_create('proc', array('type' => 'proc_keyring'));
@@ -349,12 +351,11 @@ function _proc_generate_keys_submit($form, &$form_state) {
   // Save only if key has been effectively generated:
   if (substr($keyring_data['public_key'], 5, 26) == 'BEGIN PGP PUBLIC KEY BLOCK') {
     $wrapper = entity_metadata_wrapper('proc', $entity);
-    // @todo deprecate property uid in favor of proc_armoredown field.
     $wrapper->uid = $user->uid;
     $wrapper->proc_armoredown->set($user->uid);
     $wrapper->proc_armored = serialize($keyring_data);
-    // @todo implement full cipher indentifier:
-    // client side source domain name:user email.
+    $wrapper->meta = serialize($keyring_metadata);
+    // @todo implement full cipher indentifier as domain-name:user-name:email:
     $wrapper->label->set($user->mail);
     $current_timestamp = time();
     $wrapper->created = $current_timestamp;
@@ -400,8 +401,11 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
 
   // Prepare the form values for submission.
   $ciphertxt_data = array(
+    'cipher_text' => check_plain($form_state['values']['cipher_text']),
+  );
+
+  $ciphertxt_metadata = array(
     'source_file_size'     => check_plain($form_state['values']['source_file_size']),
-    'cipher_text'          => check_plain($form_state['values']['cipher_text']),
     'generation_timespan'  => check_plain($form_state['values']['generation_timespan']),
     'source_file_type'     => check_plain($form_state['values']['source_file_type']),
     'browser_fingerprint'  => check_plain($form_state['values']['browser_fingerprint']),
@@ -411,15 +415,16 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
 
   $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
 
-  if (!empty($ciphertxt_data['source_file_name'])) {
+  if (!empty($ciphertxt_metadata['source_file_name'])) {
     $wrapper = entity_metadata_wrapper('proc', $entity);
     // @todo deprecate property uid in favor of proc_armoredown field.
     $wrapper->uid = $user->uid;
     $wrapper->proc_armoredown->set($user->uid);
     $wrapper->proc_armored = serialize($ciphertxt_data);
+    $wrapper->meta = serialize($ciphertxt_metadata);
     $wrapper->proc_recipient->set($recipients_uids_new);
     $wrapper->language($language->language);
-    $wrapper->label = $ciphertxt_data['source_file_name'];
+    $wrapper->label = $ciphertxt_metadata['source_file_name'];
     $current_timestamp = time();
     $wrapper->created = $current_timestamp;
     $wrapper->changed = $current_timestamp;

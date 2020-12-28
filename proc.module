@@ -194,7 +194,6 @@ function proc_entity_property_info() {
     'label' => t('Proc Armored entity type (bundle)'),
     'setter callback' => 'entity_property_verbatim_set',
   );
-  // @TODO: deprecate uid property in favor of user referance field.
   $properties['uid'] = array(
     'type' => 'user',
     'schema field' => 'uid',
@@ -230,7 +229,14 @@ function proc_entity_property_info() {
     'label' => t('Proc Armored changed timestamp'),
     'setter callback' => 'entity_property_verbatim_set',
   );
-
+  $properties['meta'] = array(
+    'type'  => 'text',
+    'schema field' => 'meta',
+    'required' => TRUE,
+    'label' => t('Protected content metadata'),
+    'description' => t('Metadata generated on cipher creation'),
+    'setter callback' => 'entity_property_verbatim_set',
+  );
   return $info;
 }
 
