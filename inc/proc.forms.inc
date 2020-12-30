@@ -22,6 +22,8 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
     'proc_cipher' => $cid_cipher['cipher_text'],
     'proc_source_file_name' => $cid_cipher['source_file_name'],
     'proc_source_file_size' => $cid_cipher['source_file_size'],
+    'proc_id' => $cid,
+    'proc_changed' => $cid_cipher['changed'],
   );
 
   $form['#attached']['js'][] = array(

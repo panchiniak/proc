@@ -181,6 +181,7 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
   $cipher_text_data['cipher_cid']       = check_plain($cid);
   $cipher_text_data['proc_owner_uid']   = check_plain($proc_wrapper->proc_armoredown->value()->uid);
   $cipher_text_data['proc_recipients']  = $proc_wrapper->proc_recipient->value();
+  $cipher_text_data['changed']          = $proc_wrapper->changed->value();
 
   if (!$form) {
     $form = new stdClass();

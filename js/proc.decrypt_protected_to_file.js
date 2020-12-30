@@ -10,7 +10,22 @@
             let passDrupal = Drupal.settings.proc.proc_pass;
             let privkey    = Drupal.settings.proc.proc_privkey;
 
-            let cipherText = Drupal.settings.proc.proc_cipher;
+            let cipherId       = Drupal.settings.proc.proc_id;
+            let cipherChanged  = Drupal.settings.proc.proc_changed;
+
+            // let cipherText     = Drupal.settings.proc.proc_cipher;
+            var cipherText;
+
+            let localCihper = localStorage.getItem(`proc.proc_id.${cipherId}.${cipherChanged}`);
+            if (localCihper){
+                cipherText = localCihper;
+            }
+            else{
+                // @todo: get cipher on a http ajax call instead making it available via
+                // Drupal.settings:
+                cipherText = Drupal.settings.proc.proc_cipher;
+                localStorage.setItem(`proc.proc_id.${cipherId}.${cipherChanged}`, cipherText);
+            }
 
             let sourceFileName = Drupal.settings.proc.proc_source_file_name;
             let sourceFileSize = Drupal.settings.proc.proc_source_file_size;
