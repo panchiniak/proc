@@ -88,7 +88,14 @@ function proc_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   );
-  // @todo: add endopoint for ajax retrieval of cipher text
+  $items['proc/api/get/%'] = array(
+    'title' => 'Get Protected Content',
+    'page callback' => '_proc_get_proc_menu_callback',
+    'page arguments' => [3],
+    'access callback' => '_proc_recipient',
+    'access arguments' => array(3),
+    'file' => 'inc/proc.functions.inc',
+  );
   return $items;
 }
 

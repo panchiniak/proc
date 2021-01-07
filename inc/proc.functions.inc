@@ -418,3 +418,14 @@ function _proc_common_get_decryption_form_data($privkey) {
   ];
 
 }
+
+/**
+ * Helper callback for getting proc on ajax.
+ *
+ * @param string $pid
+ *   String containnig proc ID.
+ */
+function _proc_get_proc_menu_callback($pid) {
+  $cipher = _proc_get_cipher((int) $pid, NULL, NULL);
+  drupal_json_output(array('cipher' => $cipher['cipher_text']));
+}

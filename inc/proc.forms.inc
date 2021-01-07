@@ -19,11 +19,10 @@ function _proc_decrypt_to_file($form, &$form_state, $cid) {
   $form['#attached']['js'] = _proc_common_inject_lib('decrypt_protected_to_file');
 
   $decryption_form_elements = array(
-    'proc_cipher' => $cid_cipher['cipher_text'],
     'proc_source_file_name' => $cid_cipher['source_file_name'],
     'proc_source_file_size' => $cid_cipher['source_file_size'],
-    'proc_id' => $cid,
-    'proc_changed' => $cid_cipher['changed'],
+    'proc_id'               => $cid,
+    'proc_changed'          => $cid_cipher['changed'],
   );
 
   $form['#attached']['js'][] = array(
@@ -61,12 +60,10 @@ function _proc_update($form, &$form_state, $cids, $uids) {
   global $user;
 
   // Sanitize and preprocess arguments:
-  $csvs     = _proc_get_csv_arguments(
-    array(
-      'cids_csv' => $cids,
-      'uids_csv' => $uids,
-    )
-  );
+  $csvs     = _proc_get_csv_arguments(array(
+    'cids_csv' => $cids,
+    'uids_csv' => $uids,
+  ));
   $uids     = $csvs['uids_csv']['array'];
   $uids_csv = $csvs['uids_csv']['string'];
   $cids     = $csvs['cids_csv']['array'];
@@ -102,9 +99,9 @@ function _proc_update($form, &$form_state, $cids, $uids) {
   $form['#attached']['js'] = _proc_common_inject_lib('update_protected');
 
   $encryption_form_elements = array(
-    'proc_ciphers' => $cid_cipher,
-    'proc_ciphers_index' => $cids,
-    'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
+    'proc_ciphers'             => $cid_cipher,
+    'proc_ciphers_index'       => $cids,
+    'proc_recipients_pubkeys'  => drupal_json_encode($recipients_pubkeys),
     'proc_post_max_size_bytes' => $post_max_size_bytes,
   );
 
@@ -214,8 +211,8 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   $form['#attached']['js'][] = array(
     'data' => array(
       'proc' => array(
-        'proc_save_button_label' => t('Save'),
-        'proc_recipients_pubkeys' => drupal_json_encode($recipients_pubkeys),
+        'proc_save_button_label'   => t('Save'),
+        'proc_recipients_pubkeys'  => drupal_json_encode($recipients_pubkeys),
         'proc_post_max_size_bytes' => $post_max_size_bytes,
       ),
     ),
@@ -271,9 +268,9 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
 
   $form['button']['#ajax'] = array(
     'callback' => '_proc_encrypt_file_submit_callback',
-    'wrapper' => '-proc-encrypt-file-form',
-    'method' => 'replace',
-    'effect' => 'fade',
+    'wrapper'  => '-proc-encrypt-file-form',
+    'method'   => 'replace',
+    'effect'   => 'fade',
   );
 
   $form_state['build_info']['args'][0] = $uids_csv;
@@ -339,7 +336,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
   global $user;
   // Prepare the form values for submission.
   $keyring_data = array(
-    'public_key' => check_plain($form_state['values']['public_key']),
+    'public_key'            => check_plain($form_state['values']['public_key']),
     'encrypted_private_key' => check_plain($form_state['values']['encrypted_private_key']),
   );
   $keyring_metadata = array(
@@ -469,5 +466,4 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   $commands[] = ajax_command_remove('div.messages');
   $commands[] = ajax_command_before('#main-content', theme('status_messages'));
   ajax_deliver(array('#type' => 'ajax', '#commands' => $commands));
-
 }

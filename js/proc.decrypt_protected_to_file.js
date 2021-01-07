@@ -13,7 +13,6 @@
             let cipherId       = Drupal.settings.proc.proc_id;
             let cipherChanged  = Drupal.settings.proc.proc_changed;
 
-            // let cipherText     = Drupal.settings.proc.proc_cipher;
             var cipherText;
 
             let localCihper = localStorage.getItem(`proc.proc_id.${cipherId}.${cipherChanged}`);
@@ -21,10 +20,16 @@
                 cipherText = localCihper;
             }
             else{
-                // @todo: get cipher on a http ajax call instead making it available via
-                // Drupal.settings:
-                cipherText = Drupal.settings.proc.proc_cipher;
-                localStorage.setItem(`proc.proc_id.${cipherId}.${cipherChanged}`, cipherText);
+                const cipherTextAjax = async (cipherId) => {
+                    let response = await fetch(
+                        `${window.location.origin + Drupal.settings.basePath}proc/api/get/${cipherId}`
+                    );
+                    let json = await response.json();
+                    // @todo: remove expired local storage entry!
+                    localStorage.setItem(`proc.proc_id.${cipherId}.${cipherChanged}`, json.cipher);
+                    cipherText = json.cipher;
+                };
+                cipherTextAjax(cipherId);
             }
 
             let sourceFileName = Drupal.settings.proc.proc_source_file_name;
