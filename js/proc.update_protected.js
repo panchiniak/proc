@@ -70,7 +70,7 @@
                     const recipientsKeys = new Array();
                     recipientsPubkeys.forEach(
                         async function (entry) {
-                            recipientsKeys.push((await openpgp.key.readArmored(entry)).keys[0]);
+                            recipientsKeys.push((await openpgp.key.readArmored(entry.key)).keys[0]);
                         }
                     );
 
