@@ -20,6 +20,16 @@
                 cipherText = localCihper;
             }
             else{
+                let storageItems = Object.keys(localStorage);
+                if (storageItems.length > 0) {
+                    storageItems.forEach(
+                        function (storageItemKey,storageItemIndex){
+                            if (storageItemKey.startsWith(`proc.proc_id.${cipherId}`)){
+                                localStorage.removeItem(storageItems[storageItemIndex]);
+                            }
+                        }
+                    );
+                }
                 const cipherTextAjax = async (cipherId) => {
                     let response = await fetch(
                         `${window.location.origin + Drupal.settings.basePath}proc/api/get/${cipherId}`
