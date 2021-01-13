@@ -57,8 +57,57 @@
                         openpgp.config.show_comment = false;
                         openpgp.config.show_version = false;
 
-                        let recipientsPubkeys = await Drupal.settings.proc.proc_recipients_pubkeys;
-                        recipientsPubkeys = JSON.parse(recipientsPubkeys);
+                        const recipientsPubkeys = new Array();
+
+                        // At this moment we only know about validated recipient UIDs
+                        // and the time stamps of their keys:
+                        let recipientsUidsKeysChanged = JSON.parse(Drupal.settings.proc.proc_recipients_pubkeys_changed);
+
+                        let remoteKey = [];
+                        let userIdIterator;
+
+                        for (userIdIterator in recipientsUidsKeysChanged) {
+                            let localKey = localStorage.getItem(`proc.key_user_id.${userIdIterator}.${recipientsUidsKeysChanged[userIdIterator]}`);
+                            if (localKey){
+                                recipientsPubkeys.push(localKey);
+                            }
+                            else{
+                                let storageKeys = Object.keys(localStorage);
+                                if (storageKeys.length > 0) {
+                                    storageKeys.forEach(
+                                        function (storageKey,storageKeyIndex){
+                                            if (storageKey.startsWith(`proc.key_user_id.${userIdIterator}`)){
+                                                localStorage.removeItem(storageKeys[storageKeyIndex]);
+                                            }
+                                        }
+                                    );
+                                }
+                                remoteKey.push(userIdIterator);
+                            }
+                        }
+
+                        let pubkeysJson;
+
+                        if (remoteKey.length > 0){
+                            let remoteKeyCsv = remoteKey.join(",");
+
+                            const pubKeyAjax = async (remoteKeyCsv) => {
+                                let response = await fetch(
+                                    `${window.location.origin + Drupal.settings.basePath}proc/api/getpubkey/${remoteKeyCsv}`
+                                );
+                                pubkeysJson = await response.json();
+
+                                if (pubkeysJson.pubkey.length > 0){
+                                    pubkeysJson.pubkey.forEach(
+                                        function (pubkey,index){
+                                            localStorage.setItem(`proc.key_user_id.${remoteKey[index]}.${pubkey.changed}`, pubkey.key);
+                                            recipientsPubkeys.push(pubkey.key);
+                                        }
+                                    );
+                                }
+                            };
+                            await pubKeyAjax(remoteKeyCsv);
+                        }
 
                         const readableStream = new ReadableStream(
                             {
@@ -70,15 +119,14 @@
                         );
 
                         const recipientsKeys = new Array();
+
                         recipientsPubkeys.forEach(
                             async function (entry) {
                                 recipientsKeys.push((await openpgp.key.readArmored(entry)).keys[0]);
                             }
                         );
 
-                        // @TODO: manage to faultlessly remove unsused armoredPubkeys.
-                        // or use it to implement default recipient optional setting.
-                        let armoredPubkeys = (await openpgp.key.readArmored(recipientsPubkeys[0])).keys[0];
+                        await openpgp.key.readArmored(recipientsPubkeys);
 
                         const options = {
                             message: openpgp.message.fromBinary(readableStream),
@@ -101,7 +149,6 @@
                         $('input[name=source_file_size]')[0].value = files[0].size;
                         $('input[name=source_file_type]')[0].value = files[0].type;
                         $('input[name=source_file_last_change]')[0].value = files[0].lastModified;
-                        // @TODO: store fingerprint data structured instead of concatenating.
                         $('input[name=browser_fingerprint]')[0].value = navigator.userAgent + ', (' + screen.width + ' x ' + screen.height + ')';
                         $('input[name=generation_timestamp]')[0].value = startSeconds;
                         $('input[name=generation_timespan]')[0].value = total;

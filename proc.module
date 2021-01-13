@@ -96,6 +96,14 @@ function proc_menu() {
     'access arguments' => array(3),
     'file' => 'inc/proc.functions.inc',
   );
+  $items['proc/api/getpubkey/%'] = array(
+    'title' => 'Get Public Key',
+    'page callback' => '_proc_get_pubkey_menu_callback',
+    'page arguments' => [3],
+    'access arguments' => array('new protected file'),
+    'file' => 'inc/proc.functions.inc',
+  );
+
   return $items;
 }
 

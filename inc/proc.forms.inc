@@ -206,13 +206,24 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   $recipients_pubkeys = $pubkeys_data['recipients_pubkeys'];
   $post_max_size_bytes = $pubkeys_data['post_max_size_bytes'];
 
+  foreach ($recipients_pubkeys as $recipients_pubkey_key => $recipients_pubkey) {
+    // Send only the changed timestamp:
+    unset($recipients_pubkeys[$recipients_pubkey_key]['key']);
+  }
+
   $form['#attached']['js'] = _proc_common_inject_lib('encrypt_file');
+
+  $uids_keys_changed = array_flip($uids);
+  foreach ($uids_keys_changed as $uid_fliped_key => $uid_fliped) {
+    $uids_keys_changed[$uid_fliped_key] = $recipients_pubkeys[$uid_fliped]['changed'];
+  }
 
   $form['#attached']['js'][] = array(
     'data' => array(
       'proc' => array(
         'proc_save_button_label'   => t('Save'),
-        'proc_recipients_pubkeys'  => drupal_json_encode($recipients_pubkeys),
+        'proc_recipients_pubkeys_changed'  => drupal_json_encode($uids_keys_changed),
+        'proc_recipients_uids'      => drupal_json_encode($uids),
         'proc_post_max_size_bytes' => $post_max_size_bytes,
       ),
     ),
@@ -286,8 +297,8 @@ function _proc_generate_keys($form, &$form_state) {
 
   // If form has not just being submited.
   if (empty($form_state['values'])) {
-    // If current user has not yet registered a keyring:
-    if (!empty(_proc_get_pubkeys(array($user->uid))[0])) {
+    // If current user has already registered a keyring:
+    if (!empty(_proc_get_pubkeys(array($user->uid))[0]['changed'])) {
       drupal_set_message(t("Your encryption keys are already generated. You don't need to generate new ones unless you have lost your password."), 'warning', FALSE);
       drupal_set_message(t('Warning: if you generate new encryption keys, you will lose access to all encrypted files which were previously sent to you.'), 'warning', FALSE);
     }

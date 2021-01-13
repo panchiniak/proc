@@ -36,7 +36,11 @@ function _proc_browser_supported() {
 function _proc_get_pubkeys(array $users) {
   $pubkeys = array();
   foreach ($users as $recipient) {
-    $pubkeys[] = _proc_get_keys($recipient)['public_key'];
+    $key_data = _proc_get_keys($recipient);
+    $pubkeys[] = [
+      'key' => $key_data['public_key'],
+      'changed' => $key_data['changed'],
+    ];
   }
   return $pubkeys;
 }
@@ -409,13 +413,13 @@ function _proc_common_inject_lib($op) {
  */
 function _proc_common_get_decryption_form_data($privkey) {
   global $user;
-  return [
+  return array(
     'proc_uid' => $user->uid,
     'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
     'proc_mail' => $user->mail,
     'proc_name' => $user->name,
     'proc_privkey' => $privkey,
-  ];
+  );
 
 }
 
@@ -428,4 +432,16 @@ function _proc_common_get_decryption_form_data($privkey) {
 function _proc_get_proc_menu_callback($pid) {
   $cipher = _proc_get_cipher((int) $pid, NULL, NULL);
   drupal_json_output(array('cipher' => $cipher['cipher_text']));
+}
+
+/**
+ * Helper callback for getting pubkeys on ajax.
+ *
+ * @param string $uids
+ *   String containnig user IDs as csv.
+ */
+function _proc_get_pubkey_menu_callback($uids) {
+  $uids_array = _proc_get_csv_argument($uids);
+  $pubkeys = _proc_get_pubkeys($uids_array);
+  drupal_json_output(array('pubkey' => $pubkeys));
 }
