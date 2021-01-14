@@ -26,14 +26,15 @@
                     // confirmation and keep it filled in.
                     if (pass.length > 0 && passConfirm.length > 0) {
                         let passPlaceholder = 'x';
+                        var passConfirmationPlaceholder;
                         if (pass === passConfirm) {
                             // Do not send confirmed password but keep original sizes.
-                            var passConfirmationPlaceholder = passPlaceholder;
+                            passConfirmationPlaceholder = passPlaceholder;
                         }
                         // Do not send chosen password even if its confirmation fails and
                         // keep original sizes.
                         if (pass !== passConfirm) {
-                            var passConfirmationPlaceholder = 'y';
+                            passConfirmationPlaceholder = 'y';
                         }
                         let passPlaceholderString = passPlaceholder;
                         let passConfirmPlaceholderString = passConfirmationPlaceholder;
@@ -105,7 +106,6 @@
                             $('input[name=encrypted_private_key]')[0].value = encryptionData[1];
                             $('input[name=generation_timestamp]')[0].value = encryptionData[2];
                             $('input[name=generation_timespan]')[0].value = encryptionData[3];
-                            // @TODO: store fingerprint data structured in a JSON.
                             $('input[name=browser_fingerprint]')[0].value = encryptionData[4] + ', (' + screen.width + ' x ' + screen.height + ')';
                             $('#-proc-generate-keys').submit();
 
