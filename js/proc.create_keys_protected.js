@@ -8,6 +8,8 @@
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
+            let procJsLabels = Drupal.settings.proc.proc_labels;
+
             function resetPassword() {
                 $('#edit-pass-fields-pass1').val("");
                 $('#edit-pass-fields-pass2').val("");
@@ -53,9 +55,9 @@
                     // If there is some password.
                     if (pass !== "" && pass.length > 0) {
                         // If the passwords are the same.
-                        if (pass === passConfirm && $('.password-strength-text').text() === Drupal.t('Strong')) {
+                        if (pass === passConfirm && $('.password-strength-text').text() === procJsLabels.proc_minimal_password_strenght) {
 
-                            $('#edit-submit')[0].value = Drupal.t('Processing...');
+                            $('#edit-submit')[0].value = procJsLabels.proc_button_state_processing;
 
                             let passDrupal = Drupal.settings.proc.proc_pass;
                             let name = Drupal.settings.proc.proc_name;
@@ -85,10 +87,10 @@
                                 function (err) {
                                     // This error is possibly due to tampering
                                     // atempt
-                                    $('form#-proc-generate-keys').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
+                                    $('form#-proc-generate-keys').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
                                     // Reset password and action label.
                                     resetPassword();
-                                    $('#edit-submit')[0].value = Drupal.t('Generate encryption keys');
+                                    $('#edit-submit')[0].value = procJsLabels.proc_generate_keys_submit_label;
                                     return;
                                 }
                             ).then(
@@ -101,24 +103,22 @@
                                 }
                             );
 
-                            $('#edit-submit')[0].value = Drupal.t('Saving...');
+                            $('#edit-submit')[0].value = procJsLabels.proc_submit_saving_state;
                             $('input[name=public_key]')[0].value = encryptionData[0];
                             $('input[name=encrypted_private_key]')[0].value = encryptionData[1];
                             $('input[name=generation_timestamp]')[0].value = encryptionData[2];
                             $('input[name=generation_timespan]')[0].value = encryptionData[3];
-                            $('input[name=browser_fingerprint]')[0].value = encryptionData[4] + ', (' + screen.width + ' x ' + screen.height + ')';
+                            $('input[name=browser_fingerprint]')[0].value = `${encryptionData[4]} , (${screen.width} x ${screen.height})`;
                             $('#-proc-generate-keys').submit();
 
                         }
                         else{
-                            // @TODO: use a message instead of alert().
-                            alert(Drupal.t('You must type in both password fields the same strong password.'));
+                            alert(procJsLabels.proc_password_match);
                             resetPassword();
                         }
                     }
                     else{
-                        // @TODO: use a message instead of alert().
-                        alert(Drupal.t('Password is required.'));
+                        alert(procJsLabels.proc_password_required);
                     }
                 }
             );

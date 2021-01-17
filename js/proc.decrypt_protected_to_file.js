@@ -7,6 +7,8 @@
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
+            let procJsLabels = Drupal.settings.proc.proc_labels;
+
             let passDrupal = Drupal.settings.proc.proc_pass;
             let privkey    = Drupal.settings.proc.proc_privkey;
 
@@ -47,8 +49,7 @@
 
             let fileApiErrMsg = Drupal.settings.proc.proc_fileapi_err_msg;
 
-            const introducingKeyDecryptionMsg = Drupal.t('Indroducing key passphrase for decryption...');
-            const introducingKeyDecryptionMsgElement = ` <div class="messages info proc-info" id="proc-decrypting-info">${introducingKeyDecryptionMsg}</div>`;
+            const introducingKeyDecryptionMsgElement = `<div class="messages info proc-info" id="proc-decrypting-info">${procJsLabels.proc_introducing_decryption}</div>`;
 
             if (!(window.Blob)) {
                 alert(fileApiErrMsg);
@@ -131,12 +132,12 @@
 
                         const link = $('#decryption-link');
                         link.attr('href', URL.createObjectURL(blob));
-                        let openActionLabel = Drupal.t('Open');
+                        let openActionLabel = procJsLabels.proc_open_file_state;
                         if (link.text() != openActionLabel) {
                             link.text(openActionLabel);
                             // Highlight the link for better UX
                             link.removeClass('active');
-                            $('.messages').after(Drupal.t('<div class="messages status" id="proc-decrypting-status">Decryption successful.</div>'));
+                            $('.messages').after(`<div class="messages status" id="proc-decrypting-status">${procJsLabels.proc_decryption_success}</div>`);
                         }
 
                         // Check if file generated is the same size of source file.
@@ -145,7 +146,7 @@
                             link.attr('download', sourceFileName);
                         } else {
                             // @TODO: save error log.
-                            $('form#-proc-decrypt-to-file').prepend(Drupal.t('<div class="messages error">Error: size mismatch.</div>'));
+                            $('form#-proc-decrypt-to-file').prepend(`<div class="messages error">${procJsLabels.proc_decryption_size_mismatch}</div>`);
                         }
                     }
                 }

@@ -221,7 +221,6 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   $form['#attached']['js'][] = array(
     'data' => array(
       'proc' => array(
-        'proc_save_button_label'   => t('Save'),
         'proc_recipients_pubkeys_changed'  => drupal_json_encode($uids_keys_changed),
         'proc_recipients_uids'      => drupal_json_encode($uids),
         'proc_post_max_size_bytes' => $post_max_size_bytes,

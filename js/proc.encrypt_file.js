@@ -8,10 +8,10 @@
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
-            let fileApiErrMsg = Drupal.settings.proc.proc_fileapi_err_msg;
+            let procJsLabels = Drupal.settings.proc.proc_labels;
 
             if (!(window.FileReader)) {
-                alert(fileApiErrMsg);
+                alert(procJsLabels.proc_fileapi_err_msg);
             }
 
             if (document.getElementById('edit-button')) {
@@ -20,13 +20,11 @@
 
             function handleFileSelect(evt) {
 
-                document.getElementById('edit-button').value = Drupal.t('Processing...');
+                document.getElementById('edit-button').value = procJsLabels.proc_button_state_processing;
 
                 let files = evt.target.files;
 
-                $('label[for=edit-pc-upload-description]')[0].innerText =
-                Drupal.t(' Size: ') + files[0].size + Drupal.t(' bytes - Type: ') + files[0].type +
-                Drupal.t(' - Last modified: ') + files[0].lastModifiedDate;
+                $('label[for=edit-pc-upload-description]')[0].innerText = `${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit} - ${procJsLabels.proc_type} ${files[0].type} - ${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
 
                 let postMaxSizeBytes = Drupal.settings.proc.proc_post_max_size_bytes;
 
@@ -36,8 +34,8 @@
                 let dynamicMaximumSize = postMaxSizeBytesInt / 4;
 
                 if (fileSize > dynamicMaximumSize) {
-                    $("form#-proc-encrypt-file").prepend('<div class="messages error">' + Drupal.t('Sorry. Dynamic maximum file size exceed. Please add a file smaller than ') + dynamicMaximumSize + Drupal.t(' bytes') + '</div>');
-                    document.getElementById('edit-button').value = Drupal.settings.proc.proc_save_button_label;
+                    $("form#-proc-encrypt-file").prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${dynamicMaximumSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
+                    document.getElementById('edit-button').value = procJsLabels.proc_save_button_label;
                     return;
                 }
 
@@ -149,12 +147,11 @@
                         $('input[name=source_file_size]')[0].value = files[0].size;
                         $('input[name=source_file_type]')[0].value = files[0].type;
                         $('input[name=source_file_last_change]')[0].value = files[0].lastModified;
-                        $('input[name=browser_fingerprint]')[0].value = navigator.userAgent + ', (' + screen.width + ' x ' + screen.height + ')';
+                        $('input[name=browser_fingerprint]')[0].value = `${navigator.userAgent}, (${screen.width} x ${screen.height})`;
                         $('input[name=generation_timestamp]')[0].value = startSeconds;
                         $('input[name=generation_timespan]')[0].value = total;
-
                         document.getElementById('edit-button').removeAttribute("disabled");
-                        document.getElementById('edit-button').value = Drupal.settings.proc.proc_save_button_label;
+                        document.getElementById('edit-button').value = procJsLabels.proc_save_button_label;
                     }
                 };
             }

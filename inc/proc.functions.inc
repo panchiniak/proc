@@ -419,6 +419,7 @@ function _proc_common_get_decryption_form_data($privkey) {
     'proc_mail' => $user->mail,
     'proc_name' => $user->name,
     'proc_privkey' => $privkey,
+    'proc_labels' => _proc_js_labels(),
   );
 
 }
@@ -444,4 +445,30 @@ function _proc_get_pubkey_menu_callback($uids) {
   $uids_array = _proc_get_csv_argument($uids);
   $pubkeys = _proc_get_pubkeys($uids_array);
   drupal_json_output(array('pubkey' => $pubkeys));
+}
+
+/**
+ * Helper function for defining js labels.
+ */
+function _proc_js_labels() {
+  return array(
+    'proc_fileapi_err_msg'            => t('Your browser does not suppor file API.'),
+    'proc_button_state_processing'    => t('Processing...'),
+    'proc_max_encryption_size'        => t('Error. Maximum file size allowed:'),
+    'proc_max_encryption_size_unit'   => t('bytes'),
+    'proc_save_button_label'          => t('Save'),
+    'proc_size'                       => t('Size:'),
+    'proc_type'                       => t('Type:'),
+    'proc_last_modified'              => t('Last mofied:'),
+    'proc_minimal_password_strenght'  => t('Strong'),
+    'proc_generate_keys_submit_label' => t('Generate encryption keys'),
+    'proc_submit_saving_state'        => t('Saving...'),
+    'proc_password_match'             => t('You must type in both password fields the same password'),
+    'proc_password_required'          => t('Password is required.'),
+    'proc_introducing_decryption'     => t('Indroducing key passphrase for decryption...'),
+    'proc_open_file_state'            => t('Open'),
+    'proc_decryption_success'         => t('Decryption successful.'),
+    'proc_decryption_size_mismatch'   => t('Error: size mismatch.'),
+    'proc_button_update_label'        => t('Update'),
+  );
 }

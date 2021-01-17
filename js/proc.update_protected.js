@@ -15,8 +15,9 @@
 
             let fileApiErrMsg = Drupal.settings.proc.proc_fileapi_err_msg;
 
-            const introducingKeyDecryptionMsg = Drupal.t('Indroducing key passphrase for decryption...');
-            const introducingKeyDecryptionMsgElement = `<div class="messages info proc-info" id="proc-decrypting-info">${introducingKeyDecryptionMsg}</div>`;
+            let procJsLabels = Drupal.settings.proc.proc_labels;
+
+            const introducingKeyDecryptionMsgElement = `<div class="messages info proc-info" id="proc-decrypting-info">${procJsLabels.proc_introducing_decryption}</div>`;
 
             if (!(window.Blob) || !(window.FileReader)) {
                 alert(fileApiErrMsg);
@@ -29,7 +30,8 @@
 
                     if (submit.disabled == true){
                         $('.messages').remove();
-                        submit.value = Drupal.t('Update');
+                        submit.value = procJsLabels.proc_button_update_label;
+
                         submit.classList.add('active');
                         submit.disabled = false;
                         document.querySelector('#edit-pass').value = '';
@@ -78,7 +80,7 @@
                     const BROWSER_FINGERPRINT = navigator.userAgent + ', (' + screen.width + ' x ' + screen.height + ')';
 
                     for (i = 0; i < cipherTextsIndex.length; i++) {
-                        document.querySelector('.proc-update-submit').innerText = Drupal.t('Processing...');
+                        document.querySelector('.proc-update-submit').innerText = procJsLabels.proc_button_state_processing;
                         procID.push(cipherTextsIndex[i]);
                         const optionsDecription = {
                             message: await openpgp.message.readArmored(cipherTexts[cipherTextsIndex[i]].cipher_text).catch(
@@ -94,7 +96,7 @@
 
                         const decrypted = await openpgp.decrypt(optionsDecription).catch(
                             function (err) {
-                                $('form#-proc-update').prepend('<div class="messages error">' + Drupal.t(err) + '</div>');
+                                $('form#-proc-update').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
                                 if ($('.messages.info.proc-info:first')){
                                     $('.messages.info.proc-info:first').remove();
                                 }
@@ -160,7 +162,7 @@
 
                                     if (procID.length == 0){
                                         ready = 1;
-                                        document.querySelector('.proc-update-submit').innerText = Drupal.t('Saving...');
+                                        document.querySelector('.proc-update-submit').innerText = procJsLabels.proc_submit_saving_state;
                                         // Do not submit the password:
                                         var passPlaceHolder = new Array($('input[name=pass]')[0].value.length + 1).join( Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 1));
                                         $('input[name=pass]')[0].value = passPlaceHolder;
