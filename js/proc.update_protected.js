@@ -7,15 +7,12 @@
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
-            let passDrupal = Drupal.settings.proc.proc_pass;
-            let privkey    = Drupal.settings.proc.proc_privkey;
-
-            let cipherTexts      = Drupal.settings.proc.proc_ciphers;
-            let cipherTextsIndex = Drupal.settings.proc.proc_ciphers_index;
-
-            let fileApiErrMsg = Drupal.settings.proc.proc_fileapi_err_msg;
-
-            let procJsLabels = Drupal.settings.proc.proc_labels;
+            let passDrupal       = Drupal.settings.proc.proc_pass,
+                privkey          = Drupal.settings.proc.proc_privkey,
+                cipherTexts      = Drupal.settings.proc.proc_ciphers,
+                cipherTextsIndex = Drupal.settings.proc.proc_ciphers_index,
+                fileApiErrMsg    = Drupal.settings.proc.proc_fileapi_err_msg,
+                procJsLabels     = Drupal.settings.proc.proc_labels;
 
             const introducingKeyDecryptionMsgElement = `<div class="messages info proc-info" id="proc-decrypting-info">${procJsLabels.proc_introducing_decryption}</div>`;
 
@@ -51,9 +48,12 @@
 
             $('.proc-update-submit').on(
                 'click', async function () {
-                    let secretPass = $('input[name=pass]')[0].value;
-                    let secretPassString = new String(secretPass);
-                    let passphrase = passDrupal.concat(secretPassString);
+
+                    let secretPass        = $('input[name=pass]')[0].value,
+                        secretPassString  = new String(secretPass),
+                        passphrase        = passDrupal.concat(secretPassString),
+                        recipientsPubkeys = Drupal.settings.proc.proc_recipients_pubkeys;
+
                     const privKeyObj = (await openpgp.key.readArmored(privkey)).keys[0];
 
                     await privKeyObj.decrypt(passphrase).catch(
@@ -66,7 +66,6 @@
                         $('form#-proc-update').prepend(introducingKeyDecryptionMsgElement);
                     }
 
-                    let recipientsPubkeys = await Drupal.settings.proc.proc_recipients_pubkeys;
                     recipientsPubkeys = JSON.parse(recipientsPubkeys);
 
                     const recipientsKeys = new Array();
@@ -118,13 +117,13 @@
                             let fileByteArray = [];
                             reader.onloadend = async function (evt) {
                                 if (evt.target.readyState == FileReader.DONE) {
-                                    let arrayBuffer = evt.target.result;
-                                    let array = new Uint8Array(arrayBuffer);
+                                    let arrayBuffer = evt.target.result,
+                                        array       = new Uint8Array(arrayBuffer);
                                     for (let i = 0; i < array.length; i++) {
                                         fileByteArray.push(array[i]);
                                     }
                                     // False for production.
-                                    openpgp.config.debug = false;
+                                    openpgp.config.debug        = false;
                                     openpgp.config.show_comment = false;
                                     openpgp.config.show_version = false;
                                     let recipientsPubkeys = await Drupal.settings.proc.proc_recipients_pubkeys;
@@ -143,19 +142,16 @@
                                         compression: openpgp.enums.compression.zip
                                     };
 
-                                    let startSeconds = new Date().getTime() / 1000;
-                                    const encrypted = await openpgp.encrypt(options);
-
-                                    const ciphertext = encrypted.data;
                                     // Warning: Readable Stream expires if used twice.
-                                    const cipherPlaintext = await openpgp.stream.readToEnd(ciphertext);
-
-                                    let endSeconds = new Date().getTime() / 1000;
-                                    let total = endSeconds - startSeconds;
+                                    const startSeconds    = new Date().getTime() / 1000,
+                                          encrypted       = await openpgp.encrypt(options),
+                                          ciphertext      = encrypted.data,
+                                          cipherPlaintext = await openpgp.stream.readToEnd(ciphertext),
+                                          endSeconds      = new Date().getTime() / 1000,
+                                          total           = endSeconds - startSeconds;
 
                                     var procIDString = procID.pop().toString();
                                     await(document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = cipherPlaintext);
-
                                     document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total;
                                     document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT;
                                     document.querySelector('[name=generation_timestamp_cid_' + procIDString + ']').value = startSeconds;

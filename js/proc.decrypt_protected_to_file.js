@@ -7,17 +7,19 @@
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
-            let procJsLabels = Drupal.settings.proc.proc_labels;
+            let procJsLabels   = Drupal.settings.proc.proc_labels,
+                passDrupal     = Drupal.settings.proc.proc_pass,
+                privkey        = Drupal.settings.proc.proc_privkey,
+                cipherId       = Drupal.settings.proc.proc_id,
+                cipherChanged  = Drupal.settings.proc.proc_changed,
+                sourceFileName = Drupal.settings.proc.proc_source_file_name,
+                sourceFileSize = Drupal.settings.proc.proc_source_file_size,
+                fileApiErrMsg  = Drupal.settings.proc.proc_fileapi_err_msg,
+                localCihper    = localStorage.getItem(`proc.proc_id.${cipherId}.${cipherChanged}`);
 
-            let passDrupal = Drupal.settings.proc.proc_pass;
-            let privkey    = Drupal.settings.proc.proc_privkey;
-
-            let cipherId       = Drupal.settings.proc.proc_id;
-            let cipherChanged  = Drupal.settings.proc.proc_changed;
 
             var cipherText;
 
-            let localCihper = localStorage.getItem(`proc.proc_id.${cipherId}.${cipherChanged}`);
             if (localCihper){
                 cipherText = localCihper;
             }
@@ -33,21 +35,14 @@
                     );
                 }
                 const cipherTextAjax = async (cipherId) => {
-                    let response = await fetch(
-                        `${window.location.origin + Drupal.settings.basePath}proc/api/get/${cipherId}`
-                    );
-                    let json = await response.json();
-                    // @todo: remove expired local storage entry!
+                    let response = await fetch(`${window.location.origin + Drupal.settings.basePath}proc/api/get/${cipherId}`),
+                        json     = await response.json();
                     localStorage.setItem(`proc.proc_id.${cipherId}.${cipherChanged}`, json.cipher);
                     cipherText = json.cipher;
                 };
                 cipherTextAjax(cipherId);
             }
 
-            let sourceFileName = Drupal.settings.proc.proc_source_file_name;
-            let sourceFileSize = Drupal.settings.proc.proc_source_file_size;
-
-            let fileApiErrMsg = Drupal.settings.proc.proc_fileapi_err_msg;
 
             const introducingKeyDecryptionMsgElement = `<div class="messages info proc-info" id="proc-decrypting-info">${procJsLabels.proc_introducing_decryption}</div>`;
 
@@ -78,9 +73,10 @@
 
             $('#decryption-link').on(
                 'click', async function () {
-                    let secretPass = $('input[name=pass]')[0].value;
-                    let secretPassString = new String(secretPass);
-                    let passphrase = passDrupal.concat(secretPassString);
+                    let secretPass       = $('input[name=pass]')[0].value,
+                        secretPassString = new String(secretPass),
+                        passphrase       = passDrupal.concat(secretPassString);
+
                     const privKeyObj = (await openpgp.key.readArmored(privkey)).keys[0];
 
                     await privKeyObj.decrypt(passphrase).catch(
@@ -98,39 +94,40 @@
                         $('form#-proc-decrypt-to-file').prepend(introducingKeyDecryptionMsgElement);
                     }
 
-                    const optionsDecription = {
-                        message: await openpgp.message.readArmored(cipherText).catch(
+                    const
+                        optionsDecription = {
+                            message: await openpgp.message.readArmored(cipherText).catch(
+                                function (err) {
+                                    let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
+                                    $('form#-proc-decrypt-to-file').prepend(messageError);
+                                }
+                            ),
+                            privateKeys: [privKeyObj],
+                            // For the sake of simplicity all files are considered binary.
+                            format: 'binary'
+                        },
+                        decrypted         = await openpgp.decrypt(optionsDecription).catch(
                             function (err) {
                                 let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
                                 $('form#-proc-decrypt-to-file').prepend(messageError);
-                            }
-                        ),
-                        privateKeys: [privKeyObj],
-                        // For the sake of simplicity all files are considered binary.
-                        format: 'binary'
-                    };
-
-                    const decrypted = await openpgp.decrypt(optionsDecription).catch(
-                        function (err) {
-                            let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
-                            $('form#-proc-decrypt-to-file').prepend(messageError);
-                            $(":focus").blur();
-                            if ($('.messages.info.proc-info:first')){
-                                $('.messages.info.proc-info:first').remove();
-                            }
-                        }
-                    );
-
-                    if (decrypted){
-                        const plaintext = await openpgp.stream.readToEnd(decrypted.data);
-                        const blob = new Blob(
-                            [plaintext], {
-                                type: 'application/octet-binary',
-                                endings: 'native'
+                                $(":focus").blur();
+                                if ($('.messages.info.proc-info:first')){
+                                    $('.messages.info.proc-info:first').remove();
+                                }
                             }
                         );
 
-                        const link = $('#decryption-link');
+                    if (decrypted){
+                        const
+                            plaintext = await openpgp.stream.readToEnd(decrypted.data),
+                            blob = new Blob(
+                                [plaintext], {
+                                    type: 'application/octet-binary',
+                                    endings: 'native'
+                                }
+                            ),
+                            link = $('#decryption-link');
+
                         link.attr('href', URL.createObjectURL(blob));
                         let openActionLabel = procJsLabels.proc_open_file_state;
                         if (link.text() != openActionLabel) {
