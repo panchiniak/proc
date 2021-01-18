@@ -55,7 +55,7 @@
                         openpgp.config.show_comment = false;
                         openpgp.config.show_version = false;
 
-                        const recipientsPubkeys = new Array();
+                        const recipientsPubkeys = [];
 
                         // At this moment we only know about validated recipient UIDs
                         // and the time stamps of their keys:
@@ -116,7 +116,7 @@
                             }
                         );
 
-                        const recipientsKeys = new Array();
+                        const recipientsKeys = [];
 
                         recipientsPubkeys.forEach(
                             async function (entry) {

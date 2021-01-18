@@ -74,7 +74,7 @@
             $('#decryption-link').on(
                 'click', async function () {
                     let secretPass       = $('input[name=pass]')[0].value,
-                        secretPassString = new String(secretPass),
+                        secretPassString = secretPass,
                         passphrase       = passDrupal.concat(secretPassString);
 
                     const privKeyObj = (await openpgp.key.readArmored(privkey)).keys[0];

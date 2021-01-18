@@ -67,8 +67,8 @@
 
 
                             let passDrupal       = Drupal.settings.proc.proc_pass,
-                                passString       = new String(pass),
-                                passDrupalString = new String(passDrupal),
+                                passString       = pass,
+                                passDrupalString = passDrupal,
                                 cryptoPass       = passDrupalString.concat(passString),
                                 startSeconds     = new Date().getTime() / 1000,
                                 options          = {userIds: [{

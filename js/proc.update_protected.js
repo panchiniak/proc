@@ -50,7 +50,7 @@
                 'click', async function () {
 
                     let secretPass        = $('input[name=pass]')[0].value,
-                        secretPassString  = new String(secretPass),
+                        secretPassString  = secretPass,
                         passphrase        = passDrupal.concat(secretPassString),
                         recipientsPubkeys = Drupal.settings.proc.proc_recipients_pubkeys;
 
@@ -68,7 +68,7 @@
 
                     recipientsPubkeys = JSON.parse(recipientsPubkeys);
 
-                    const recipientsKeys = new Array();
+                    const recipientsKeys = [];
                     recipientsPubkeys.forEach(
                         async function (entry) {
                             recipientsKeys.push((await openpgp.key.readArmored(entry.key)).keys[0]);
