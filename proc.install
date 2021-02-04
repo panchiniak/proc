@@ -208,13 +208,26 @@ function proc_update_7002() {
 
 /**
  * Add and populate meta field on proc table.
+ *
+ * This update ajusts your php memory limits automatically returning it to the
+ * original value at the end. 1024MB was tested for updating files up to 54M.
+ * If you store encrypted files bigger than that, please consider adjusting the
+ * threshold. Bigger and many files may cause faillure of lack of memory while
+ * running this update. Please be advised to test it on production-like
+ * conditions.
  */
 function proc_update_7003(&$sandbox) {
+  $current_memory_limit = ini_get('memory_limit');
+  $proc_update_memory_limit = variable_get('proc_update_7003_memory_limit', '1024M');
+  if ($current_memory_limit != $proc_update_memory_limit){
+    ini_set('memory_limit', $proc_update_memory_limit);
+  }
+
   if (!db_field_exists('proc', 'meta')){
     $definition = array(
       'description' => 'Unprotected metadata of this protected content.',
-      'type' => 'text',
-      'size' => 'normal',
+      'type'        => 'text',
+      'size'        => 'normal',
     );
     db_add_field('proc', 'meta', $definition);
   }
@@ -232,39 +245,59 @@ function proc_update_7003(&$sandbox) {
 
   if (!isset($sandbox['current_pid'])) {
     $sandbox['current_pid'] = 0;
-    $sandbox['savings'] = 0;
+    $sandbox['savings']     = 0;
   }
 
   foreach ($pids as $key => $pid) {
+
     if ($key == $sandbox['current_pid']) {
+
       $proc_wrapper = entity_metadata_wrapper('proc', $pid);
 
       // If meta is still empty:
-      if (!$proc_wrapper->meta->value()) {
-        $generation_timestamp = check_plain(unserialize($proc_wrapper->proc_armored->value())['generation_timestamp']);
-        $generation_timespan = check_plain(unserialize($proc_wrapper->proc_armored->value())['generation_timespan']);
-        $browser_fingerprint = check_plain(unserialize($proc_wrapper->proc_armored->value())['browser_fingerprint']);
+      if (empty($proc_wrapper->meta->value())) {
+
+        $unserialized_value = unserialize($proc_wrapper->proc_armored->value());
+
+        $generation_timestamp = check_plain($unserialized_value['generation_timestamp']);
+        $generation_timespan  = check_plain($unserialized_value['generation_timespan']);
+        $browser_fingerprint  = check_plain($unserialized_value['browser_fingerprint']);
         $proc_metadata = array(
           'generation_timestamp' => check_plain($generation_timestamp),
-          'generation_timespan' => check_plain($generation_timespan),
-          'browser_fingerprint' => check_plain($browser_fingerprint),
+          'generation_timespan'  => check_plain($generation_timespan),
+          'browser_fingerprint'  => check_plain($browser_fingerprint),
         );
         if ($proc_wrapper->type->value() == 'proc_ciphertxt') {
-          $proc_metadata['source_file_size'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_size']);
-          $proc_metadata['source_file_type'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_type']);
-          $proc_metadata['source_file_name'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['source_file_name']);
-          $armored['cipher_text'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
+          $proc_metadata['source_file_size'] = check_plain($unserialized_value['source_file_size']);
+          $proc_metadata['source_file_type'] = check_plain($unserialized_value['source_file_type']);
+          $proc_metadata['source_file_name'] = check_plain($unserialized_value['source_file_name']);
+
+          $armored['cipher_text'] = check_plain($unserialized_value['cipher_text']);
+          $type_size = 'file (' . $proc_metadata['source_file_size'] . ' bytes)';
+
         }
         else {
-          $armored['public_key'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['public_key']);
-          $armored['encrypted_private_key'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['encrypted_private_key']);
+          $armored['public_key']            = check_plain($unserialized_value['public_key']);
+          $armored['encrypted_private_key'] = check_plain($unserialized_value['encrypted_private_key']);
+
+          $type_size = 'keyring';
         }
-        $proc_wrapper->meta = serialize($proc_metadata);
+        $proc_wrapper->meta         = serialize($proc_metadata);
         $proc_wrapper->proc_armored = serialize($armored);
 
         $proc_wrapper->save();
+
+        $message = 'Run !index: populated metadata field on entity !pid of type !type.';
+        $replacement = array(
+          '!index' => $sandbox['savings'],
+          '!pid'   => $pid,
+          '!type'  => $type_size,
+        );
+        watchdog('proc', $message, $replacement, WATCHDOG_INFO);
+
       }
       $sandbox['savings']++;
+      cache_clear_all('*', 'cache', TRUE);
     }
   }
 
@@ -274,11 +307,12 @@ function proc_update_7003(&$sandbox) {
 
   $sandbox['#finished'] = ($sandbox['current_pid'] / $pids_total);
 
-  if ($sandbox['#finished'] === 1) {
-    $message = 'Processed !pids_total proc entities for populating meta field.';
+  if ($sandbox['#finished'] == 1) {
+    ini_set('memory_limit', $current_memory_limit);
+    $message = 'Processed !pids_total proc entity(ies).';
     $replacement = array(
       '!pids_total' => $pids_total,
     );
-    watchdog('proc', $message, $replacement);
+    watchdog('proc', $message, $replacement, WATCHDOG_INFO);
   }
 }

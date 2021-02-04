@@ -307,15 +307,17 @@ function proc_access($op, $task, $account = NULL, $entity_type = NULL) {
  * Implements hook_entity_update().
  */
 function proc_entity_update($entity, $type){
-  if ($entity->changed > $entity->original->changed){
-    $success_update_message = t(
-      'File %file_label (%file_id) updated successfully for %number_recipients user(s)',
-      array(
-        '%file_label' => $entity->label,
-        '%file_id' => $entity->pid,
-        '%number_recipients' => count($entity->proc_recipient[LANGUAGE_NONE]),
-      )
-    );
-    drupal_set_message($success_update_message);
+  if (isset($entity->changed)){
+    if ($entity->changed > $entity->original->changed){
+      $success_update_message = t(
+        'File %file_label (%file_id) updated successfully for %number_recipients user(s)',
+        array(
+          '%file_label' => $entity->label,
+          '%file_id' => $entity->pid,
+          '%number_recipients' => count($entity->proc_recipient[LANGUAGE_NONE]),
+        )
+      );
+      drupal_set_message($success_update_message);
+    }
   }
 }
