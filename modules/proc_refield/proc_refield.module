@@ -277,6 +277,7 @@ function proc_refield_cipher_postsave($pid, $form_state) {
     var procRefieldEntittyType = '" . $params['query']['proc_refield_field_entity_type'] . "';
     var procRefieldFieldBundle = '" . $params['query']['proc_refield_field_bundle'] . "';
     var procInputElementId = '" . $params['query']['input_element_id'] . "';
+    var procId = '" . $pid . "';
   ";
 
   if (isset($params['query']['proc_refield'])) {
@@ -305,7 +306,7 @@ function proc_refield_cipher_postsave($pid, $form_state) {
               procFieldId + '/' +
               procRefieldEntittyType + '/' +
               procRefieldFieldBundle +
-              '/NULL' +
+              '/NULL/' + procId + '/' +
               '?_=' +
               resetCache;
 
