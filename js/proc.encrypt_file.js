@@ -8,8 +8,6 @@
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
 
-            let procJsLabels = Drupal.settings.proc.proc_labels;
-
             if (!(window.FileReader)) {
                 alert(procJsLabels.proc_fileapi_err_msg);
             }
@@ -19,19 +17,17 @@
             }
 
             function handleFileSelect(evt) {
+                let procJsLabels        = Drupal.settings.proc.proc_labels,
+                    files               = evt.target.files,
+                    postMaxSizeBytes    = Drupal.settings.proc.proc_post_max_size_bytes,
+                    fileSize            = parseInt(files[0].size, 10),
+                    postMaxSizeBytesInt = parseInt(postMaxSizeBytes, 10),
+                    // Assuming ciphertexts are at least 4 times bigger than
+                    // their plaintexts:
+                    dynamicMaximumSize  = postMaxSizeBytesInt / 4;
 
                 document.getElementById('edit-button').value = procJsLabels.proc_button_state_processing;
-
-                let files = evt.target.files;
-
                 $('label[for=edit-pc-upload-description]')[0].innerText = `${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit} - ${procJsLabels.proc_type} ${files[0].type} - ${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
-
-                let postMaxSizeBytes = Drupal.settings.proc.proc_post_max_size_bytes;
-
-                let fileSize = parseInt(files[0].size, 10);
-                let postMaxSizeBytesInt = parseInt(postMaxSizeBytes, 10);
-                // Assuming ciphertexts are at least 4 times bigger than their plaintexts.
-                let dynamicMaximumSize = postMaxSizeBytesInt / 4;
 
                 if (fileSize > dynamicMaximumSize) {
                     $("form#-proc-encrypt-file").prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${dynamicMaximumSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
@@ -39,30 +35,31 @@
                     return;
                 }
 
-                let myFile = files[0];
-                let reader = new FileReader();
-                let fileByteArray = [];
+                let myFile        = files[0],
+                    reader        = new FileReader(),
+                    fileByteArray = [];
+
                 reader.readAsArrayBuffer(myFile);
                 reader.onloadend = async function (evt) {
                     if (evt.target.readyState == FileReader.DONE) {
-                        let arrayBuffer = evt.target.result;
-                        let array = new Uint8Array(arrayBuffer);
+
+                        const recipientsPubkeys = [];
+
+                        let arrayBuffer               = evt.target.result,
+                            array                     = new Uint8Array(arrayBuffer),
+                            // At this moment we only know about validated recipient UIDs
+                            // and the time stamps of their keys:
+                            recipientsUidsKeysChanged = JSON.parse(Drupal.settings.proc.proc_recipients_pubkeys_changed),
+                            remoteKey                 = [],
+                            userIdIterator;
+
                         for (let i = 0; i < array.length; i++) {
                             fileByteArray.push(array[i]);
                         }
                         // False for production.
-                        openpgp.config.debug = false;
+                        openpgp.config.debug        = false;
                         openpgp.config.show_comment = false;
                         openpgp.config.show_version = false;
-
-                        const recipientsPubkeys = [];
-
-                        // At this moment we only know about validated recipient UIDs
-                        // and the time stamps of their keys:
-                        let recipientsUidsKeysChanged = JSON.parse(Drupal.settings.proc.proc_recipients_pubkeys_changed);
-
-                        let remoteKey = [];
-                        let userIdIterator;
 
                         for (userIdIterator in recipientsUidsKeysChanged) {
                             let localKey = localStorage.getItem(`proc.key_user_id.${userIdIterator}.${recipientsUidsKeysChanged[userIdIterator]}`);
@@ -107,14 +104,12 @@
                             await pubKeyAjax(remoteKeyCsv);
                         }
 
-                        const readableStream = new ReadableStream(
-                            {
-                                start(controller) {
-                                    controller.enqueue(array);
-                                    controller.close();
-                                }
+                        const readableStream = new ReadableStream({
+                            start(controller) {
+                                controller.enqueue(array);
+                                controller.close();
                             }
-                        );
+                        });
 
                         const recipientsKeys = [];
 
@@ -133,14 +128,14 @@
                         };
 
                         let startSeconds = new Date().getTime() / 1000;
-                        const encrypted = await openpgp.encrypt(options);
 
-                        const ciphertext = encrypted.data;
-                        // Warning: Readable Stream expires if used twice.
-                        const cipherPlaintext = await openpgp.stream.readToEnd(ciphertext);
+                        const encrypted       = await openpgp.encrypt(options),
+                              ciphertext      = encrypted.data,
+                              // Warning: Readable Stream expires if used twice.
+                              cipherPlaintext = await openpgp.stream.readToEnd(ciphertext);
 
-                        let endSeconds = new Date().getTime() / 1000;
-                        let total = endSeconds - startSeconds;
+                        let endSeconds = new Date().getTime() / 1000,
+                            total = endSeconds - startSeconds;
 
                         $('input[name=cipher_text]')[0].value = cipherPlaintext;
                         $('input[name=source_file_name]')[0].value = files[0].name;
