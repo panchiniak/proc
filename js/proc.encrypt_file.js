@@ -95,8 +95,14 @@
                                 if (pubkeysJson.pubkey.length > 0){
                                     pubkeysJson.pubkey.forEach(
                                         function (pubkey,index){
-                                            localStorage.setItem(`proc.key_user_id.${remoteKey[index]}.${pubkey.changed}`, pubkey.key);
                                             recipientsPubkeys.push(pubkey.key);
+                                            try {
+                                                localStorage.setItem(`proc.key_user_id.${remoteKey[index]}.${pubkey.changed}`, pubkey.key);
+                                            }
+                                            catch (error){
+                                                console.warn(error);
+                                            }
+
                                         }
                                     );
                                 }

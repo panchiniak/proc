@@ -37,8 +37,13 @@
                 const cipherTextAjax = async (cipherId) => {
                     let response = await fetch(`${window.location.origin + Drupal.settings.basePath}proc/api/get/${cipherId}`),
                         json     = await response.json();
-                    localStorage.setItem(`proc.proc_id.${cipherId}.${cipherChanged}`, json.cipher);
                     cipherText = json.cipher;
+                    try{
+                        localStorage.setItem(`proc.proc_id.${cipherId}.${cipherChanged}`, json.cipher);
+                    }
+                    catch (error){
+                        console.warn(error);
+                    }
                 };
                 cipherTextAjax(cipherId);
             }
