@@ -6,6 +6,7 @@
     'use strict';
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
+           
 
             let procJsLabels   = Drupal.settings.proc.proc_labels,
                 passDrupal     = Drupal.settings.proc.proc_pass,
@@ -16,7 +17,42 @@
                 sourceFileSize = Drupal.settings.proc.proc_source_file_size,
                 fileApiErrMsg  = Drupal.settings.proc.proc_fileapi_err_msg,
                 localCihper    = localStorage.getItem(`proc.proc_id.${cipherId}.${cipherChanged}`);
+            
+            let procURL = `${window.location.origin + Drupal.settings.basePath}proc/api/get/${cipherId}/?cipherchanged=${cipherChanged}`;
+            let cachedCipher;
 
+            const cacheAvailable = 'caches' in self;
+            if (cacheAvailable){
+                let cache = caches.open('proc');
+                cache.then(async function (cache){
+                    let response = await cache.match(procURL);
+                    if (response){
+                        response.json().then(function(result) {
+                            console.log(result.cipher);
+                            cachedCipher = result.cipher;
+
+                        });
+                    }
+                    else{
+                        console.log('---------putting cipher into cache-----------');
+                        cache.add(procURL).then(function (){
+                            cache.match(procURL).then(function (result){
+                                result.json().then(function (result){
+                                    console.log(result.cipher);
+                                    cachedCipher = result.cipher;
+                                });
+                            });
+                        });
+                    }
+                });
+
+            }
+            else{
+                console.log('-------borwser does not support cache API--------------');
+            }
+
+
+            
 
             var cipherText;
 
