@@ -21,8 +21,7 @@
             let procURL = `${window.location.origin + Drupal.settings.basePath}proc/api/get/${cipherId}/?cipherchanged=${cipherChanged}`;
             let cachedCipher;
 
-            const cacheAvailable = 'caches' in self;
-            if (cacheAvailable){
+            if ('caches' in self){
                 let cache = caches.open('proc');
                 cache.then(async function (cache){
                     let response = await cache.match(procURL);
