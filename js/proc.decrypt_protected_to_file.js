@@ -19,40 +19,46 @@
                 localCihper    = localStorage.getItem(`proc.proc_id.${cipherId}.${cipherChanged}`);
             
             let procURL = `${window.location.origin + Drupal.settings.basePath}proc/api/get/${cipherId}/?cipherchanged=${cipherChanged}`;
-            let cachedCipher;
+            var cachedCipher;
+            let cipherResponse;
+            let cipher;
 
-            const cacheAvailable = 'caches' in self;
-            if (cacheAvailable){
+            if ('caches' in self){
                 let cache = caches.open('proc');
-                cache.then(async function (cache){
+                cachedCipher = cache.then(async function (cache){
                     let response = await cache.match(procURL);
                     if (response){
-                        response.json().then(function(result) {
-                            console.log(result.cipher);
-                            cachedCipher = result.cipher;
-
+                        console.log('---------reusing from cache-----------');
+                        return;
+                    }
+                    else{
+                        console.log('---------creating new cache-----------');
+                        cipherResponse = (await fetch(procURL));
+                        cipher = cipherResponse.clone();
+                        cache.put(procURL, cipherResponse);
+                        return cipher;
+                    }
+                });
+                caches.match(procURL).then(async function(result){
+                    if (result){
+                        cipher = result.json().then(async function(result){
+                            return result.cipher;
                         });
                     }
                     else{
-                        console.log('---------putting cipher into cache-----------');
-                        cache.add(procURL).then(function (){
-                            cache.match(procURL).then(function (result){
-                                result.json().then(function (result){
-                                    console.log(result.cipher);
-                                    cachedCipher = result.cipher;
-                                });
-                            });
+                        cipher = (await cachedCipher);
+                        cipher = cipher.json().then(async function(result){
+                            return result.cipher;
                         });
                     }
+                    cipher.then(async function(result){
+                        console.log(result);
+                    });
                 });
-
             }
             else{
                 console.log('-------borwser does not support cache API--------------');
             }
-
-
-            
 
             var cipherText;
 
