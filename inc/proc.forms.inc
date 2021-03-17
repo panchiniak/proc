@@ -6,30 +6,50 @@
  */
 
 /**
- * Retrieval of a file from its cipher text.
+ * Definition of the form and metada for decryption.
  */
-function _proc_decrypt_to_file($form, &$form_state, $cid) {
+function _proc_decrypt_to_file($form, &$form_state, $cids) {
   global $user;
-
-  $ciphers_data = _proc_common_get_ciphers(array($cid));
+  // Once we will fetch the ciphertexts with ajax we want now only to
+  // send changed timestamps (for verifying if cached version may be used)
+  // and metadata as file size (for verifying decryption sucess) and
+  // file name (for recreting the file).
+  // We want also the file name to be changeble by another module. This is
+  // useful if another module wants to define a some rewriting rule for the
+  // file name.
+  $cids         = _proc_get_csv_argument($cids);
+  $ciphers_data = _proc_common_get_ciphers($cids, TRUE);
   $privkey      = $ciphers_data['privkey'];
-  $cid_cipher   = $ciphers_data['ciphers'][$cid];
   $form['pass'] = $ciphers_data['form_pass'];
+  $cids_ciphers = $ciphers_data['ciphers'];
 
   $form['#attached']['js'] = _proc_common_inject_lib('decrypt_protected_to_file');
 
-  $decryption_form_elements = array(
-    'proc_source_file_name' => $cid_cipher['source_file_name'],
-    'proc_source_file_size' => $cid_cipher['source_file_size'],
-    'proc_id'               => $cid,
-    'proc_changed'          => $cid_cipher['changed'],
+  $proc_sources_file_names = array();
+  $proc_sources_file_sizes = array();
+  $proc_ids                = array();
+  $procs_changed           = array();
+
+  foreach ($cids_ciphers as $cid_cipher) {
+    $proc_sources_file_names[] = $cid_cipher['source_file_name'];
+    $proc_sources_file_sizes[] = $cid_cipher['source_file_size'];
+    $proc_ids[]                = $cid_cipher['cipher_cid'];
+    $procs_changed[]           = $cid_cipher['changed'];
+  }
+
+  $multiple_decryption_form_elements = array(
+    'proc_sources_file_names' => $proc_sources_file_names,
+    'proc_sources_file_sizes' => $proc_sources_file_sizes,
+    'proc_ids'                => $proc_ids,
+    'procs_changed'           => $procs_changed,
   );
 
   $form['#attached']['js'][] = array(
     'data' => array('proc' => _proc_common_get_decryption_form_data($privkey)),
     'type' => 'setting',
   );
-  $form['#attached']['js'][0]['data']['proc'] += $decryption_form_elements;
+
+  $form['#attached']['js'][0]['data']['proc'] += $multiple_decryption_form_elements;
 
   $get_proc_link_fragment = md5(drupal_random_bytes(32));
   $get_proc_link = l(

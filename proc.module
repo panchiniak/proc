@@ -74,7 +74,7 @@ function proc_menu() {
     'title' => 'View Protected Content',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_proc_decrypt_to_file', 1),
-    'access callback' => '_proc_recipient',
+    'access callback' => '_proc_recipient_multiple',
     'access arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',

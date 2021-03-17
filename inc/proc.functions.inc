@@ -150,7 +150,7 @@ function _proc_get_keys($user_id) {
  * @return array
  *   Array containing ciphertext data.
  */
-function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
+function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only = NULL) {
   global $user;
 
   $query = new EntityFieldQuery();
@@ -179,7 +179,11 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
 
   $cipher_text_data = array();
 
-  $cipher_text_data['cipher_text']      = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
+  // Skip cipher if it is defined the retrieval of metadata only.
+  if ($metadata_only != TRUE) {
+    $cipher_text_data['cipher_text'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
+  };
+
   $cipher_text_data['source_file_name'] = check_plain(unserialize($proc_wrapper->meta->value())['source_file_name']);
   $cipher_text_data['source_file_size'] = check_plain(unserialize($proc_wrapper->meta->value())['source_file_size']);
   $cipher_text_data['cipher_cid']       = check_plain($cid);
@@ -211,25 +215,25 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL) {
 /**
  * Helper function to check if current user is recipient of cipher text.
  *
- * @param string $cid
- *   Ciphertext ID (proc entity).
+ * @param string $cids
+ *   Ciphertext IDs (proc entities) CSV.
  *
  * @return bool
  *   A boolean indicating whether current user is recipient of the ciphertext.
  */
-function _proc_recipient($cid) {
+function _proc_recipient($cids) {
   global $user;
-
-  if (isset($cid) && is_numeric($cid)) {
-    $cid = (int) $cid;
-    // @todo check if empty arguments are needed
-    $cipher = _proc_get_cipher($cid, NULL, NULL);
-    // @todo add 'bypass cipher access control' restricted permission
-    if (!empty($cipher) or ($user->uid == 1)) {
-      return TRUE;
+  $cids_argument = _proc_get_csv_argument($cids);
+  foreach ($cids_argument as $cipher_id) {
+    if (isset($cipher_id) && is_numeric($cipher_id)) {
+      $cipher_id = (int) $cipher_id;
+      $cipher = _proc_get_cipher($cipher_id, NULL, NULL);
+      if (empty($cipher) and ($user->uid != 1)) {
+        return FALSE;
+      }
     }
   }
-  return FALSE;
+  return TRUE;
 }
 
 /**
@@ -339,12 +343,12 @@ function _proc_get_fileapi_err_msg() {
  * @return array
  *   Array containing cihpers, encrypted priv key and pass form element.
  */
-function _proc_common_get_ciphers(array $cids) {
+function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
   global $user;
 
   $privkey = _proc_get_keys($user->uid)['encrypted_private_key'];
   foreach ($cids as $cid) {
-    $cid_cipher[$cid] = _proc_get_cipher((int) $cid, $form, $form_state);
+    $cid_cipher[$cid] = _proc_get_cipher((int) $cid, $form, $form_state, $metadata_only);
   }
   $form_pass = array(
     '#type' => 'password',
@@ -427,12 +431,18 @@ function _proc_common_get_decryption_form_data($privkey) {
 /**
  * Helper callback for getting proc on ajax.
  *
- * @param string $pid
- *   String containnig proc ID.
+ * @param string $pids
+ *   String containnig proc IDs CSV.
  */
-function _proc_get_proc_menu_callback($pid) {
-  $cipher = _proc_get_cipher((int) $pid, NULL, NULL);
-  drupal_json_output(array('cipher' => $cipher['cipher_text']));
+function _proc_get_proc_menu_callback($pids) {
+  $pids = _proc_get_csv_argument($pids);
+  $ciphers = &drupal_static(__FUNCTION__, []);
+  if (!isset($ciphers[0])) {
+    foreach ($pids as $pid) {
+      $ciphers[] = _proc_get_cipher((int) $pid, NULL, NULL)['cipher_text'];
+    }
+  }
+  drupal_json_output(array('ciphers' => $ciphers));
 }
 
 /**
