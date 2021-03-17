@@ -14,9 +14,6 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
   // send changed timestamps (for verifying if cached version may be used)
   // and metadata as file size (for verifying decryption sucess) and
   // file name (for recreting the file).
-  // We want also the file name to be changeble by another module. This is
-  // useful if another module wants to define a some rewriting rule for the
-  // file name.
   $cids         = _proc_get_csv_argument($cids);
   $ciphers_data = _proc_common_get_ciphers($cids, TRUE);
   $privkey      = $ciphers_data['privkey'];
