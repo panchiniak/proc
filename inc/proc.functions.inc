@@ -257,7 +257,9 @@ function _proc_get_csv_argument($csv_data) {
         $csv_data[] = $csv_value;
       }
     }
-    return array_unique($csv_data);
+    if (!empty($csv_data[0])) {
+      return array_unique($csv_data);
+    }
   }
   return NULL;
 }
@@ -274,12 +276,16 @@ function _proc_get_csv_argument($csv_data) {
  */
 function _proc_recipient_multiple($cids_csv) {
   $cids = _proc_get_csv_argument($cids_csv);
+  $result = FALSE;
   foreach ($cids as $cid) {
     if (!_proc_recipient($cid)) {
       return FALSE;
     }
+    else {
+      $result = TRUE;
+    }
   }
-  return TRUE;
+  return $result;
 }
 
 /**
