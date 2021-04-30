@@ -181,7 +181,14 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
 
   // Skip cipher if it is defined the retrieval of metadata only.
   if ($metadata_only != TRUE) {
-    $cipher_text_data['cipher_text'] = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']);
+    $cipher_text_data['cipher_text'] = check_plain(
+      _proc_cipher_unserialize(
+        $proc_wrapper->proc_armored->value(),
+        $cid,
+        $form,
+        $form_state
+      )['cipher_text']
+    );
   };
 
   $cipher_text_data['source_file_name'] = check_plain(unserialize($proc_wrapper->meta->value())['source_file_name']);
@@ -487,4 +494,31 @@ function _proc_js_labels() {
     'proc_decryption_size_mismatch'   => t('Error: size mismatch.'),
     'proc_button_update_label'        => t('Update'),
   );
+}
+
+/**
+ * Helper function for serializing ciphertext.
+ */
+function _proc_cipher_serialize($cipher, $form, $form_state) {
+  $cipher_serialized = serialize($cipher);
+  $context = array(
+    'unalterable_serialization_source_form'       => $form,
+    'unalterable_serialization_source_form_state' => $form_state,
+  );
+  drupal_alter('cipher_serialize', $cipher_serialized, $context);
+  return $cipher_serialized;
+}
+
+/**
+ * Helper function for unserializing ciphertext.
+ */
+function _proc_cipher_unserialize($cipher, $cid, $form, $form_state) {
+  $cipher_unserialized = unserialize($cipher);
+  $context = array(
+    'unalterable_unserialization_source_cid'        => $cid,
+    'unalterable_unserialization_source_form'       => $form,
+    'unalterable_unserialization_source_form_state' => $form_state,
+  );
+  drupal_alter('cipher_unserialize', $cipher_unserialized, $context);
+  return $cipher_unserialized;
 }

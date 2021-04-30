@@ -61,3 +61,25 @@ function hook_cipher_postsave_failure_encryption_message_alter(array $failure_en
  */
 function hook_keyring_postsave(string $pid, array $form_state, string $uid) {
 }
+
+/**
+ * Allow modules to alter cipher serialization.
+ *
+ * @param array $cipher
+ *   Alterable array containing a ciphertext or URI.
+ * @param array $context
+ *   Unalterable cipher serialization context.
+ */
+function hook_cipher_serialize_alter(array $cipher, array $context) {
+}
+
+/**
+ * Allow modules to alter cipher unserialization.
+ *
+ * @param array $cipher
+ *   Alterable array containing a ciphertext or URI.
+ * @param arrayun $context
+ *   Unalterable cipher serialization context.
+ */
+function hook_cipher_unserialize_alter(array $cipher, array $context) {
+}

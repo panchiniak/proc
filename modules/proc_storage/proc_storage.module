@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * @file
+ * Add file system storage of ciphertexts.
+ */
+
+include_once 'inc/proc_storage.functions.inc';
+
+/**
+ * Implements hook_help().
+ */
+function proc_storage_help($path) {
+  switch ($path) {
+    case "admin/help#proc_storage":
+      return '<p>' . t('Protected Content Storage enables alternative storage of ciphertexts.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function tefiltro_permission() {
+  return array(
+    'administer proc-storage' => array(
+      'title' => t('Administer Protected Content Storage'),
+      'description' => t('Protected Content Storage settings'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function proc_storage_menu() {
+  $items['admin/config/proc-storage'] = array(
+    'title' => 'Protected Content Storage Settings',
+    'description' => 'Settings of Protected Content Storage',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_proc_storage_settings_form'),
+    'access arguments' => array('administer proc-storage'),
+    'file' => 'inc/proc_storage.forms.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_cipher_serialize_alter().
+ */
+function proc_storage_cipher_serialize_alter(&$cipher, $context) {
+  $proc_storage_placement_settings = _proc_storage_get_placement_settings($cipher, $context);
+  // If local storage is enabled:
+  if ($proc_storage_placement_settings['proc_storage_enabled'] == 1){
+    $proc_storage_stream_wrapper = $proc_storage_placement_settings['proc_storage_global_stream_wrapper'];
+    $cipher_md5 = md5($cipher);
+    $json_name = $cipher_md5 . '.json';
+    // Get list of local stream wrapper if more then one is defined:
+    $local_stream_wrappers = array_unique(explode(',',$proc_storage_stream_wrapper));
+
+    foreach ($local_stream_wrappers as $local_stream_wrapper_key => $local_stream_wrapper){
+      if (file_stream_wrapper_get_instance_by_uri($local_stream_wrapper)){
+        // Create the directory if needed:    
+        file_prepare_directory($local_stream_wrapper, FILE_CREATE_DIRECTORY);
+        if ($file = file_save_data($cipher, $local_stream_wrapper . $json_name)){
+          $file_metadata[] = [
+            'cipher_text_fid' => $file->fid,
+            'cipher_checksum' => $cipher_md5,
+          ];  
+        }
+      }
+      else{
+        drupal_set_message(t('A stream wrapper is not registered.'), 'error');
+      }
+    }
+    if (count($file_metadata) > 0){
+      $file_metadata_serialized = serialize($file_metadata);
+      $cipher = $file_metadata_serialized;  
+    }
+    else{
+      drupal_set_message(t('Unecpected error on saving data. Please verify stream wrapper settings.'), 'error');
+    }
+  }
+}
+
+/**
+ * Implements hook_cipher_unserialize_alter().
+ */
+function proc_storage_cipher_unserialize_alter(&$cipher, $context) {
+  if (isset($cipher[0]['cipher_text_fid'])){
+    foreach ($cipher as $cipher_copy_key => $cipher_copy){
+      if (isset($cipher_copy['cipher_text_fid'])){
+        $file_object                   = file_load($cipher_copy['cipher_text_fid']);
+        $data                          = file_get_contents($file_object->uri);
+        if ($data = file_get_contents($file_object->uri)){          
+          $md5                           = md5($data);
+          $ciphertext_entry_unserialized = unserialize($data);
+          $ciphertext                    = $ciphertext_entry_unserialized['cipher_text'];
+          $ciphertext_checksum           = $cipher_copy['cipher_checksum'];
+          if ($ciphertext_checksum == $md5){
+            $cipher = ['cipher_text' => $ciphertext];
+            break;      
+          }
+          else {
+            drupal_set_message(t('Error of content integrity.'), 'error');
+          }  
+        }
+        else{
+          $availability_error = &drupal_static(__FUNCTION__, []);
+          if ($availability_error != TRUE) {
+            drupal_set_message(t('Error of content availability. Trying to access another copy if any.'), 'warning');
+            $availability_error = TRUE;
+          }
+        }
+      }
+    }    
+    if (!isset($cipher['cipher_text'])){
+      drupal_set_message(t('All attempts of retrieving the content failled. Possible error in the server\'s filesystem.'), 'error');
+    }    
+  }
+}

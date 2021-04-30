@@ -1,0 +1,6 @@
+name = "Protected Content Storage"
+description = "Protected Content Storage enables alternative storage of ciphertexts."
+core = 7.x
+package = Cryptography
+
+dependencies[] = proc

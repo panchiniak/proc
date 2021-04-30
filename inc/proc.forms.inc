@@ -128,31 +128,21 @@ function _proc_update($form, &$form_state, $cids, $uids) {
   );
   $form['#attached']['js'][0]['data']['proc'] += $encryption_form_elements;
 
+  $update_field_form_elemement_prefixes = array(
+    'cipher_text_cid_',
+    'generation_timestamp_cid_',
+    'generation_timespan_cid_',
+    'browser_fingerprint_cid_',
+    'source_file_name_cid_',
+    'source_file_size_cid_',
+    'source_file_type_cid_',
+    'source_file_last_change_cid_',
+  );
+
   foreach ($cids as $cid) {
-    $form['cipher_text_cid_' . $cid] = array(
-      '#type' => 'hidden',
-    );
-    $form['generation_timestamp_cid_' . $cid] = array(
-      '#type' => 'hidden',
-    );
-    $form['generation_timespan_cid_' . $cid] = array(
-      '#type' => 'hidden',
-    );
-    $form['browser_fingerprint_cid_' . $cid] = array(
-      '#type' => 'hidden',
-    );
-    $form['source_file_name_cid_' . $cid] = array(
-      '#type' => 'hidden',
-    );
-    $form['source_file_size_cid_' . $cid] = array(
-      '#type' => 'hidden',
-    );
-    $form['source_file_type_cid_' . $cid] = array(
-      '#type' => 'hidden',
-    );
-    $form['source_file_last_change_cid_' . $cid] = array(
-      '#type' => 'hidden',
-    );
+    foreach ($update_field_form_elemement_prefixes as $update_field_form_elemement_prefix) {
+      $form[$update_field_form_elemement_prefix . $cid] = array('#type' => 'hidden');
+    }
   }
 
   $form['#submit'][] = '_proc_update_submit';
@@ -198,10 +188,12 @@ function _proc_update_submit($form, &$form_state) {
       'generation_timespan'  => check_plain($form_state['values'][$generation_timespan_field_id]),
       'generation_timestamp' => check_plain($form_state['values'][$generation_timestamp_field_id]),
       'browser_fingerprint'  => check_plain($form_state['values'][$browser_fingerprint_field_id]),
+      // @todo Split ciphertext serialization from its metadata.
       'cipher_text'          => check_plain($form_state['values'][$cid_cipher_field_id]),
     );
 
-    $proc_wrapper->proc_armored = serialize($ciphertxt_data[$cid]);
+    $proc_wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data[$cid], $form, $form_state);
+
     $proc_wrapper->changed = time();
     $proc_wrapper->proc_recipient->set($recipients_uids_new);
     $proc_wrapper->save();
@@ -258,30 +250,21 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
     '#type' => 'item',
     '#title' => t('Choose a file'),
   );
-  $form['cipher_text'] = array(
-    '#type' => 'hidden',
+
+  $hidden_fields = array(
+    'cipher_text',
+    'generation_timestamp',
+    'generation_timespan',
+    'browser_fingerprint',
+    'source_file_name',
+    'source_file_size',
+    'source_file_type',
+    'source_file_last_change',
   );
-  $form['generation_timestamp'] = array(
-    '#type' => 'hidden',
-  );
-  $form['generation_timespan'] = array(
-    '#type' => 'hidden',
-  );
-  $form['browser_fingerprint'] = array(
-    '#type' => 'hidden',
-  );
-  $form['source_file_name'] = array(
-    '#type' => 'hidden',
-  );
-  $form['source_file_size'] = array(
-    '#type' => 'hidden',
-  );
-  $form['source_file_type'] = array(
-    '#type' => 'hidden',
-  );
-  $form['source_file_last_change'] = array(
-    '#type' => 'hidden',
-  );
+
+  foreach ($hidden_fields as $hidden_field) {
+    $form[$hidden_field] = array('#type' => 'hidden');
+  }
 
   $form['button'] = array(
     '#type' => 'submit',
@@ -381,7 +364,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
     $wrapper->proc_armoredown->set($user->uid);
     $wrapper->proc_armored = serialize($keyring_data);
     $wrapper->meta = serialize($keyring_metadata);
-    // @todo implement full cipher indentifier as domain-name:user-name:email:
+    // @todo implement full cipher indentifier as triplet domain-name:user-name:email:
     $wrapper->label->set($user->mail);
     $current_timestamp = time();
     $wrapper->created = $current_timestamp;
@@ -446,7 +429,9 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     // @todo deprecate property uid in favor of proc_armoredown field.
     $wrapper->uid = $user->uid;
     $wrapper->proc_armoredown->set($user->uid);
-    $wrapper->proc_armored = serialize($ciphertxt_data);
+
+    $wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data, $form, $form_state);
+
     $wrapper->meta = serialize($ciphertxt_metadata);
     $wrapper->proc_recipient->set($recipients_uids_new);
     $wrapper->language($language->language);

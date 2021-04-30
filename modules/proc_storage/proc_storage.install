@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * @file
+ * Main file of Proc Reference Field module.
+ */
+
+include_once 'inc/proc_storage.functions.inc';
+
+// @todo Delete variables on uninstall.
