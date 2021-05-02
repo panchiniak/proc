@@ -166,37 +166,11 @@ function _proc_update($form, &$form_state, $cids, $uids) {
  */
 function _proc_update_submit($form, &$form_state) {
   $recipients_uids_new = str_getcsv($form_state['build_info']['args'][1]);
-
   asort($recipients_uids_new);
   $recipients_uids_new = array_values($recipients_uids_new);
 
   foreach ($form['#attached']['js'][0]['data']['proc']['proc_ciphers_index'] as $cid) {
-    $proc_wrapper = entity_metadata_wrapper('proc', $cid);
-    $file_name = check_plain(unserialize($proc_wrapper->meta->value())['source_file_name']);
-    $file_size = check_plain(unserialize($proc_wrapper->meta->value())['source_file_size']);
-    $cid_cipher_field_id = 'cipher_text_cid_' . $cid;
-    $generation_timespan_field_id = 'generation_timespan_cid_' . $cid;
-    $browser_fingerprint_field_id = 'browser_fingerprint_cid_' . $cid;
-    $generation_timestamp_field_id = 'generation_timestamp_cid_' . $cid;
-    // Merge current and new data and metadata:
-    $ciphertxt_data[$cid] = array(
-      // Reuse unchanged values on encryption update:
-      'source_file_size'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_size']),
-      'source_file_name'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_name']),
-      'source_file_type'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_type']),
-      // Set new changed values on encryption update:
-      'generation_timespan'  => check_plain($form_state['values'][$generation_timespan_field_id]),
-      'generation_timestamp' => check_plain($form_state['values'][$generation_timestamp_field_id]),
-      'browser_fingerprint'  => check_plain($form_state['values'][$browser_fingerprint_field_id]),
-      // @todo Split ciphertext serialization from its metadata.
-      'cipher_text'          => check_plain($form_state['values'][$cid_cipher_field_id]),
-    );
-
-    $proc_wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data[$cid], $form, $form_state);
-
-    $proc_wrapper->changed = time();
-    $proc_wrapper->proc_recipient->set($recipients_uids_new);
-    $proc_wrapper->save();
+    _proc_update_ciphertext($cid, $form, $form_state, $recipients_uids_new);
   }
 }
 

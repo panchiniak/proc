@@ -522,3 +522,46 @@ function _proc_cipher_unserialize($cipher, $cid, $form, $form_state) {
   drupal_alter('cipher_unserialize', $cipher_unserialized, $context);
   return $cipher_unserialized;
 }
+
+/**
+ * Helper function for updating ciphertext.
+ */
+function _proc_update_ciphertext($cid, $form, $form_state, $recipients_uids_new) {
+  $proc_wrapper = entity_metadata_wrapper('proc', $cid);
+  $file_name = check_plain(unserialize($proc_wrapper->meta->value())['source_file_name']);
+  $file_size = check_plain(unserialize($proc_wrapper->meta->value())['source_file_size']);
+  $cid_cipher_field_id = 'cipher_text_cid_' . $cid;
+  $generation_timespan_field_id = 'generation_timespan_cid_' . $cid;
+  $browser_fingerprint_field_id = 'browser_fingerprint_cid_' . $cid;
+  $generation_timestamp_field_id = 'generation_timestamp_cid_' . $cid;
+  // Merge current and new data and metadata:
+  $ciphertxt_data[$cid] = array(
+    // Reuse unchanged values on encryption update:
+    'source_file_size'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_size']),
+    'source_file_name'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_name']),
+    'source_file_type'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_type']),
+  );
+  // If a new cryptograpgic update happened:
+  if ($form_state['values'][$generation_timespan_field_id]) {
+    $ciphertxt_data[$cid] = array(
+      // Set new changed values on encryption update:
+      'generation_timespan'  => check_plain($form_state['values'][$generation_timespan_field_id]),
+      'generation_timestamp' => check_plain($form_state['values'][$generation_timestamp_field_id]),
+      'browser_fingerprint'  => check_plain($form_state['values'][$browser_fingerprint_field_id]),
+      'cipher_text'          => check_plain($form_state['values'][$cid_cipher_field_id]),
+    );
+    $proc_wrapper->proc_recipient->set($recipients_uids_new);
+
+  }
+  // This is an non-cryptographic update:
+  else {
+    // We want only the ciphertext stored in file:
+    $ciphertxt_data[$cid] = array(
+      'cipher_text'          => check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']),
+    );
+  }
+
+  $proc_wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data[$cid], $form, $form_state);
+  $proc_wrapper->changed = time();
+  $proc_wrapper->save();
+}

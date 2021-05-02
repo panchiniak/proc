@@ -90,8 +90,8 @@ function proc_storage_cipher_unserialize_alter(&$cipher, $context) {
   if (isset($cipher[0]['cipher_text_fid'])){
     foreach ($cipher as $cipher_copy_key => $cipher_copy){
       if (isset($cipher_copy['cipher_text_fid'])){
-        $file_object                   = file_load($cipher_copy['cipher_text_fid']);
-        $data                          = file_get_contents($file_object->uri);
+        $file_object = file_load($cipher_copy['cipher_text_fid']);
+        $data        = file_get_contents($file_object->uri);
         if ($data = file_get_contents($file_object->uri)){          
           $md5                           = md5($data);
           $ciphertext_entry_unserialized = unserialize($data);
@@ -115,7 +115,45 @@ function proc_storage_cipher_unserialize_alter(&$cipher, $context) {
       }
     }    
     if (!isset($cipher['cipher_text'])){
-      drupal_set_message(t('All attempts of retrieving the content failled. Possible error in the server\'s filesystem.'), 'error');
+      drupal_set_message(t('All attempts of retrieving the content failled. Possible error in the server\'s file system.'), 'error');
     }    
   }
+}
+
+/**
+ * Implements hook__action_info().
+ */
+function proc_storage_action_info() {
+  return array(
+    'proc_storage_switch_action' => array(
+      'label' => t('Switch protected content storage'),
+      'type' => 'proc',
+      // 'type' => 'entity',
+      //'behavior' => array('changes_property'),
+      'behavior' => array(),
+      // 'configurable' => TRUE,
+      // 'vbo_configurable' => FALSE,
+      'configurable' => FALSE,
+      // 'vbo_configurable' => TRUE,
+      'triggers' => array('any'),
+      'pass rows' => TRUE,
+      'permissions' => array('administer site configuration'),
+      // 'configurable' => FALSE,
+      // 'triggers' => array('entity_update'),
+    ),
+  );
+}
+
+/**
+ * Action function for switching proc storage.
+ *
+ * @param object $entity
+ *   An optional user object (could be a user, or an author if context is
+ *   node or comment)
+ * @param array $context
+ *   Array with parameters for this action: depends on the trigger. The context
+ *   is not used in this example.
+ */
+function proc_storage_switch_action(&$entity, $context = array()) {
+  _proc_update_ciphertext($entity->pid, NULL, NULL, NULL);
 }
