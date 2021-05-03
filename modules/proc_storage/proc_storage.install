@@ -5,6 +5,10 @@
  * Main file of Proc Reference Field module.
  */
 
-include_once 'inc/proc_storage.functions.inc';
-
-// @todo Delete variables on uninstall.
+/**
+ * Implements hook_uninstall().
+ */
+function proc_uninstall() {
+    variable_del('proc_storage_global_stream_wrapper');
+    variable_del('proc_storage_enabled');
+}  

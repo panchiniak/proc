@@ -11,16 +11,18 @@
 function _proc_storage_settings_form($form, &$form_state) {
   $form['proc_storage_global_stream_wrapper'] = array(
     '#type' => 'textfield',
-    '#title' => t('Local stream wrapper'),
-    '#description' => t('Fill in a comma-separated values list to define alternative wrappers for redundancy. The first in the list will be the primary one.'),
+    '#required' => TRUE,
+    '#title' => t('Stream wrapper definition'),
+    '#description' => t('Fill in a comma-separated values list to define alternative wrappers for redundancy. The first in the list will be the primary one for reading and all of them will be used for writing. You have to fill at least one.'),
     '#default_value' => variable_get('proc_storage_global_stream_wrapper', 'private://'),
     '#size' => 40,
   );
   $form['proc_storage_enabled'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Enable stream wrapper for saving'),
-    '#description' => t('Read will be automatically switched according to current state of the content.'),
+    '#title' => t('Enable stream wrapper for saving or updating'),
+    '#description' => t('Reading will be automatically switched according to current placement (database or stream wrapper) of each content.'),
     '#default_value' => variable_get('proc_storage_enabled', 0),
   );
+  // @todo Add form validation.
   return system_settings_form($form);
 }

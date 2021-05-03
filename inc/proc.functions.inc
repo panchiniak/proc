@@ -555,10 +555,15 @@ function _proc_update_ciphertext($cid, $form, $form_state, $recipients_uids_new)
   }
   // This is an non-cryptographic update:
   else {
-    // We want only the ciphertext stored in file:
-    $ciphertxt_data[$cid] = array(
-      'cipher_text'          => check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text']),
-    );
+    // We want only the ciphertext stored in database:
+    if ($cipher_data = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text'])) {
+      $ciphertxt_data[$cid] = array('cipher_text' => $cipher_data);
+    }
+    else {
+      // We want only the ciphertext possibly stored elsewhere:
+      $cipher_data = _proc_cipher_unserialize($proc_wrapper->proc_armored->value(), $cid, $form, $form_state);
+      $ciphertxt_data[$cid] = $cipher_data;
+    }
   }
 
   $proc_wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data[$cid], $form, $form_state);

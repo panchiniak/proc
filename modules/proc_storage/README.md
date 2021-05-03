@@ -8,25 +8,25 @@ CONTENTS OF THIS FILE
 
  * Configuration
 
- * Future roadmap
-
  * Maintainers
 
 INTRODUCTION
 ------------
-The Protected Content Storage  module enables alternative storage of ciphertexts.
+Protected Content Storage allows a protected content entry to be saved using
+a defined stream wrapper.
 
 REQUIREMENTS
 ------------
+Protected content (proc)
 
 INSTALLATION
 ------------
+Install as usual.
 
 CONFIGURATION
 -------------
-
-FUTURE ROADMAP
---------------
+Visit admin/config/proc-storage and set one or more stream wrappers. They
+must be accessible for writing and reading.
 
 MAINTAINERS
 -----------

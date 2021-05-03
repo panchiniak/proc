@@ -78,8 +78,12 @@ function proc_storage_cipher_serialize_alter(&$cipher, $context) {
       $cipher = $file_metadata_serialized;  
     }
     else{
-      drupal_set_message(t('Unecpected error on saving data. Please verify stream wrapper settings.'), 'error');
+      drupal_set_message(t('Unexpected error on saving data. Please verify stream wrapper settings.'), 'error');
     }
+  }
+  else {
+    // We want to store it back in the database if it is not yet there:
+    $cipher_data = unserialize($cipher);
   }
 }
 
@@ -124,28 +128,26 @@ function proc_storage_cipher_unserialize_alter(&$cipher, $context) {
  * Implements hook__action_info().
  */
 function proc_storage_action_info() {
+  if (variable_get('proc_storage_enabled', 0) == 1){
+    $label = t('Update to stream wrapper storage');
+  }
+  else{
+    $label = t('Update to database storage');
+  }
   return array(
     'proc_storage_switch_action' => array(
-      'label' => t('Switch protected content storage'),
+      'label' => $label,
       'type' => 'proc',
-      // 'type' => 'entity',
-      //'behavior' => array('changes_property'),
-      'behavior' => array(),
-      // 'configurable' => TRUE,
-      // 'vbo_configurable' => FALSE,
       'configurable' => FALSE,
-      // 'vbo_configurable' => TRUE,
       'triggers' => array('any'),
       'pass rows' => TRUE,
-      'permissions' => array('administer site configuration'),
-      // 'configurable' => FALSE,
-      // 'triggers' => array('entity_update'),
+      'permissions' => array('administer proc-storage'),
     ),
   );
 }
 
 /**
- * Action function for switching proc storage.
+ * Action function for switching stream wrapper based proc storage.
  *
  * @param object $entity
  *   An optional user object (could be a user, or an author if context is
@@ -156,4 +158,5 @@ function proc_storage_action_info() {
  */
 function proc_storage_switch_action(&$entity, $context = array()) {
   _proc_update_ciphertext($entity->pid, NULL, NULL, NULL);
+  watchdog('proc_storage', 'Switched proc: %pid', array('%pid' => $entity->pid), WATCHDOG_INFO);
 }
