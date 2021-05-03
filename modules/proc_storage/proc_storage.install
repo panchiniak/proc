@@ -8,7 +8,7 @@
 /**
  * Implements hook_uninstall().
  */
-function proc_uninstall() {
+function proc_storage_uninstall() {
     variable_del('proc_storage_global_stream_wrapper');
     variable_del('proc_storage_enabled');
 }  
