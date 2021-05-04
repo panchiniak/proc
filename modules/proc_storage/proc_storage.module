@@ -75,6 +75,7 @@ function proc_storage_cipher_serialize_alter(&$cipher, $context) {
     }
     if (count($file_metadata) > 0){
       $file_metadata_serialized = serialize($file_metadata);
+
       $cipher = $file_metadata_serialized;  
     }
     else{
@@ -112,7 +113,23 @@ function proc_storage_cipher_unserialize_alter(&$cipher, $context) {
         else{
           $availability_error = &drupal_static(__FUNCTION__, []);
           if ($availability_error != TRUE) {
-            drupal_set_message(t('Error of content availability. Trying to access another copy if any.'), 'warning');
+
+            $content_availability_warning = t(
+              'Error of content availability. Trying to access another copy if any. Protected Content ID: <b>@proc-id</b>.',
+              array(
+              '@proc-id' => $context['unalterable_unserialization_source_cid'],
+              )
+            );
+            drupal_set_message($content_availability_warning, 'warning');
+
+            watchdog(
+              'proc_storage',
+              'Error accessing protected content: %pid from URI: %uri ',
+              array(
+                '%pid' => $context['unalterable_unserialization_source_cid'],
+                '%uri' => $file_object->uri,
+              ), WATCHDOG_INFO);
+
             $availability_error = TRUE;
           }
         }
@@ -120,6 +137,7 @@ function proc_storage_cipher_unserialize_alter(&$cipher, $context) {
     }    
     if (!isset($cipher['cipher_text'])){
       drupal_set_message(t('All attempts of retrieving the content failled. Possible error in the server\'s file system.'), 'error');
+
     }    
   }
 }
@@ -158,5 +176,4 @@ function proc_storage_action_info() {
  */
 function proc_storage_switch_action(&$entity, $context = array()) {
   _proc_update_ciphertext($entity->pid, NULL, NULL, NULL);
-  watchdog('proc_storage', 'Switched proc: %pid', array('%pid' => $entity->pid), WATCHDOG_INFO);
 }
