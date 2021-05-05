@@ -403,14 +403,14 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     // @todo deprecate property uid in favor of proc_armoredown field.
     $wrapper->uid = $user->uid;
     $wrapper->proc_armoredown->set($user->uid);
+    $current_timestamp = time();
 
-    $wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data, NULL, $form, $form_state);
+    $wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data, NULL, $current_timestamp, $form, $form_state);
 
     $wrapper->meta = serialize($ciphertxt_metadata);
     $wrapper->proc_recipient->set($recipients_uids_new);
     $wrapper->language($language->language);
     $wrapper->label = $ciphertxt_metadata['source_file_name'];
-    $current_timestamp = time();
     $wrapper->created = $current_timestamp;
     $wrapper->changed = $current_timestamp;
     $wrapper->save();
