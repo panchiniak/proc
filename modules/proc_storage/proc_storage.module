@@ -54,7 +54,11 @@ function proc_storage_cipher_serialize_alter(&$cipher, $context) {
   if ($proc_storage_placement_settings['proc_storage_enabled'] == 1){
     $proc_storage_stream_wrapper = $proc_storage_placement_settings['proc_storage_global_stream_wrapper'];
     $cipher_md5 = md5($cipher);
-    $json_name = $cipher_md5 . '.json';
+    $name_prefix = '';
+    if (!empty($proc_storage_placement_settings['proc_storage_file_name_prefix'])) {
+      $name_prefix = $proc_storage_placement_settings['proc_storage_file_name_prefix'];
+    }
+    $json_name = $name_prefix . $cipher_md5 . '.json';
     // Get list of local stream wrapper if more then one is defined:
     $local_stream_wrappers = array_unique(explode(',',$proc_storage_stream_wrapper));
 
@@ -134,10 +138,10 @@ function proc_storage_cipher_unserialize_alter(&$cipher, $context) {
           }
         }
       }
-    }    
+    }
+
     if (!isset($cipher['cipher_text'])){
       drupal_set_message(t('All attempts of retrieving the content failled. Possible error in the server\'s file system.'), 'error');
-
     }    
   }
 }

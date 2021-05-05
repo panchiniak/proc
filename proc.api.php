@@ -68,7 +68,7 @@ function hook_keyring_postsave(string $pid, array $form_state, string $uid) {
  * @param array $cipher
  *   Alterable array containing a ciphertext or URI.
  * @param array $context
- *   Unalterable cipher serialization context.
+ *   Unalterable cipher serialization context containing cid.
  */
 function hook_cipher_serialize_alter(array $cipher, array $context) {
 }

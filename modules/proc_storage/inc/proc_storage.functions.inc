@@ -12,6 +12,7 @@ function _proc_storage_get_placement_settings($cipher, $cipher_context) {
   $proc_storage_placement_settings = [
     'proc_storage_global_stream_wrapper'    => variable_get('proc_storage_global_stream_wrapper', 'private://'),
     'proc_storage_enabled'                  => variable_get('proc_storage_enabled', 0),
+    'proc_storage_file_name_prefix'         => variable_get('proc_storage_file_name_prefix', ''),
   ];
 
   $context = [

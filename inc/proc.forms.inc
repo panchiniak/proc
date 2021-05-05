@@ -404,7 +404,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     $wrapper->uid = $user->uid;
     $wrapper->proc_armoredown->set($user->uid);
 
-    $wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data, $form, $form_state);
+    $wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data, NULL, $form, $form_state);
 
     $wrapper->meta = serialize($ciphertxt_metadata);
     $wrapper->proc_recipient->set($recipients_uids_new);

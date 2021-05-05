@@ -499,11 +499,15 @@ function _proc_js_labels() {
 /**
  * Helper function for serializing ciphertext.
  */
-function _proc_cipher_serialize($cipher, $form, $form_state) {
+function _proc_cipher_serialize($cipher, $cid, $form, $form_state) {
   $cipher_serialized = serialize($cipher);
+  if (!isset($cid)) {
+    $cid = '';
+  }
   $context = array(
     'unalterable_serialization_source_form'       => $form,
     'unalterable_serialization_source_form_state' => $form_state,
+    'unalterable_serialization_source_cid'        => $cid,
   );
   drupal_alter('cipher_serialize', $cipher_serialized, $context);
   return $cipher_serialized;
@@ -566,7 +570,7 @@ function _proc_update_ciphertext($cid, $form, $form_state, $recipients_uids_new)
     }
   }
 
-  $proc_wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data[$cid], $form, $form_state);
+  $proc_wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data[$cid], $cid, $form, $form_state);
   $proc_wrapper->changed = time();
   $proc_wrapper->save();
 }
