@@ -20,7 +20,7 @@ function proc_storage_help($path) {
 /**
  * Implements hook_permission().
  */
-function tefiltro_permission() {
+function proc_storage_permission() {
   return array(
     'administer proc-storage' => array(
       'title' => t('Administer Protected Content Storage'),
