@@ -172,12 +172,30 @@ function proc_storage_action_info() {
  * Action function for switching stream wrapper based proc storage.
  *
  * @param object $entity
- *   An optional user object (could be a user, or an author if context is
- *   node or comment)
+ *   Protected content object.
  * @param array $context
- *   Array with parameters for this action: depends on the trigger. The context
- *   is not used in this example.
+ *   Context of protected content.
  */
 function proc_storage_switch_action(&$entity, $context = array()) {
   _proc_update_ciphertext($entity->pid, NULL, NULL, NULL);
+}
+
+/**
+ * Implements form validation
+ */
+function _proc_storage_settings_form_validate($form, &$form_state) {
+  $local_stream_wrappers = array_unique(explode(',',$form_state['input']['proc_storage_global_stream_wrapper']));
+  foreach ($local_stream_wrappers as $local_stream_wrapper){
+    if (
+      !file_stream_wrapper_get_instance_by_uri($local_stream_wrapper) ||
+      (substr($local_stream_wrapper, -1) != '/')
+    ){
+      form_set_error('proc_storage_global_stream_wrapper', t(
+        'Stream wrapper <b>@invalid-stream-wrapper</b> is invalid.',
+        array(
+          '@invalid-stream-wrapper' => $local_stream_wrapper,
+          )
+      ));
+    }
+  }
 }
