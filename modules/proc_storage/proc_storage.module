@@ -67,6 +67,7 @@ function proc_storage_cipher_serialize_alter(&$cipher, $context) {
         // Create the directory if needed:    
         file_prepare_directory($local_stream_wrapper, FILE_CREATE_DIRECTORY);
         if ($file = file_save_data($cipher, $local_stream_wrapper . $json_name)){
+          file_usage_add($file, 'proc_storage', 'proc', $context['unalterable_serialization_source_cid']);
           $file_metadata[] = [
             'cipher_text_fid' => $file->fid,
             'cipher_checksum' => $cipher_md5,
@@ -87,7 +88,27 @@ function proc_storage_cipher_serialize_alter(&$cipher, $context) {
     }
   }
   else {
-    // We want to store it back in the database if it is not yet there:
+    // We want to store it back in the database if it is not yet there.
+    // Therefore, if there was a file usage added, it will be removed:
+    if ($context['unalterable_serialization_source_cid']){
+      $query = db_select('file_usage', 'fu')
+        ->fields('fu', array('fid'))
+        ->condition('fu.module', 'proc_storage')
+        ->condition('fu.id', $context['unalterable_serialization_source_cid']);
+      $fids = $query->execute()->fetchAll();
+
+      if (!empty($fids)){
+        $fids_array = array();
+        foreach ($fids as $fid){
+          $fids_array[] = $fid->fid;
+        }
+        if ($file_objects = file_load_multiple($fids_array)){
+          foreach ($file_objects as $file_object){
+            file_usage_delete($file_object, 'proc_storage', NULL, NULL, 1);
+          }
+        }
+      }
+    }
     $cipher_data = unserialize($cipher);
   }
 }
