@@ -427,6 +427,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
     $watchdog_args = array('@type' => 'proc_ciphertxt', '%pid' => $entity->pid);
     watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
+
   }
   else {
     $failure_encryption_message = t('Sorry. Cipher text of your file has not been saved. Close other tabs in your browser to release some memory and try again.');
@@ -448,7 +449,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   }
 
   cache_clear_all(NULL, 'cache_form', TRUE);
-  module_invoke_all('cipher_postsave', $entity->pid, $form_state);
+  module_invoke_all('cipher_postsave', $entity->pid, $form_state, $entity);
   $commands[] = ajax_command_remove('div.messages');
   $commands[] = ajax_command_before('#main-content', theme('status_messages'));
   ajax_deliver(array('#type' => 'ajax', '#commands' => $commands));

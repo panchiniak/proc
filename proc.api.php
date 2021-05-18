@@ -12,8 +12,10 @@
  *   Protected Content entity ID of created cipher text.
  * @param array $form_state
  *   Form state from cipher text submit.
+ * @param array $entity
+ *   Complete protected content entity object.
  */
-function hook_cipher_postsave(string $pid, array $form_state) {
+function hook_cipher_postsave(string $pid, array $form_state, array $entity) {
 }
 
 /**
