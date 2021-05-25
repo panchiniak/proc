@@ -361,7 +361,7 @@ function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
 
   $privkey = _proc_get_keys($user->uid)['encrypted_private_key'];
   foreach ($cids as $cid) {
-    $cid_cipher[$cid] = _proc_get_cipher((int) $cid, $form, $form_state, $metadata_only);
+    $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
   }
   $form_pass = array(
     '#type' => 'password',

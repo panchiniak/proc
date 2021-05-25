@@ -226,8 +226,8 @@ function _proc_storage_settings_form_validate($form, &$form_state) {
 /**
  * Implements hook_cipher_postsave()
  */
-function proc_storage_cipher_postsave(&$pid, $form_state, $entity){
-  $proc_storage_placement_settings = _proc_storage_get_placement_settings($cipher, $context);
+function proc_storage_cipher_postsave($pid, $form_state, $entity){
+  $proc_storage_placement_settings = _proc_storage_get_placement_settings($entity, $form_state);
   if (isset($pid) && $proc_storage_placement_settings['proc_storage_enabled'] == 1){
     if (
       $cid = unserialize($entity->proc_armored[LANGUAGE_NONE][0]['value'])[0]['cipher_text_fid'] &&
