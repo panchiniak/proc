@@ -319,6 +319,11 @@ function _proc_generate_keys($form, &$form_state) {
  */
 function _proc_generate_keys_submit($form, &$form_state) {
   global $user;
+
+  if ($destination = drupal_get_destination()) {
+    $form_state['redirect'] = $destination;
+  }
+
   // Prepare the form values for submission.
   $keyring_data = array(
     'public_key'            => check_plain($form_state['values']['public_key']),
