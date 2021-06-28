@@ -20,6 +20,7 @@
                 let procJsLabels        = Drupal.settings.proc.proc_labels,
                     files               = evt.target.files,
                     postMaxSizeBytes    = Drupal.settings.proc.proc_post_max_size_bytes,
+                    fileEntityMaxSize   = parseInt(Drupal.settings.proc.proc_file_entity_max_filesize, 10),
                     fileSize            = parseInt(files[0].size, 10),
                     postMaxSizeBytesInt = parseInt(postMaxSizeBytes, 10),
                     // Assuming ciphertexts are at least 4 times bigger than
@@ -29,8 +30,12 @@
                 document.getElementById('edit-button').value = procJsLabels.proc_button_state_processing;
                 $('label[for=edit-pc-upload-description]')[0].innerText = `${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit} - ${procJsLabels.proc_type} ${files[0].type} - ${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
 
-                if (fileSize > dynamicMaximumSize) {
-                    $("form#-proc-encrypt-file").prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${dynamicMaximumSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
+                let realMaxSize = dynamicMaximumSize;
+                if (fileSize > dynamicMaximumSize || fileSize > fileEntityMaxSize) {
+                    if (fileEntityMaxSize < dynamicMaximumSize){
+                        realMaxSize = fileEntityMaxSize;
+                    }
+                    $("form#-proc-encrypt-file").prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
                     document.getElementById('edit-button').value = procJsLabels.proc_save_button_label;
                     return;
                 }
