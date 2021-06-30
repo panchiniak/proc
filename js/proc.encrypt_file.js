@@ -28,7 +28,10 @@
                     dynamicMaximumSize  = postMaxSizeBytesInt / 4;
 
                 document.getElementById('edit-button').value = procJsLabels.proc_button_state_processing;
-                $('label[for=edit-pc-upload-description]')[0].innerText = `${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit} - ${procJsLabels.proc_type} ${files[0].type} - ${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
+                $('label[for=edit-pc-upload-description]')[0].innerText =
+                `${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit}
+                ${procJsLabels.proc_type} ${files[0].type}
+                ${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
 
                 let realMaxSize = dynamicMaximumSize;
                 if (fileSize > dynamicMaximumSize || fileSize > fileEntityMaxSize) {
