@@ -482,7 +482,7 @@ function _proc_js_labels() {
     'proc_save_button_label'          => t('Save'),
     'proc_size'                       => t('Size:'),
     'proc_type'                       => t('Type:'),
-    'proc_last_modified'              => t('Last mofied:'),
+    'proc_last_modified'              => t('Last modified:'),
     'proc_minimal_password_strenght'  => t('Strong'),
     'proc_generate_keys_submit_label' => t('Generate encryption keys'),
     'proc_submit_saving_state'        => t('Saving...'),
