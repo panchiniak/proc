@@ -1,6 +1,6 @@
 /**
  * @file
- * Encryption of file given a public PGP armored key.
+ * Signature of file given keyrings of sender and recipients.
  */
 
 (function ($) {
@@ -87,7 +87,6 @@
                         openpgp.config.debug        = false;
                         openpgp.config.show_comment = false;
                         openpgp.config.show_version = false;
-                        openpgp.config.allow_insecure_decryption_with_signing_keys = true;
 
                         for (userIdIterator in recipientsUidsKeysChanged) {
                             let localKey = localStorage.getItem(`proc.key_user_id.${userIdIterator}.${recipientsUidsKeysChanged[userIdIterator]}`);
@@ -130,7 +129,6 @@
                                             catch (error){
                                                 console.warn(error);
                                             }
-
                                         }
                                     );
                                 }
@@ -182,8 +180,6 @@
                                     throw new Error('Signature could not be verified');                                }
                             }
                         );
-                        // const signatureRead = await openpgp.stream.readToEnd(verified.data);
-                        // const test = new TextDecoder("utf-8").decode(signatureRead);
 
                         const ciphertext = signedArmored;
                         let endSeconds = new Date().getTime() / 1000,
