@@ -2,7 +2,7 @@
  * @file
  * Decrypts cipher texts into a file given a correct privkey passphrase.
  */
-(function ($) {
+ (function ($) {
     'use strict';
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
@@ -14,7 +14,8 @@
                 ciphersChanged    = Drupal.settings.proc.procs_changed,
                 sourcesFileNames  = Drupal.settings.proc.proc_sources_file_names,
                 sourcesFilesSizes = Drupal.settings.proc.proc_sources_file_sizes,
-                fileApiErrMsg     = Drupal.settings.proc.proc_fileapi_err_msg;
+                fileApiErrMsg     = Drupal.settings.proc.proc_fileapi_err_msg,
+                ciphersSigned     = Drupal.settings.proc.proc_signed;
 
             let procURLs = [];
 
@@ -116,20 +117,91 @@
                                         response.json().then(async function (data){
                                             let cipherText = data.ciphers[0];
 
-                                            const
-                                                optionsDecription = {
+                                            let decrypted;
+
+                                            let expectedSignedValue = false,
+                                                response,
+                                                pubkeysJson;
+
+                                            let pubKeyObj;
+
+                                            if (ciphersSigned[cipherIndex] != 0){
+
+                                                expectedSignedValue = true;
+                                                response = await fetch(
+                                                    `${window.location.origin + Drupal.settings.basePath}proc/api/getpubkey/${ciphersSigned[cipherIndex]}/pid`
+                                                );
+                                                pubkeysJson = await response.json();
+                                                pubKeyObj = (await openpgp.key.readArmored(pubkeysJson.pubkey[0].key)).keys[0];
+
+                                                const optionsVerify = {
                                                     message: await openpgp.message.readArmored(cipherText).catch(
                                                         function (err) {
                                                             let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
                                                             $('form#-proc-decrypt-to-file').prepend(messageError);
                                                         }
                                                     ),
-                                                    privateKeys: [privKeyObj],
+                                                    publicKeys: pubKeyObj,
+                                                    // compression: openpgp.enums.compression.zip,
+                                                };
+                                                // const verified = await openpgp.verify(optionsVerify);
+                                                decrypted = await openpgp.verify(optionsVerify);
+
+
+                                                decrypted.signatures[0].verified.then(
+                                                    (val) => {
+                                                        if (val) {
+                                                            console.log('signed by key id ' + decrypted.signatures[0].keyid.toHex());
+                                                        } else {
+                                                            $('form#-proc-sign-file').prepend(`<div class="messages error">${Drupal.t('Signature could not be verified')}</div>`);
+                                                            throw new Error('Signature could not be verified');                                                        }
+                                                    }
+                                                );
+                                                if (decrypted){
+                                                    const
+                                                        plaintext = await openpgp.stream.readToEnd(decrypted.data),
+                                                        blob = new Blob(
+                                                            [plaintext], {
+                                                                type: 'application/octet-binary',
+                                                                endings: 'native'
+                                                            }
+                                                        ),
+                                                        link = $('#decryption-link');
+
+                                                    temporaryDownloadLink.setAttribute( 'href', URL.createObjectURL(blob));
+                                                    let openActionLabel = procJsLabels.proc_open_file_state;
+                                                    if (link.text() != openActionLabel) {
+                                                        link.text(openActionLabel);
+                                                        // Highlight the link for better UX
+                                                        link.removeClass('active');
+                                                        $('.messages').after(`<div class="messages status" id="proc-decrypting-status">${procJsLabels.proc_decryption_success}</div>`);
+                                                    }
+                                                    // Check if file generated is the same size of source file.
+                                                    if (blob.size.toString() === sourcesFilesSizes[cipherIndex]) {
+                                                        // Restore original file name:
+                                                        temporaryDownloadLink.setAttribute( 'download', sourcesFileNames[cipherIndex]);
+                                                        temporaryDownloadLink.click();
+                                                    } else {
+                                                        // @TODO: save error log.
+                                                        $('form#-proc-decrypt-to-file').prepend(`<div class="messages error">${procJsLabels.proc_decryption_size_mismatch}</div>`);
+                                                    }
+                                                }
+                                            }
+                                            else{
+                                                const optionsDecription = {
+                                                    message: await openpgp.message.readArmored(cipherText).catch(
+                                                        function (err) {
+                                                            let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
+                                                            $('form#-proc-decrypt-to-file').prepend(messageError);
+                                                        }
+                                                    ),
+                                                    privateKeys: [privKeyObj],                                                    expectSigned: expectedSignedValue,
+                                                    publicKeys: [pubKeyObj],
                                                     // For the sake of simplicity all files are considered binary.
                                                     format: 'binary'
                                                 },
-                                                decrypted = await openpgp.decrypt(optionsDecription).catch(
-                                                    function (err) {
+                                                // {data: decrypted, signatures} = await openpgp.decrypt(optionsDecription).catch(
+                                                decrypted = await openpgp.decrypt(optionsDecription).catch(                                                    function (err) {
                                                         let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
                                                         $('form#-proc-decrypt-to-file').prepend(messageError);
                                                         $(":focus").blur();
@@ -148,9 +220,7 @@
                                                             }
                                                         ),
                                                         link = $('#decryption-link');
-
                                                     temporaryDownloadLink.setAttribute( 'href', URL.createObjectURL(blob));
-
                                                     let openActionLabel = procJsLabels.proc_open_file_state;
                                                     if (link.text() != openActionLabel) {
                                                         link.text(openActionLabel);
@@ -158,7 +228,6 @@
                                                         link.removeClass('active');
                                                         $('.messages').after(`<div class="messages status" id="proc-decrypting-status">${procJsLabels.proc_decryption_success}</div>`);
                                                     }
-
                                                     // Check if file generated is the same size of source file.
                                                     if (blob.size.toString() === sourcesFilesSizes[cipherIndex]) {
                                                         // Restore original file name:
@@ -168,7 +237,7 @@
                                                         // @TODO: save error log.
                                                         $('form#-proc-decrypt-to-file').prepend(`<div class="messages error">${procJsLabels.proc_decryption_size_mismatch}</div>`);
                                                     }
-                                                }
+                                                }                                            }
                                         });
                                     }
                                 );

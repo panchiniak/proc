@@ -61,7 +61,7 @@ function proc_schema() {
         'type' => 'text',
         'size' => 'normal',
         'not null' => TRUE,
-        'default' => '0',
+        'default' => NULL,
       ),
     ),
     'primary key' => array('pid'),

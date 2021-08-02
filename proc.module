@@ -96,13 +96,22 @@ function proc_menu() {
     'access arguments' => array(3),
     'file' => 'inc/proc.functions.inc',
   );
-  $items['proc/api/getpubkey/%'] = array(
+  $items['proc/api/getpubkey/%/%'] = array(
     'title' => 'Get Public Key',
     'page callback' => '_proc_get_pubkey_menu_callback',
-    'page arguments' => [3],
+    'page arguments' => [3, 4],
     'access arguments' => array('new protected file'),
     'file' => 'inc/proc.functions.inc',
   );
+  $items['proc/sign/%'] = array(
+    'title' => 'Sign a file',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_proc_sign_file', 2),
+    'access arguments' => array('new protected file'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'inc/proc.forms.inc',
+  );
+
 
   return $items;
 }

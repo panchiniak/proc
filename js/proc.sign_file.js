@@ -7,6 +7,12 @@
     'use strict';
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
+            let procJsLabels      = Drupal.settings.proc.proc_labels,
+                passDrupal        = Drupal.settings.proc.proc_pass,
+                privkey           = Drupal.settings.proc.proc_privkey,
+                keyRingId         = Drupal.settings.proc.proc_keyring_id;
+
+            let authorPubkey = $('input[name=author_pubkey]')[0].value;
 
             if (!(window.FileReader)) {
                 alert(procJsLabels.proc_fileapi_err_msg);
@@ -38,7 +44,7 @@
                     if (fileEntityMaxSize < dynamicMaximumSize){
                         realMaxSize = fileEntityMaxSize;
                     }
-                    $("form#-proc-encrypt-file").prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
+                    $("form#-proc-sign-file").prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
                     document.getElementById('edit-button').value = procJsLabels.proc_save_button_label;
                     return;
                 }
@@ -50,6 +56,19 @@
                 reader.readAsArrayBuffer(myFile);
                 reader.onloadend = async function (evt) {
                     if (evt.target.readyState == FileReader.DONE) {
+
+                        let passphrase       = passDrupal.concat($('input[name=pass]')[0].value);
+                        const privKeyObj = (await openpgp.key.readArmored(privkey)).keys[0];
+
+                        await privKeyObj.decrypt(passphrase).catch(
+                            function (err) {
+                                $('form#-proc-sign-file').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
+                            }
+                        );
+
+                        if (!$('#proc-decrypting-info')[0]) {
+                            $('form#-proc-sign-file').prepend(procJsLabels.proc_introducing_decryption);
+                        }
 
                         const recipientsPubkeys = [];
 
@@ -68,6 +87,7 @@
                         openpgp.config.debug        = false;
                         openpgp.config.show_comment = false;
                         openpgp.config.show_version = false;
+                        openpgp.config.allow_insecure_decryption_with_signing_keys = true;
 
                         for (userIdIterator in recipientsUidsKeysChanged) {
                             let localKey = localStorage.getItem(`proc.key_user_id.${userIdIterator}.${recipientsUidsKeysChanged[userIdIterator]}`);
@@ -138,20 +158,38 @@
                         const options = {
                             message: openpgp.message.fromBinary(readableStream),
                             publicKeys: recipientsKeys,
-                            compression: openpgp.enums.compression.zip
+                            compression: openpgp.enums.compression.zip,
+                            privateKeys: privKeyObj,
                         };
 
                         let startSeconds = new Date().getTime() / 1000;
 
-                        const encrypted       = await openpgp.encrypt(options),
-                              ciphertext      = encrypted.data,
-                              // Warning: Readable Stream expires if used twice.
-                              cipherPlaintext = await openpgp.stream.readToEnd(ciphertext);
+                        const encrypted = await openpgp.sign(options);
+                        const signedArmored = await openpgp.stream.readToEnd(encrypted.data);
 
+                        const optionsVerify = {
+                            message: await openpgp.message.readArmored(signedArmored),
+                            publicKeys: (await openpgp.key.readArmored(authorPubkey)).keys[0],
+                            compression: openpgp.enums.compression.zip,
+                        };
+                        const verified = await openpgp.verify(optionsVerify);
+                        verified.signatures[0].verified.then(
+                            (val) => {
+                                if (val) {
+                                    console.log('signed by key id ' + verified.signatures[0].keyid.toHex());
+                                } else {
+                                    $('form#-proc-sign-file').prepend(`<div class="messages error">${Drupal.t('Signature could not be verified')}</div>`);
+                                    throw new Error('Signature could not be verified');                                }
+                            }
+                        );
+                        // const signatureRead = await openpgp.stream.readToEnd(verified.data);
+                        // const test = new TextDecoder("utf-8").decode(signatureRead);
+
+                        const ciphertext = signedArmored;
                         let endSeconds = new Date().getTime() / 1000,
                             total = endSeconds - startSeconds;
 
-                        $('input[name=cipher_text]')[0].value = cipherPlaintext;
+                        $('input[name=cipher_text]')[0].value = ciphertext;
                         $('input[name=source_file_name]')[0].value = files[0].name;
                         $('input[name=source_file_size]')[0].value = files[0].size;
                         $('input[name=source_file_type]')[0].value = files[0].type;
@@ -159,7 +197,10 @@
                         $('input[name=browser_fingerprint]')[0].value = `${navigator.userAgent}, (${screen.width} x ${screen.height})`;
                         $('input[name=generation_timestamp]')[0].value = startSeconds;
                         $('input[name=generation_timespan]')[0].value = total;
-                        $('input[name=signed]')[0].value = 0;
+                        // Use keyRingID for allowing a verification fall back to older keyrings.
+                        // If the current key is updated, it should still be possible by default
+                        // to verify previously signed content:
+                        $('input[name=signed]')[0].value = keyRingId;
                         document.getElementById('edit-button').removeAttribute("disabled");
                         document.getElementById('edit-button').value = procJsLabels.proc_save_button_label;
                     }

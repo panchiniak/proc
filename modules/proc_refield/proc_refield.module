@@ -243,7 +243,7 @@ function proc_refield_page_alter(&$page) {
 function proc_refield_get_cipher_text_alter(&$cipher_text_data, $context) {
   global $user;
   // If cipher has been created previously to the creation of latest user's key:
-  if ($context['unalterable_cipher_object']->changed->value() < _proc_get_keys($user->uid)['changed']){
+  if ($context['unalterable_cipher_object']->changed->value() < _proc_get_keys($user->uid, 'uid')['changed']){
     $expired_encryption_alert = t(
       'You\'ve lost access to previously encrypted <b>@file-name (@file-id)</b> file due to recent generation or modification of your encryption key.',
       array(

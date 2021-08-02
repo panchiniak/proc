@@ -27,16 +27,21 @@ function _proc_browser_supported() {
 /**
  * Helper function for retrieval of pubkeys.
  *
- * @param array $users
- *   UIDs.
+ * @param array $items
+ *   UIDs | PIDs.
+ * @param string $type
+ *   uid (default) | pid.
  *
  * @return array
  *   Array containing pubkeys.
  */
-function _proc_get_pubkeys(array $users) {
+function _proc_get_pubkeys(array $items, string $type) {
+  if (!isset($type)) {
+    $type = 'uid';
+  }
   $pubkeys = array();
-  foreach ($users as $recipient) {
-    $key_data = _proc_get_keys($recipient);
+  foreach ($items as $item) {
+    $key_data = _proc_get_keys($item, $type);
     $pubkeys[] = [
       'key' => $key_data['public_key'],
       'changed' => $key_data['changed'],
@@ -110,19 +115,24 @@ function _proc_lib_load() {
 /**
  * Helper function to get keyring data.
  *
- * @param string $user_id
- *   User ID.
+ * @param string $item_id
+ *   User ID | Proc ID.
+ * @param string $type
+ *   uid (default) | pid.
  *
  * @return array
  *   Array containing pubkey and encrypted privkey.
  */
-function _proc_get_keys($user_id) {
+function _proc_get_keys($item_id, $type) {
+  if (!isset($type)) {
+    $type = 'uid';
+  }
 
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'proc')
     ->entityCondition('bundle', 'proc_keyring')
-    ->propertyCondition('uid', $user_id)
+    ->propertyCondition($type, $item_id)
     ->propertyOrderBy('pid', 'DESC')
     ->range(0, 1);
   $result = $query->execute();
@@ -137,12 +147,13 @@ function _proc_get_keys($user_id) {
     $keyring_keys['public_key'] = $keyring['public_key'];
     $keyring_keys['created'] = $keyring_created;
     $keyring_keys['changed'] = $keyring_changed;
+    $keyring_keys['keyring_cid'] = array_keys($result['proc'])[0];
     return $keyring_keys;
   }
 }
 
 /**
- * Helper function to get given ciphertext that belongs to current user.
+ * Helper function to get given ciphertext decryptable by the current user.
  *
  * @param string $cid
  *   Ciphertext ID (proc entity).
@@ -197,6 +208,12 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
   $cipher_text_data['proc_owner_uid']   = check_plain($proc_wrapper->proc_armoredown->value()->uid);
   $cipher_text_data['proc_recipients']  = $proc_wrapper->proc_recipient->value();
   $cipher_text_data['changed']          = $proc_wrapper->changed->value();
+  if (check_plain(unserialize($proc_wrapper->meta->value())['signed'])) {
+    $cipher_text_data['signed'] = check_plain(unserialize($proc_wrapper->meta->value())['signed']);
+  }
+  else {
+    $cipher_text_data['signed'] = 0;
+  }
 
   if (!$form) {
     $form = new stdClass();
@@ -296,7 +313,7 @@ function _proc_recipient_multiple($cids_csv) {
 }
 
 /**
- * Helper function to get max file size for encryptio in bytes.
+ * Helper function to get max file size for encryption in bytes.
  *
  * @return string
  *   Dimicaly deined max file size.
@@ -348,7 +365,7 @@ function _proc_get_fileapi_err_msg() {
 }
 
 /**
- * Helper common function to get ciphers for decryption.
+ * Helper common function to get ciphers for decryption, signature.
  *
  * @param array $cids
  *   List of cids.
@@ -359,20 +376,26 @@ function _proc_get_fileapi_err_msg() {
 function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
   global $user;
 
-  $privkey = _proc_get_keys($user->uid)['encrypted_private_key'];
+  $keyring = _proc_get_keys($user->uid, 'uid');
+
+  $privkey = $keyring['encrypted_private_key'];
+  $pubkey  = $keyring['public_key'];
+
   foreach ($cids as $cid) {
     $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
   }
   $form_pass = array(
-    '#type' => 'password',
-    '#title' => t('Protected Content Password'),
+    '#type'        => 'password',
+    '#title'       => t('Protected Content Password'),
     '#description' => t('You must type in the password you have used when registering your Protected Content Key.'),
-    '#required' => TRUE,
+    '#required'    => TRUE,
   );
   return [
-    'privkey' => $privkey,
-    'ciphers' => $cid_cipher,
-    'form_pass' => $form_pass,
+    'privkey'     => $privkey,
+    'keyring_cid' => $keyring['keyring_cid'],
+    'ciphers'     => $cid_cipher,
+    'form_pass'   => $form_pass,
+    'pubkey'      => $pubkey,
   ];
 }
 
@@ -386,7 +409,7 @@ function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
  *   Array containing pubkeys and max file size.
  */
 function _proc_common_get_pubkeys(array $uids) {
-  $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids));
+  $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids, 'uid'));
   // If some UID does not return keys:
   if (empty($recipients_pubkeys) || (count($uids) != count($recipients_pubkeys))) {
     drupal_not_found();
@@ -461,12 +484,18 @@ function _proc_get_proc_menu_callback($pids) {
 /**
  * Helper callback for getting pubkeys on ajax.
  *
- * @param string $uids
- *   String containnig user IDs as csv.
+ * @param string $items
+ *   String containnig user IDs or proc IDs as csv.
+ * @param string $type
+ *   uid (default) | pid.
  */
-function _proc_get_pubkey_menu_callback($uids) {
-  $uids_array = _proc_get_csv_argument($uids);
-  $pubkeys = _proc_get_pubkeys($uids_array);
+function _proc_get_pubkey_menu_callback($items, $type) {
+  $type = check_plain($type);
+  if (!isset($type)) {
+    $type = 'uid';
+  }
+  $items_array = _proc_get_csv_argument($items);
+  $pubkeys = _proc_get_pubkeys($items_array, $type);
   drupal_json_output(array('pubkey' => $pubkeys));
 }
 
