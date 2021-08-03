@@ -67,7 +67,7 @@
                         );
 
                         if (!$('#proc-decrypting-info')[0]) {
-                            $('form#-proc-sign-file').prepend(procJsLabels.proc_introducing_decryption);
+                            $('form#-proc-sign-file').prepend(`<div class="messages info proc-info" id="proc-decrypting-info">${procJsLabels.proc_introducing_signature}</div>`);
                         }
 
                         const recipientsPubkeys = [];

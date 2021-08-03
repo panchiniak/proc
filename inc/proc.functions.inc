@@ -522,6 +522,7 @@ function _proc_js_labels() {
     'proc_decryption_success'         => t('Decryption successful.'),
     'proc_decryption_size_mismatch'   => t('Error: size mismatch.'),
     'proc_button_update_label'        => t('Update'),
+    'proc_introducing_signature'      => t('Indroducing key passphrase for signature...'),
   );
 }
 
