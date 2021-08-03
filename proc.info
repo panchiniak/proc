@@ -3,9 +3,9 @@ description = "Client side encryption for content"
 core = 7.x
 package = Cryptography
 
-crypto_library_versionstring = "OpenPGP.js v4.7.2"
+crypto_library_versionstring = "OpenPGP.js v4.10.10"
 crypto_library_vendor = "https://openpgpjs.org"
-crypto_library_url = "https://github.com/openpgpjs/openpgpjs/archive/v4.7.2.zip"
+crypto_library_url = "https://github.com/openpgpjs/openpgpjs/archive/v4.10.10.zip"
 crypto_library_folder = "openpgpjs"
 yellow_flag_browsers_csv = "Internet Explorer,Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko,Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko"
 crypto_library_file = "dist/openpgp.min.js"

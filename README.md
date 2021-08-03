@@ -32,7 +32,7 @@ It is very simple to use. Once it is installed (see Installation below):
 
 REQUIREMENTS
 ------------
-OpenPGP.js v4.7.2
+OpenPGP.js v4.10.10
 
 INSTALLATION
 ------------
