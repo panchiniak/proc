@@ -18,6 +18,15 @@
                 alert(procJsLabels.proc_fileapi_err_msg);
             }
 
+            // Reset messages and action.
+            $('input#edit-pass').once().on(
+                'focusin', function () {
+                    $('.messages').remove();
+                    this.value = '';
+                }
+            );
+
+
             if (document.getElementById('edit-button')) {
                 document.getElementById('edit-button').disabled = "TRUE";
             }
@@ -63,6 +72,7 @@
                         await privKeyObj.decrypt(passphrase).catch(
                             function (err) {
                                 $('form#-proc-sign-file').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
+                                throw new Error('Could not decrypt private key.');
                             }
                         );
 
@@ -177,7 +187,8 @@
                                     console.log('signed by key id ' + verified.signatures[0].keyid.toHex());
                                 } else {
                                     $('form#-proc-sign-file').prepend(`<div class="messages error">${Drupal.t('Signature could not be verified')}</div>`);
-                                    throw new Error('Signature could not be verified');                                }
+                                    throw new Error('Signature could not be verified');
+                                }
                             }
                         );
 

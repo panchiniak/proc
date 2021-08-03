@@ -504,7 +504,7 @@ function _proc_get_pubkey_menu_callback($items, $type) {
  */
 function _proc_js_labels() {
   return array(
-    'proc_fileapi_err_msg'            => t('Your browser does not suppor file API.'),
+    'proc_fileapi_err_msg'            => t('Your browser does not support file API.'),
     'proc_button_state_processing'    => t('Processing...'),
     'proc_max_encryption_size'        => t('Error. Maximum file size allowed:'),
     'proc_max_encryption_size_unit'   => t('bytes'),
