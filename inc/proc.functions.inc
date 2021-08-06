@@ -30,7 +30,7 @@ function _proc_browser_supported() {
  * @param array $items
  *   UIDs | PIDs.
  * @param string $type
- *   uid (default) | pid.
+ *   Uid (default) | pid.
  *
  * @return array
  *   Array containing pubkeys.
@@ -118,7 +118,7 @@ function _proc_lib_load() {
  * @param string $item_id
  *   User ID | Proc ID.
  * @param string $type
- *   uid (default) | pid.
+ *   Uid (default) | pid.
  *
  * @return array
  *   Array containing pubkey and encrypted privkey.
@@ -487,7 +487,7 @@ function _proc_get_proc_menu_callback($pids) {
  * @param string $items
  *   String containnig user IDs or proc IDs as csv.
  * @param string $type
- *   uid (default) | pid.
+ *   Uid (default) | pid.
  */
 function _proc_get_pubkey_menu_callback($items, $type) {
   $type = check_plain($type);
