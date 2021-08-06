@@ -12,8 +12,6 @@
                 privkey           = Drupal.settings.proc.proc_privkey,
                 keyRingId         = Drupal.settings.proc.proc_keyring_id;
 
-            let authorPubkey = $('input[name=author_pubkey]')[0].value;
-
             if (!(window.FileReader)) {
                 alert(procJsLabels.proc_fileapi_err_msg);
             }
@@ -174,6 +172,8 @@
 
                         const encrypted = await openpgp.sign(options);
                         const signedArmored = await openpgp.stream.readToEnd(encrypted.data);
+
+                        let authorPubkey = $('input[name=author_pubkey]')[0].value;
 
                         const optionsVerify = {
                             message: await openpgp.message.readArmored(signedArmored),

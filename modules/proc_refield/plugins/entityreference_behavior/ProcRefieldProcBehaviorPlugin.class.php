@@ -25,10 +25,26 @@ class ProcRefieldProcBehaviorPlugin extends EntityReference_BehaviorHandler_Abst
       '#collapsible' => FALSE,
       '#collapsed' => FALSE,
     );
+    $crypto_mode_default = 0;
+    if (isset($instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'])) {
+      if (isset($instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'][1])) {
+        $crypto_mode_default = $instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'][1];
+      }
+      else {
+        $crypto_mode_default = $instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'];
+      }
+    }
+
     $form['onclick']['enable'] = array(
-      '#type' => 'checkboxes',
-      '#options' => array('1' => t('Enabled')),
-      '#default_value' => isset($instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable']) ? $instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'] : 0,
+      '#title' => t('Encryption operation'),
+      '#description' => t('Chose the encryption operation. Signing requires encryption keys from the author.'),
+      '#type' => 'radios',
+      '#options' => array(
+        '0' => t('Disabled'),
+        '1' => t('Simple encryption'),
+        '2' => t('Encryption and signature'),
+      ),
+      '#default_value' => $crypto_mode_default,
     );
     $form['onclick']['fetcher'] = array(
       '#type' => 'select',

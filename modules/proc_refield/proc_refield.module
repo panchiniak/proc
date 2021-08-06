@@ -37,11 +37,21 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
 
   $field_instance = field_info_instance($element['target_id']['#entity_type'], $element['target_id']['#field_name'], $element['target_id']['#bundle']);
 
+  $encryption_operarion = 0;
+
   if (
-    isset($field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']) &&
-    $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'][1] == '1'
+    isset($field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'][1]) ||
+    $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'] == 1
   ) {
-    $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('Add a file') . '</span>';
+    $encryption_operarion = 'add';
+    $encryption_form_id = '-proc-encrypt-file';
+  }
+  if ($field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'] == 2){
+    $encryption_operarion = 'sign';
+    $encryption_form_id = '-proc-encrypt-file';
+  }
+  if ($encryption_operarion) {
+    $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('@operation a file', ['@operation' => ucfirst($encryption_operarion)]) . '</span>';
     // Default value and path are avaialble to be changed at hooks alter:
     $recipients_argument['value'] = 'NULL';
     $recipients_argument['path'] = 'proc/recipients';
@@ -77,7 +87,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
           'data-dialog-width' => '400',
           'id' => ['add-file-proc-link-' . $element['target_id']['#field_name']],
           'rel' => ['[center,60]'],
-          'name' => ['-proc-encrypt-file'],
+          'name' => [$encryption_form_id],
           'title' => t('File encryption'),
           'onclick' => $proc_message_fetcher_arguments . "
             var inputElementId = this.parentNode.previousElementSibling.previousElementSibling.id;
@@ -89,7 +99,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
             let procAddFilePathPrefix =
               window.location.origin +
               Drupal.settings.basePath +
-              'proc/add/';
+              'proc/" . $encryption_operarion . "/';
 
             let procAddFilePathSufix =
               '?proc_refield=' + procOriginModuleName +
@@ -195,7 +205,6 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
       // Concatenate the description before encryption operations:
       $element['target_id']['#description'] = $field_instance['description'] . '<div>' . $proc_file_op . '</div>';
     }
-
   }
 }
 
