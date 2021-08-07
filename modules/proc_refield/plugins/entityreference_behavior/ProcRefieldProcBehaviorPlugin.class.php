@@ -37,7 +37,7 @@ class ProcRefieldProcBehaviorPlugin extends EntityReference_BehaviorHandler_Abst
 
     $form['onclick']['enable'] = array(
       '#title' => t('Encryption operation'),
-      '#description' => t('Chose the encryption operation. Signing requires encryption keys from the author.'),
+      '#description' => t('Choose the encryption operation. Signing requires encryption keys from the author.'),
       '#type' => 'radios',
       '#options' => array(
         '0' => t('Disabled'),

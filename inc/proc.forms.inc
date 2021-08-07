@@ -549,7 +549,7 @@ function _proc_sign_file($form, &$form_state, $uids) {
 
   $form['pc-upload-description'] = array(
     '#type' => 'item',
-    '#title' => t('Chose a file to encrypt and sign'),
+    '#title' => t('Choose a file to encrypt and sign'),
   );
 
   $hidden_fields = array(
