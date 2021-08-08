@@ -30,9 +30,10 @@ Install as usual.
 
 CONFIGURATION
 -------------
-Create an entity reference field, set autocomplete widget, check Enabled
-its Protected Content API and choose a user reference view as recipients
-fetcher. Check the API for adding a different widget.
+Create an entity reference field, set autocomplete widget, choose Disabled,
+Simple encryption or Encryption with Signature at Protected Content API.
+You may also to choose a user reference view as recipients fetcher.
+Check the API for implementing thefuncionality with different widgets.
 
 FUTURE ROADMAP
 --------------

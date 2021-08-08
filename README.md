@@ -21,8 +21,7 @@ It is very simple to use. Once it is installed (see Installation below):
  * Access proc/keyring/add to generate keys for the current user.
 
  * Access proc/add/&lt;uids_csv&gt; to encrypt a file for the users identified
-   in &lt;uids_csv&gt; (a comma separated values list of user IDs). Protect
-   Content will provide an Exclusive Access Link for the recipients to decrypt
+   in &lt;uids_csv&gt; (a comma separated values list of user IDs), proc/add/&lt;uids_csv&gt; for encrypting with the author's signature. Protect Content will provide an Exclusive Access Link for the recipients to decrypt
    the file.
 
  * As recipient, access proc/update/&lt;pids_csv&gt;/&lt;uids_csv&gt; to
@@ -45,9 +44,7 @@ Current version doesn't require/allow configurations.
 
 FUTURE ROADMAP
 --------------
-Add support for text fields.
-Add status access control (published/unpublished).
-Add GUI page for updating the CSV of yellow flagged browser identification.
+Multiple signatures per file with recursive encryption.
 
 MAINTAINERS
 -----------
