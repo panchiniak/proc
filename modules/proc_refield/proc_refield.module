@@ -155,8 +155,8 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
     );
 
     $context['unalterable_field_instance'] = clone (object)  $field_instance;
-    $context['unalterable_form_element'] = clone (object) $element;
-  
+    $context['unalterable_form_element']   = clone (object) $element;
+    $context['unalterable_form_state']     = clone (object) $form_state;
     drupal_alter('add_proc_file_link', $add_file_link, $context);
 
     $proc_file_op = $add_file_link;
