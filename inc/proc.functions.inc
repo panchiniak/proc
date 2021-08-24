@@ -35,7 +35,7 @@ function _proc_browser_supported() {
  * @return array
  *   Array containing pubkeys.
  */
-function _proc_get_pubkeys(array $items, string $type) {
+function _proc_get_pubkeys(array $items, string $type = NULL) {
   if (!isset($type)) {
     $type = 'uid';
   }
@@ -123,7 +123,7 @@ function _proc_lib_load() {
  * @return array
  *   Array containing pubkey and encrypted privkey.
  */
-function _proc_get_keys($item_id, $type) {
+function _proc_get_keys(string $item_id, string $type = NULL) {
   if (!isset($type)) {
     $type = 'uid';
   }
