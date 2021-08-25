@@ -207,7 +207,7 @@ function proc_storage_switch_action(&$entity, $context = array()) {
  * Implements form validation
  */
 function _proc_storage_settings_form_validate($form, &$form_state) {
-  $local_stream_wrappers = array_unique(explode(',',$form_state['input']['proc_storage_global_stream_wrapper']));
+  $local_stream_wrappers = array_unique(explode(',',$form_state['values']['proc_storage_global_stream_wrapper']));
   foreach ($local_stream_wrappers as $local_stream_wrapper){
     if (
       !file_stream_wrapper_get_instance_by_uri($local_stream_wrapper) ||
