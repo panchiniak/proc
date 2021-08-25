@@ -66,7 +66,7 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
 
   $form['#attached']['js'][0]['data']['proc'] += $multiple_decryption_form_elements;
 
-  $get_proc_link_fragment = md5(drupal_random_bytes(32));
+  $get_proc_link_fragment = drupal_hash_base64(drupal_random_bytes(32));
   $get_proc_link = l(
         t('Decrypt'),
         current_path(),
