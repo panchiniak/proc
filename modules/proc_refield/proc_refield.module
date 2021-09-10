@@ -183,11 +183,13 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
           $decrypt_file_link_text,
           $proc_uri, [
             'attributes' => [
+              'class' => ['autodialog'],
+              'data-dialog-title' => t('View Protected Content'),
+              'data-dialog-width' => '400',
               'id' => ['decrypt-file-proc-link-' . $element['target_id']['#field_name']],
               'name' => ['-proc-decrypt-to-file'],
-              'title' => t('View Protected Content'),
-              'target' => '_blank',
             ],
+            'query' => ['proc_refield_field_id' => $element['target_id']['#field_name']],
             'html' => TRUE,
           ]
         );
