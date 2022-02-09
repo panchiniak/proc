@@ -460,6 +460,7 @@ function _proc_common_get_decryption_form_data($privkey) {
     'proc_name' => $user->name,
     'proc_privkey' => $privkey,
     'proc_labels' => _proc_js_labels(),
+    'proc_skip_size_mismatch' => variable_get('proc_skip_size_mismatch', FALSE),
   );
 
 }

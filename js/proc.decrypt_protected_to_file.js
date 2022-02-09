@@ -15,7 +15,8 @@
                 sourcesFileNames  = Drupal.settings.proc.proc_sources_file_names,
                 sourcesFilesSizes = Drupal.settings.proc.proc_sources_file_sizes,
                 fileApiErrMsg     = Drupal.settings.proc.proc_fileapi_err_msg,
-                ciphersSigned     = Drupal.settings.proc.proc_signed;
+                ciphersSigned     = Drupal.settings.proc.proc_signed,
+                skipSizeMismatch  = Drupal.settings.proc.proc_skip_size_mismatch;
 
             let procURLs = [];
 
@@ -38,7 +39,7 @@
                     $('.messages').after(`<div class="messages status" id="proc-decrypting-status">${procJsLabels.proc_decryption_success}</div>`);
                 }
                 // Check if file generated is the same size of source file.
-                if (blob.size.toString() === sourcesFilesSizes[cipherIndex]) {
+                if (blob.size.toString() === sourcesFilesSizes[cipherIndex] || skipSizeMismatch == true) {
                     // Restore original file name:
                     temporaryDownloadLink.setAttribute( 'download', sourcesFileNames[cipherIndex]);
                     temporaryDownloadLink.click();

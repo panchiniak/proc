@@ -148,6 +148,8 @@ function proc_uninstall() {
   field_delete_field('proc_recipient');
   field_delete_field('proc_armoredown');
   field_purge_batch(0);
+  variable_del('proc_skip_size_mismatch');
+  variable_del('proc_update_7003_memory_limit');
 }
 
 /**
