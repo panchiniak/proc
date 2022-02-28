@@ -45,3 +45,14 @@ function hook_add_proc_file_link_alter(string $add_file_link, array $context) {
  */
 function hook_decrypt_proc_file_link_alter(string $decrypt_file_link, array $context) {
 }
+
+/**
+ * Allow modules to alter the cipher owner verification of authors.
+ *
+ * @param array $all_current_recipients
+ *   Alterable array containin all current recipients.
+ * @param array $context
+ *   Unalterable context.
+ */
+function hook_emnies_proc_cipher_update_owner_check_alter(array $all_current_recipients, array $context) {
+}
