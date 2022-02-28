@@ -169,12 +169,14 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
         $delta = $element['_weight']['#default_value'];
       }
 
-      $proc_uri = entity_uri(
-        'proc', entity_load_single(
-          'proc',
-          $element['target_id']['#entity']->{$element['target_id']['#field_name']}[LANGUAGE_NONE][$delta]['target_id']
-        )
-      )['path'];
+      $proc_uri_entity = entity_load_single(
+        'proc',
+        $element['target_id']['#entity']->{$element['target_id']['#field_name']}[LANGUAGE_NONE][$delta]['target_id']
+      );
+
+      if ($proc_uri_entity) {
+        $proc_uri = entity_uri('proc', $proc_uri_entity)['path'];
+      }
 
       // If current user has access to uri and so user is authorized recipient:
       if ($proc_uri){

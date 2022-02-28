@@ -120,7 +120,7 @@ function _proc_update($form, &$form_state, $cids, $uids) {
   $recipients = array();
   foreach ($ciphers_data['ciphers'] as $cipher_data) {
     if ($cipher_data['proc_owner_uid'] != $user->uid) {
-      // Curent recipients:
+      // Current recipients:
       foreach ($cipher_data['proc_recipients'] as $recipient) {
         $recipients[] = $recipient->uid;
       }
@@ -128,6 +128,11 @@ function _proc_update($form, &$form_state, $cids, $uids) {
   }
   if (!empty($recipients)) {
     $all_current_recipients = array_unique($recipients);
+    $context = [
+      'unalterable_recipient_uids' => $uids,
+    ];
+    drupal_alter('cipher_update_owner_check', $all_current_recipients, $context);
+
     if (array_diff($all_current_recipients, $uids)) {
       drupal_access_denied();
     }
