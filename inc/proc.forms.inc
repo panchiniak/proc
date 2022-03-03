@@ -194,6 +194,10 @@ function _proc_update($form, &$form_state, $cids, $uids) {
  * Update proc cipher text entity submit callback.
  */
 function _proc_update_submit($form, &$form_state) {
+  if ($destination = drupal_get_destination()) {
+    $form_state['redirect'] = $destination;
+  }
+
   $recipients_uids_new = _proc_get_csv_argument($form_state['build_info']['args'][1]);
   asort($recipients_uids_new);
   $recipients_uids_new = array_values($recipients_uids_new);

@@ -318,6 +318,7 @@ function proc_access($op, $task, $account = NULL, $entity_type = NULL) {
 function proc_entity_update($entity, $type){
   if (isset($entity->changed) && $type == 'proc'){
     if ($entity->changed > $entity->original->changed){
+      module_invoke_all('cipher_update_postsave', $entity, $type);
       $success_update_message = t(
         'File %file_label (%file_id) updated successfully for %number_recipients user(s)',
         array(

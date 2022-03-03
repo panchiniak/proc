@@ -85,3 +85,14 @@ function hook_cipher_serialize_alter(array $cipher, array $context) {
  */
 function hook_cipher_unserialize_alter(array $cipher, array $context) {
 }
+
+/**
+ * Allow modules to act on update post save.
+ *
+ * @param array $entity
+ *   Protected Content entity.
+ * @param string $type
+ *   The type of entity being updated (i.e. node, user, comment).
+ */
+function hook_cipher_update_postsave(array $entity, string $type) {
+}
