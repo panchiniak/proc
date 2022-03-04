@@ -43,9 +43,8 @@
                     return;
                 }
 
-                let myFile        = files[0],
-                    reader        = new FileReader(),
-                    fileByteArray = [];
+                let myFile = files[0],
+                    reader = new FileReader();
 
                 reader.readAsArrayBuffer(myFile);
                 reader.onloadend = async function (evt) {
@@ -61,9 +60,6 @@
                             remoteKey                 = [],
                             userIdIterator;
 
-                        for (let i = 0; i < array.length; i++) {
-                            fileByteArray.push(array[i]);
-                        }
                         // False for production.
                         openpgp.config.debug        = false;
                         openpgp.config.show_comment = false;
