@@ -198,12 +198,12 @@ function _proc_update_submit($form, &$form_state) {
     $form_state['redirect'] = $destination;
   }
 
-  $recipients_uids_new = _proc_get_csv_argument($form_state['build_info']['args'][1]);
-  asort($recipients_uids_new);
-  $recipients_uids_new = array_values($recipients_uids_new);
+  $recipients_uids = _proc_get_csv_argument($form_state['build_info']['args'][1]);
+  asort($recipients_uids);
+  $recipients_uids = array_values($recipients_uids);
 
   foreach ($form['#attached']['js'][0]['data']['proc']['proc_ciphers_index'] as $cid) {
-    _proc_update_ciphertext($cid, $form, $form_state, $recipients_uids_new);
+    _proc_update_ciphertext($cid, $form, $form_state, $recipients_uids);
   }
 }
 
@@ -413,15 +413,12 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   global $language;
 
   $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);
-  $recipients_uids_new = str_getcsv($form_state['build_info']['args'][0]);
   // Sorting UIDs just because sorting is beautiful.
-  asort($recipients_uids_new);
-  $recipients_uids_new = array_values($recipients_uids_new);
+  asort($recipients_uids);
+  $recipients_uids = array_values($recipients_uids);
 
   // At this moment UIDs have been alredy checked.
   // @todo consider using drupal_check_token to assure form data integrity.
-  $recipients_uids = serialize($recipients_uids);
-
   // Prepare the form values for submission.
   $ciphertxt_data = array(
     'cipher_text' => check_plain($form_state['values']['cipher_text']),
@@ -449,7 +446,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     $wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data, NULL, $current_timestamp, $form, $form_state);
 
     $wrapper->meta = serialize($ciphertxt_metadata);
-    $wrapper->proc_recipient->set($recipients_uids_new);
+    $wrapper->proc_recipient->set($recipients_uids);
     $wrapper->language($language->language);
     $wrapper->label = $ciphertxt_metadata['source_file_name'];
     $wrapper->created = $current_timestamp;
