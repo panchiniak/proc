@@ -21,15 +21,9 @@
             let procURLs = [];
 
             async function procOpenFile(decrypted, temporaryDownloadLink, cipherIndex) {
-                const
-                    plaintext = await openpgp.stream.readToEnd(decrypted.data),
-                    blob = new Blob(
-                        [plaintext], {
-                            type: 'application/octet-binary',
-                            endings: 'native'
-                        }
-                    ),
-                    link = $('#decryption-link');
+                const plaintext = decrypted.data,
+                      blob = new Blob([plaintext], {type: 'application/octet-binary',endings: 'native'}),
+                      link = $('#decryption-link');
                 temporaryDownloadLink.setAttribute( 'href', URL.createObjectURL(blob));
                 let openActionLabel = procJsLabels.proc_open_file_state;
                 if (link.text() != openActionLabel) {
@@ -117,9 +111,8 @@
                         let secretPassString = $('input[name=pass]')[0].value,
                             passphrase       = passDrupal.concat(secretPassString);
 
-                        const privKeyObj = (await openpgp.key.readArmored(privkey)).keys[0];
-
-                        await privKeyObj.decrypt(passphrase).catch(
+                        const privateKey = await openpgp.readPrivateKey({ armoredKey: privkey });
+                        const decryptedPrivateKey = await openpgp.decryptKey({ privateKey, passphrase }).catch(
                             function (err) {
                                 $('form#-proc-decrypt-to-file').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
                                 if ($('a#decryption-link')[0].href) {
@@ -187,29 +180,16 @@
                                                 }
                                             }
                                             else{
-                                                const optionsDecription = {
-                                                    message: await openpgp.message.readArmored(cipherText).catch(
-                                                        function (err) {
-                                                            let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
-                                                            $('form#-proc-decrypt-to-file').prepend(messageError);
-                                                        }
-                                                    ),
-                                                    privateKeys: [privKeyObj],
-                                                    expectSigned: expectedSignedValue,
-                                                    publicKeys: [pubKeyObj],
-                                                    // For the sake of simplicity all files are considered binary.
+
+
+                                                const message = await openpgp.readMessage({ armoredMessage: cipherText });
+                                                decrypted = await openpgp.decrypt({
+                                                    decryptionKeys: decryptedPrivateKey,
+                                                    // verificationKeys: publicKeys,
+                                                    message,
                                                     format: 'binary'
-                                                },
-                                                decrypted = await openpgp.decrypt(optionsDecription).catch(
-                                                    function (err) {
-                                                        let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
-                                                        $('form#-proc-decrypt-to-file').prepend(messageError);
-                                                        $(":focus").blur();
-                                                        if ($('.messages.info.proc-info:first')){
-                                                            $('.messages.info.proc-info:first').remove();
-                                                        }
-                                                    }
-                                                );
+                                                });
+
                                                 if (decrypted){
                                                     procOpenFile(decrypted, temporaryDownloadLink, cipherIndex);
                                                 }

@@ -3,7 +3,7 @@
  * Encryption of file given a public PGP armored key.
  */
 
-(function ($) {
+(async function ($) {
     'use strict';
     Drupal.behaviors.proc = {
         attach: function (context, settings) {
@@ -16,7 +16,7 @@
                 document.getElementById('edit-button').disabled = "TRUE";
             }
 
-            function handleFileSelect(evt) {
+            async function handleFileSelect(evt) {
                 let procJsLabels        = Drupal.settings.proc.proc_labels,
                     files               = evt.target.files,
                     postMaxSizeBytes    = Drupal.settings.proc.proc_post_max_size_bytes,
@@ -43,27 +43,25 @@
                     return;
                 }
 
-                let myFile = files[0],
-                    reader = new FileReader();
+                let myFile = files[0];
+                    // reader = new FileReader();
 
-                reader.readAsArrayBuffer(myFile);
-                reader.onloadend = async function (evt) {
+                let file = evt.target.files[0];
+                let reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onloadend = async function(evt) {
                     if (evt.target.readyState == FileReader.DONE) {
-
                         const recipientsPubkeys = [];
 
-                        let arrayBuffer               = evt.target.result,
-                            array                     = new Uint8Array(arrayBuffer),
-                            // At this moment we only know about validated recipient UIDs
-                            // and the time stamps of their keys:
-                            recipientsUidsKeysChanged = JSON.parse(Drupal.settings.proc.proc_recipients_pubkeys_changed),
+                        // At this moment we only know about validated recipient UIDs
+                        // and the time stamps of their keys:
+                        let recipientsUidsKeysChanged = JSON.parse(Drupal.settings.proc.proc_recipients_pubkeys_changed),
                             remoteKey                 = [],
                             userIdIterator;
 
                         // False for production.
-                        openpgp.config.debug        = false;
-                        openpgp.config.show_comment = false;
-                        openpgp.config.show_version = false;
+                        openpgp.config.showComment = false;
+                        openpgp.config.showVersion = false;
 
                         for (userIdIterator in recipientsUidsKeysChanged) {
                             let localKey = localStorage.getItem(`proc.key_user_id.${userIdIterator}.${recipientsUidsKeysChanged[userIdIterator]}`);
@@ -74,7 +72,7 @@
                                 let storageKeys = Object.keys(localStorage);
                                 if (storageKeys.length > 0) {
                                     storageKeys.forEach(
-                                        function (storageKey,storageKeyIndex){
+                                        async function (storageKey,storageKeyIndex){
                                             if (storageKey.startsWith(`proc.key_user_id.${userIdIterator}`)){
                                                 localStorage.removeItem(storageKeys[storageKeyIndex]);
                                             }
@@ -114,40 +112,20 @@
                             await pubKeyAjax(remoteKeyCsv);
                         }
 
-                        const readableStream = new ReadableStream({
-                            start(controller) {
-                                controller.enqueue(array);
-                                controller.close();
-                            }
-                        });
-
-                        const recipientsKeys = [];
-
-                        recipientsPubkeys.forEach(
-                            async function (entry) {
-                                recipientsKeys.push((await openpgp.key.readArmored(entry)).keys[0]);
-                            }
-                        );
-
-                        await openpgp.key.readArmored(recipientsPubkeys);
-
-                        const options = {
-                            message: openpgp.message.fromBinary(readableStream),
-                            publicKeys: recipientsKeys,
-                            compression: openpgp.enums.compression.zip
-                        };
-
+                        const publicKeys = await Promise.all(recipientsPubkeys.map(armoredKey => openpgp.readKey({ armoredKey })));
                         let startSeconds = new Date().getTime() / 1000;
-
-                        const encrypted       = await openpgp.encrypt(options),
-                              ciphertext      = encrypted.data,
-                              // Warning: Readable Stream expires if used twice.
-                              cipherPlaintext = await openpgp.stream.readToEnd(ciphertext);
-
+                        let array = new Uint8Array(evt.target.result);
+                        const message = await openpgp.createMessage({ binary: array });
+                        const encrypted = await openpgp.encrypt({
+                          encryptionKeys: publicKeys,
+                          message,
+                          format: 'armored',
+                          config: { preferredCompressionAlgorithm: openpgp.enums.compression.zip }
+                        });
                         let endSeconds = new Date().getTime() / 1000,
                             total = endSeconds - startSeconds;
 
-                        $('input[name=cipher_text]')[0].value = cipherPlaintext;
+                        $('input[name=cipher_text]')[0].value = encrypted;
                         $('input[name=source_file_name]')[0].value = files[0].name;
                         $('input[name=source_file_size]')[0].value = files[0].size;
                         $('input[name=source_file_type]')[0].value = files[0].type;

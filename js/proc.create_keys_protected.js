@@ -17,7 +17,6 @@
 
             $('#edit-submit').on(
                 'click', async function (e) {
-
                     e.preventDefault();
 
                     let pass = $('#edit-pass-fields-pass1')[0].value,
@@ -60,53 +59,44 @@
 
                             $('#edit-submit')[0].value = procJsLabels.proc_button_state_processing;
 
-                            openpgp.config.debug         = false;
-                            openpgp.config.show_comment  = true;
-                            openpgp.config.show_version  = true;
-                            openpgp.config.commentstring = `${Drupal.settings.proc.proc_name}:${Drupal.settings.proc.proc_mail}`;
-
+                            openpgp.config.useIndutnyElliptic = false;
+                            openpgp.config.showComment  = true;
+                            openpgp.config.showVersion  = true;
+                            openpgp.config.commentString = `${Drupal.settings.proc.proc_name}:${Drupal.settings.proc.proc_mail}`;
 
                             let passDrupal       = Drupal.settings.proc.proc_pass,
                                 passString       = pass,
                                 passDrupalString = passDrupal,
                                 cryptoPass       = passDrupalString.concat(passString),
-                                startSeconds     = new Date().getTime() / 1000,
-                                options          = {userIds: [{
-                                                        name: Drupal.settings.proc.proc_name,
-                                                        email: Drupal.settings.proc.proc_mail
-                                                        }],
-                                                        // The two options are 2048 and 4096.
-                                                        numBits: 2048,
-                                                        passphrase: cryptoPass
-                                                    },
-                                encryptionData   = await openpgp.generateKey(options).catch(
-                                    // This error is possibly due to tampering atempt.
-                                    function (err) {
-                                        $('form#-proc-generate-keys').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
-                                        // Reset password and action label.
-                                        resetPassword();
-                                        $('#edit-submit')[0].value = procJsLabels.proc_generate_keys_submit_label;
-                                        return;
-                                    }).then(
-                                        async function (key) {
-                                            let privkey    = await key.privateKeyArmored,
-                                                pubkey     = await key.publicKeyArmored,
-                                                endSeconds = new Date().getTime() / 1000,
-                                                total      = endSeconds - startSeconds;
+                                startSeconds     = new Date().getTime() / 1000;
 
-                                            return [pubkey, privkey, startSeconds, total, navigator.userAgent];
-                                        }
-                                    );
+                            const { privateKey, publicKey, revocationCertificate } = await openpgp.generateKey({
+                                userIDs: [{name: Drupal.settings.proc.proc_name, email: Drupal.settings.proc.proc_mail}],
+                                type: 'rsa',
+                                passphrase: cryptoPass,
+                                rsaBits: 2048,
+                                format: 'armored',
+                            }).catch(
+                                // This error is possibly due to tampering atempt.
+                                function (err) {
+                                    $('form#-proc-generate-keys').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
+                                    // Reset password and action label.
+                                    resetPassword();
+                                    $('#edit-submit')[0].value = procJsLabels.proc_generate_keys_submit_label;
+                                    return;
+                                }
+                            );
+
+                            let endSeconds = new Date().getTime() / 1000;
+                            let total      = endSeconds - startSeconds;
 
                             $('#edit-submit')[0].value                      = procJsLabels.proc_submit_saving_state;
-                            $('input[name=public_key]')[0].value            = encryptionData[0];
-                            $('input[name=encrypted_private_key]')[0].value = encryptionData[1];
-                            $('input[name=generation_timestamp]')[0].value  = encryptionData[2];
-                            $('input[name=generation_timespan]')[0].value   = encryptionData[3];
-                            $('input[name=browser_fingerprint]')[0].value   = `${encryptionData[4]} , (${screen.width} x ${screen.height})`;
-
+                            $('input[name=public_key]')[0].value            = publicKey;
+                            $('input[name=encrypted_private_key]')[0].value = privateKey;
+                            $('input[name=generation_timestamp]')[0].value  = endSeconds;
+                            $('input[name=generation_timespan]')[0].value   = total;
+                            $('input[name=browser_fingerprint]')[0].value   = `${navigator.userAgent} , (${screen.width} x ${screen.height})`;
                             $('#-proc-generate-keys').submit();
-
                         }
                         else{
                             alert(procJsLabels.proc_password_match);

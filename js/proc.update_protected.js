@@ -54,9 +54,8 @@
                         passphrase        = passDrupal.concat(secretPassString),
                         recipientsPubkeys = Drupal.settings.proc.proc_recipients_pubkeys;
 
-                    const privKeyObj = (await openpgp.key.readArmored(privkey)).keys[0];
-
-                    await privKeyObj.decrypt(passphrase).catch(
+                    const privateKey = await openpgp.readPrivateKey({ armoredKey: privkey });
+                    const decryptedPrivateKey = await openpgp.decryptKey({ privateKey, passphrase }).catch(
                         function (err) {
                             $('form#-proc-update').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
                         }
@@ -67,92 +66,70 @@
                     }
 
                     recipientsPubkeys = JSON.parse(recipientsPubkeys);
+                    let recipientsPubkeysArmored = [];
 
-                    const recipientsKeys = [];
-                    recipientsPubkeys.forEach(
-                        async function (entry) {
-                            recipientsKeys.push((await openpgp.key.readArmored(entry.key)).keys[0]);
-                        }
-                    );
+                    for (let i = 0; i < recipientsPubkeys.length; i++) {
+                        recipientsPubkeysArmored.push(recipientsPubkeys[i].key);
+                    }
+
+                    const recipientsKeys = await Promise.all(recipientsPubkeysArmored.map(armoredKey => openpgp.readKey({ armoredKey })));
 
                     var procID = [];
                     const BROWSER_FINGERPRINT = `${navigator.userAgent}, (${screen.width} x ${screen.height})`;
+
+                    // False for production.
+                    openpgp.config.showComment = false;
+                    openpgp.config.showVersion = false;
 
                     cipherTextsIndex.forEach(
                         async function (item, i) {
                             document.querySelector('.proc-update-submit').innerText = procJsLabels.proc_button_state_processing;
                             procID.push(cipherTextsIndex[i]);
-                            const optionsDecription = {
-                                message: await openpgp.message.readArmored(cipherTexts[cipherTextsIndex[i]].cipher_text).catch(
-                                    function (err) {
-                                        let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
-                                        $('form#-proc-update').prepend(messageError);
-                                    }
-                                ),
-                                privateKeys: [privKeyObj],
-                                // For the sake of simplicity all files are considered binary.
-                                format: 'binary'
-                            };
 
-                            const decrypted = await openpgp.decrypt(optionsDecription).catch(
+
+                            const message = await openpgp.readMessage({ armoredMessage: cipherTexts[cipherTextsIndex[i]].cipher_text }).catch(
                                 function (err) {
-                                    $('form#-proc-update').prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
-                                    if ($('.messages.info.proc-info:first')){
-                                        $('.messages.info.proc-info:first').remove();
-                                    }
+                                    let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
+                                    $('form#-proc-update').prepend(messageError);
                                 }
                             );
+                            const decrypted = await openpgp.decrypt({
+                                decryptionKeys: decryptedPrivateKey,
+                                message,
+                                format: 'binary'
+                            });
 
                             if (decrypted){
-                                const plaintext = await openpgp.stream.readToEnd(decrypted.data);
-
-                                const blob = new Blob(
-                                    [plaintext], {
-                                        type: 'application/octet-binary',
-                                        endings: 'native'
-                                    }
-                                );
+                                const plaintext = decrypted.data;
+                                const blob = new Blob([plaintext], {type: 'application/octet-binary',endings: 'native'});
 
                                 let reader = new FileReader();
                                 reader.readAsArrayBuffer(blob);
-                                let fileByteArray = [];
+
                                 reader.onloadend = async function (evt) {
                                     if (evt.target.readyState == FileReader.DONE) {
-                                        let arrayBuffer = evt.target.result,
-                                            array       = new Uint8Array(arrayBuffer);
-                                        for (let i = 0; i < array.length; i++) {
-                                            fileByteArray.push(array[i]);
-                                        }
-                                        // False for production.
-                                        openpgp.config.debug        = false;
-                                        openpgp.config.show_comment = false;
-                                        openpgp.config.show_version = false;
-                                        let recipientsPubkeys = await Drupal.settings.proc.proc_recipients_pubkeys;
-                                        recipientsPubkeys = JSON.parse(recipientsPubkeys);
-                                        const readableStream = new ReadableStream(
-                                            {
-                                                start(controller) {
-                                                    controller.enqueue(array);
-                                                    controller.close();
-                                                }
-                                            }
-                                        );
-                                        const options = {
-                                            message: openpgp.message.fromBinary(readableStream),
-                                            publicKeys: recipientsKeys,
-                                            compression: openpgp.enums.compression.zip
-                                        };
 
-                                        // Warning: Readable Stream expires if used twice.
-                                        const startSeconds    = new Date().getTime() / 1000,
-                                              encrypted       = await openpgp.encrypt(options),
-                                              ciphertext      = encrypted.data,
-                                              cipherPlaintext = await openpgp.stream.readToEnd(ciphertext),
-                                              endSeconds      = new Date().getTime() / 1000,
-                                              total           = endSeconds - startSeconds;
+                                        let array = new Uint8Array(evt.target.result);
+                                        const startSeconds    = new Date().getTime() / 1000;
+
+                                        const message = await openpgp.createMessage({ binary: array });
+                                        const encrypted = await openpgp.encrypt({
+                                          encryptionKeys: recipientsKeys,
+                                          message,
+                                          format: 'armored',
+                                          config: { preferredCompressionAlgorithm: openpgp.enums.compression.zip }
+                                        });
+                                        let endSeconds = new Date().getTime() / 1000,
+                                            total = endSeconds - startSeconds;
+
+                                        const ciphertext      = encrypted;
+
+                                        console.log(ciphertext);
+
+
 
                                         var procIDString = procID.pop().toString();
-                                        await(document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = cipherPlaintext);
+                                        await(document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = ciphertext);
                                         document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total;
                                         document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT;
                                         document.querySelector('[name=generation_timestamp_cid_' + procIDString + ']').value = startSeconds;
