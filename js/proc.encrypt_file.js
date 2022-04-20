@@ -43,9 +43,6 @@
                     return;
                 }
 
-                let myFile = files[0];
-                    // reader = new FileReader();
-
                 let file = evt.target.files[0];
                 let reader = new FileReader();
                 reader.readAsArrayBuffer(file);

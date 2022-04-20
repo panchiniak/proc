@@ -86,7 +86,6 @@
                             document.querySelector('.proc-update-submit').innerText = procJsLabels.proc_button_state_processing;
                             procID.push(cipherTextsIndex[i]);
 
-
                             const message = await openpgp.readMessage({ armoredMessage: cipherTexts[cipherTextsIndex[i]].cipher_text }).catch(
                                 function (err) {
                                     let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
@@ -122,11 +121,7 @@
                                         let endSeconds = new Date().getTime() / 1000,
                                             total = endSeconds - startSeconds;
 
-                                        const ciphertext      = encrypted;
-
-                                        console.log(ciphertext);
-
-
+                                        const ciphertext = encrypted;
 
                                         var procIDString = procID.pop().toString();
                                         await(document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = ciphertext);
