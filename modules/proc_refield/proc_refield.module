@@ -226,7 +226,7 @@ function proc_refield_form_field_ui_field_edit_form_alter(&$form, &$form_state, 
  * Implements hook_menu().
  */
 function proc_refield_menu() {
-  $items = array();
+  $items = [];
   $items['proc/recipients/%'] = [
     'page callback' => '_proc_refield_recipients_menu_callback',
     // View name:
@@ -259,14 +259,14 @@ function proc_refield_get_cipher_text_alter(&$cipher_text_data, $context) {
   if ($context['unalterable_cipher_object']->changed->value() < _proc_get_keys($user->uid, 'uid')['changed']){
     $expired_encryption_alert = t(
       'You\'ve lost access to previously encrypted <b>@file-name (@file-id)</b> file due to recent generation or modification of your encryption key.',
-      array(
+      [
       '@file-name' => $context['unalterable_cipher_object']->label->value(),
       '@file-id' => $context['unalterable_cipher_object']->pid->value(),
-      )
+      ]
     );
     drupal_set_message($expired_encryption_alert, 'warning');
     // Return empty cipher data in order to remove default URI.
-    $cipher_text_data = array();
+    $cipher_text_data = [];
   }
 }
 

@@ -32,19 +32,19 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'none';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['style_plugin'] = 'table';
-  $handler->display->display_options['style_options']['columns'] = array(
+  $handler->display->display_options['style_options']['columns'] = [
     'pid' => 'pid',
-  );
+  ];
   $handler->display->display_options['style_options']['default'] = '-1';
-  $handler->display->display_options['style_options']['info'] = array(
-    'pid' => array(
+  $handler->display->display_options['style_options']['info'] = [
+    'pid' => [
       'sortable' => 0,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
-    ),
-  );
+    ],
+  ];
   /* Field: Protected Content: Proc Armored entity ID */
   $handler->display->display_options['fields']['pid']['id'] = 'pid';
   $handler->display->display_options['fields']['pid']['table'] = 'proc';
@@ -61,10 +61,10 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['fields']['proc_recipient']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['proc_recipient']['hide_alter_empty'] = FALSE;
   $handler->display->display_options['fields']['proc_recipient']['click_sort_column'] = 'target_id';
-  $handler->display->display_options['fields']['proc_recipient']['settings'] = array(
+  $handler->display->display_options['fields']['proc_recipient']['settings'] = [
     'bypass_access' => 0,
     'link' => 0,
-  );
+  ];
   $handler->display->display_options['fields']['proc_recipient']['delta_offset'] = '0';
   $handler->display->display_options['fields']['proc_recipient']['separator'] = ' - ';
   /* Field: Protected Content: Protected content label */
@@ -98,18 +98,18 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'some';
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'entityreference_style';
-  $handler->display->display_options['style_options']['search_fields'] = array(
+  $handler->display->display_options['style_options']['search_fields'] = [
     'pid' => 'pid',
     'label' => 'label',
     'proc_recipient' => 0,
-  );
+  ];
   $handler->display->display_options['defaults']['style_options'] = FALSE;
   $handler->display->display_options['defaults']['row_plugin'] = FALSE;
   $handler->display->display_options['row_plugin'] = 'entityreference_fields';
-  $handler->display->display_options['row_options']['inline'] = array(
+  $handler->display->display_options['row_options']['inline'] = [
     'pid' => 'pid',
     'title' => 'title',
-  );
+  ];
   $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
   $handler->display->display_options['defaults']['row_options'] = FALSE;
   $views[$view->name] = $view;
@@ -167,10 +167,10 @@ function proc_refield_views_default_views() {
   $handler->display->display_options['arguments']['null']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['null']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['null']['summary_options']['items_per_page'] = '25';
-  $handler->display->display_options['filter_groups']['groups'] = array(
+  $handler->display->display_options['filter_groups']['groups'] = [
     1 => 'AND',
     2 => 'OR',
-  );
+  ];
   /* Filter criterion: User: Active */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'users';

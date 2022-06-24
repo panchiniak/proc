@@ -28,10 +28,10 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
 
   $form['#attached']['js'] = _proc_common_inject_lib('decrypt_protected_to_file');
 
-  $proc_sources_file_names = array();
-  $proc_sources_file_sizes = array();
-  $proc_ids                = array();
-  $procs_changed           = array();
+  $proc_sources_file_names = [];
+  $proc_sources_file_sizes = [];
+  $proc_ids                = [];
+  $procs_changed           = [];
 
   foreach ($cids_ciphers as $cid_cipher) {
     $proc_sources_file_names[] = $cid_cipher['source_file_name'];
@@ -51,18 +51,18 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
     }
   }
 
-  $multiple_decryption_form_elements = array(
+  $multiple_decryption_form_elements = [
     'proc_sources_file_names' => $proc_sources_file_names,
     'proc_sources_file_sizes' => $proc_sources_file_sizes,
     'proc_ids'                => $proc_ids,
     'procs_changed'           => $procs_changed,
     'proc_signed'             => $proc_signed,
-  );
+  ];
 
-  $form['#attached']['js'][] = array(
-    'data' => array('proc' => _proc_common_get_decryption_form_data($privkey)),
+  $form['#attached']['js'][] = [
+    'data' => ['proc' => _proc_common_get_decryption_form_data($privkey)],
     'type' => 'setting',
-  );
+  ];
 
   $form['#attached']['js'][0]['data']['proc'] += $multiple_decryption_form_elements;
 
@@ -70,21 +70,21 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
   $get_proc_link = l(
         t('Decrypt'),
         current_path(),
-        array(
-          'attributes' => array(
+        [
+          'attributes' => [
             'id' => 'decryption-link',
-            'class' => array(
+            'class' => [
               'btn',
               'btn-default',
-            ),
-          ),
+            ],
+          ],
           'fragment' => $get_proc_link_fragment,
-        )
+        ]
     );
 
-  $form['pc_access_link'] = array(
+  $form['pc_access_link'] = [
     '#markup' => $get_proc_link,
-  );
+  ];
   return $form;
 }
 
@@ -95,10 +95,10 @@ function _proc_update($form, &$form_state, $cids, $uids) {
   global $user;
 
   // Sanitize and preprocess arguments:
-  $csvs     = _proc_get_csv_arguments(array(
+  $csvs     = _proc_get_csv_arguments([
     'cids_csv' => $cids,
     'uids_csv' => $uids,
-  ));
+  ]);
   $uids     = $csvs['uids_csv']['array'];
   $uids_csv = $csvs['uids_csv']['string'];
   $cids     = $csvs['cids_csv']['array'];
@@ -117,7 +117,7 @@ function _proc_update($form, &$form_state, $cids, $uids) {
 
   // If some recipient is being removed of some content, allow update to proceed
   // only if current user is also the author of the content:
-  $recipients = array();
+  $recipients = [];
   foreach ($ciphers_data['ciphers'] as $cipher_data) {
     if ($cipher_data['proc_owner_uid'] != $user->uid) {
       // Current recipients:
@@ -144,20 +144,20 @@ function _proc_update($form, &$form_state, $cids, $uids) {
 
   $form['#attached']['js'] = _proc_common_inject_lib('update_protected');
 
-  $encryption_form_elements = array(
+  $encryption_form_elements = [
     'proc_ciphers'             => $cid_cipher,
     'proc_ciphers_index'       => $cids,
     'proc_recipients_pubkeys'  => drupal_json_encode($recipients_pubkeys),
     'proc_post_max_size_bytes' => $post_max_size_bytes,
-  );
+  ];
 
-  $form['#attached']['js'][] = array(
-    'data' => array('proc' => _proc_common_get_decryption_form_data($privkey)),
+  $form['#attached']['js'][] = [
+    'data' => ['proc' => _proc_common_get_decryption_form_data($privkey)],
     'type' => 'setting',
-  );
+  ];
   $form['#attached']['js'][0]['data']['proc'] += $encryption_form_elements;
 
-  $update_field_form_elemement_prefixes = array(
+  $update_field_form_elemement_prefixes = [
     'cipher_text_cid_',
     'generation_timestamp_cid_',
     'generation_timespan_cid_',
@@ -166,27 +166,27 @@ function _proc_update($form, &$form_state, $cids, $uids) {
     'source_file_size_cid_',
     'source_file_type_cid_',
     'source_file_last_change_cid_',
-  );
+  ];
 
   foreach ($cids as $cid) {
     foreach ($update_field_form_elemement_prefixes as $update_field_form_elemement_prefix) {
-      $form[$update_field_form_elemement_prefix . $cid] = array('#type' => 'hidden');
+      $form[$update_field_form_elemement_prefix . $cid] = ['#type' => 'hidden'];
     }
   }
 
   $form['#submit'][] = '_proc_update_submit';
   $form['actions']['submit']['#submit'][] = '_proc_update_submit';
 
-  $form['submit'] = array(
+  $form['submit'] = [
     '#type' => 'submit',
     '#value' => t('Update'),
-    '#attributes' => array(
-      'class' => array('proc-update-submit'),
-      'onclick' => array(
+    '#attributes' => [
+      'class' => ['proc-update-submit'],
+      'onclick' => [
         _proc_get_onclick_saving(),
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
   return $form;
 }
 
@@ -214,7 +214,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
   global $user;
 
   // Sanitize and preprocess argument:
-  $csv      = _proc_get_csv_arguments(array('uids_csv' => $uids));
+  $csv      = _proc_get_csv_arguments(['uids_csv' => $uids]);
   $uids     = $csv['uids_csv']['array'];
   $uids_csv = $csv['uids_csv']['string'];
 
@@ -234,32 +234,32 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
     $uids_keys_changed[$uid_fliped_key] = $recipients_pubkeys[$uid_fliped]['changed'];
   }
 
-  $form['#attached']['js'][] = array(
-    'data' => array(
-      'proc' => array(
+  $form['#attached']['js'][] = [
+    'data' => [
+      'proc' => [
         'proc_recipients_pubkeys_changed' => drupal_json_encode($uids_keys_changed),
         'proc_recipients_uids'            => drupal_json_encode($uids),
         'proc_post_max_size_bytes'        => $post_max_size_bytes,
         'proc_file_entity_max_filesize'   => parse_size(variable_get('file_entity_max_filesize', '')),
-      ),
-    ),
+      ],
+    ],
     'type' => 'setting',
-  );
+  ];
 
   $form['#attached']['js'][0]['data']['proc'] += _proc_common_get_decryption_form_data(NULL);
 
-  $form['upload'] = array(
+  $form['upload'] = [
     '#name' => 'files[]',
     '#type' => 'file',
     '#disabled' => FALSE,
-  );
+  ];
 
-  $form['pc-upload-description'] = array(
+  $form['pc-upload-description'] = [
     '#type' => 'item',
     '#title' => t('Choose a file'),
-  );
+  ];
 
-  $hidden_fields = array(
+  $hidden_fields = [
     'cipher_text',
     'generation_timestamp',
     'generation_timespan',
@@ -269,28 +269,28 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
     'source_file_type',
     'source_file_last_change',
     'signed',
-  );
+  ];
 
   foreach ($hidden_fields as $hidden_field) {
-    $form[$hidden_field] = array('#type' => 'hidden');
+    $form[$hidden_field] = ['#type' => 'hidden'];
   }
 
-  $form['button'] = array(
+  $form['button'] = [
     '#type' => 'submit',
     '#value' => t('Save'),
-    '#attributes' => array(
-      'onclick' => array(
+    '#attributes' => [
+      'onclick' => [
         _proc_get_onclick_saving(),
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
 
-  $form['button']['#ajax'] = array(
+  $form['button']['#ajax'] = [
     'callback' => '_proc_encrypt_file_submit_callback',
     'wrapper'  => '-proc-encrypt-file-form',
     'method'   => 'replace',
     'effect'   => 'fade',
-  );
+  ];
 
   $form_state['build_info']['args'][0] = $uids_csv;
 
@@ -306,7 +306,7 @@ function _proc_generate_keys($form, &$form_state) {
   // If form has not just being submited.
   if (empty($form_state['values'])) {
     // If current user has already registered a keyring:
-    if (!empty(_proc_get_pubkeys(array($user->uid), 'uid')[0]['changed'])) {
+    if (!empty(_proc_get_pubkeys([$user->uid], 'uid')[0]['changed'])) {
       drupal_set_message(t("Your encryption keys are already generated. You don't need to generate new ones unless you have lost your password."), 'warning', FALSE);
       drupal_set_message(t('Warning: if you generate new encryption keys, you will lose access to all encrypted files which were previously sent to you.'), 'warning', FALSE);
     }
@@ -314,37 +314,37 @@ function _proc_generate_keys($form, &$form_state) {
 
   $form['#attached']['js'] = _proc_common_inject_lib('create_keys_protected');
 
-  $form['#attached']['js'][] = array(
-    'data' => array(
+  $form['#attached']['js'][] = [
+    'data' => [
       'proc' => _proc_common_get_decryption_form_data(NULL),
-    ),
+    ],
     'type' => 'setting',
-  );
+  ];
 
-  $form['pass_fields'] = array(
+  $form['pass_fields'] = [
     '#type' => 'password_confirm',
     '#description' => t("Enter the same password in both fields. Warning: this action can't be undone and newly generated keys can't be used for accessing previously encrypted data."),
     '#required' => TRUE,
-  );
-  $form['public_key'] = array(
+  ];
+  $form['public_key'] = [
     '#type' => 'hidden',
-  );
-  $form['encrypted_private_key'] = array(
+  ];
+  $form['encrypted_private_key'] = [
     '#type' => 'hidden',
-  );
-  $form['generation_timestamp'] = array(
+  ];
+  $form['generation_timestamp'] = [
     '#type' => 'hidden',
-  );
-  $form['generation_timespan'] = array(
+  ];
+  $form['generation_timespan'] = [
     '#type' => 'hidden',
-  );
-  $form['browser_fingerprint'] = array(
+  ];
+  $form['browser_fingerprint'] = [
     '#type' => 'hidden',
-  );
-  $form['submit'] = array(
+  ];
+  $form['submit'] = [
     '#type' => 'submit',
     '#value' => t('Generate encryption keys'),
-  );
+  ];
   return $form;
 }
 
@@ -359,17 +359,17 @@ function _proc_generate_keys_submit($form, &$form_state) {
   }
 
   // Prepare the form values for submission.
-  $keyring_data = array(
+  $keyring_data = [
     'public_key'            => check_plain($form_state['values']['public_key']),
     'encrypted_private_key' => check_plain($form_state['values']['encrypted_private_key']),
-  );
-  $keyring_metadata = array(
+  ];
+  $keyring_metadata = [
     'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
     'generation_timespan'  => check_plain($form_state['values']['generation_timespan']),
     'browser_fingerprint'  => check_plain($form_state['values']['browser_fingerprint']),
-  );
+  ];
 
-  $entity = entity_create('proc', array('type' => 'proc_keyring'));
+  $entity = entity_create('proc', ['type' => 'proc_keyring']);
 
   // Save only if key has been effectively generated:
   if (substr($keyring_data['public_key'], 5, 26) == 'BEGIN PGP PUBLIC KEY BLOCK') {
@@ -399,7 +399,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
     else {
       drupal_set_message(t('Sorry. Your public key has not been saved to the database. You might need to close tabs in your browser to release memory, or do it again using another browser.'), 'error');
     }
-    watchdog('proc', 'Error on key generation/storage. User agent: %user-agent', array('%user-agent' => $_SERVER['HTTP_USER_AGENT']), WATCHDOG_ERROR);
+    watchdog('proc', 'Error on key generation/storage. User agent: %user-agent', ['%user-agent' => $_SERVER['HTTP_USER_AGENT']], WATCHDOG_ERROR);
   }
   cache_clear_all(NULL, 'cache_form', TRUE);
 }
@@ -420,11 +420,11 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   // At this moment UIDs have been alredy checked.
   // @todo consider using drupal_check_token to assure form data integrity.
   // Prepare the form values for submission.
-  $ciphertxt_data = array(
+  $ciphertxt_data = [
     'cipher_text' => check_plain($form_state['values']['cipher_text']),
-  );
+  ];
 
-  $ciphertxt_metadata = array(
+  $ciphertxt_metadata = [
     'source_file_size'     => check_plain($form_state['values']['source_file_size']),
     'generation_timespan'  => check_plain($form_state['values']['generation_timespan']),
     'source_file_type'     => check_plain($form_state['values']['source_file_type']),
@@ -432,9 +432,9 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
     'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
     'source_file_name'     => check_plain($form_state['values']['source_file_name']),
     'signed'               => check_plain($form_state['values']['signed']),
-  );
+  ];
 
-  $entity = entity_create('proc', array('type' => 'proc_ciphertxt'));
+  $entity = entity_create('proc', ['type' => 'proc_ciphertxt']);
 
   if (!empty($ciphertxt_metadata['source_file_name'])) {
     $wrapper = entity_metadata_wrapper('proc', $entity);
@@ -457,30 +457,30 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   if (isset($entity->pid)) {
     $success_encryption_message = t(
       'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
-      array(
+      [
         '@exclusive-access-link' => url('proc/' . $entity->pid),
         '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
-      )
+      ]
     );
     $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
-    $watchdog_args = array('@type' => 'proc_ciphertxt', '%pid' => $entity->pid);
+    $watchdog_args = ['@type' => 'proc_ciphertxt', '%pid' => $entity->pid];
     watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
 
   }
   else {
     $failure_encryption_message = t('Sorry. Cipher text of your file has not been saved. Close other tabs in your browser to release some memory and try again.');
-    $context = array(
+    $context = [
       'unalterable_encryption_source_form' => $form,
-    );
+    ];
     drupal_alter('cipher_postsave_failure_encryption_message', $failure_encryption_message, $context);
     if (!empty($failure_encryption_message)) {
       drupal_set_message($failure_encryption_message, 'error');
     }
   }
-  $context = array(
+  $context = [
     'unalterable_encryption_source_form' => $form,
     'unalterable_pid' => $entity->pid,
-  );
+  ];
   drupal_alter('cipher_postsave_success_encryption_message', $success_encryption_message, $context);
   if (!empty($success_encryption_message)) {
     drupal_set_message($success_encryption_message);
@@ -490,7 +490,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
   module_invoke_all('cipher_postsave', $entity->pid, $form_state, $entity);
   $commands[] = ajax_command_remove('div.messages');
   $commands[] = ajax_command_before('#main-content', theme('status_messages'));
-  ajax_deliver(array('#type' => 'ajax', '#commands' => $commands));
+  ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
 }
 
 /**
@@ -499,7 +499,7 @@ function _proc_encrypt_file_submit_callback($form, &$form_state) {
 function _proc_sign_file($form, &$form_state, $uids) {
   global $user;
 
-  $ciphers_data = _proc_common_get_ciphers(array(), TRUE);
+  $ciphers_data = _proc_common_get_ciphers([], TRUE);
 
   // Signature requires a keyring:
   if (!$ciphers_data['pubkey']) {
@@ -512,7 +512,7 @@ function _proc_sign_file($form, &$form_state, $uids) {
   $form['pass'] = $ciphers_data['form_pass'];
 
   // Sanitize and preprocess argument:
-  $csv      = _proc_get_csv_arguments(array('uids_csv' => $uids));
+  $csv      = _proc_get_csv_arguments(['uids_csv' => $uids]);
   $uids     = $csv['uids_csv']['array'];
   $uids_csv = $csv['uids_csv']['string'];
 
@@ -532,33 +532,33 @@ function _proc_sign_file($form, &$form_state, $uids) {
     $uids_keys_changed[$uid_fliped_key] = $recipients_pubkeys[$uid_fliped]['changed'];
   }
 
-  $form['#attached']['js'][] = array(
-    'data' => array(
-      'proc' => array(
+  $form['#attached']['js'][] = [
+    'data' => [
+      'proc' => [
         'proc_recipients_pubkeys_changed' => drupal_json_encode($uids_keys_changed),
         'proc_recipients_uids'            => drupal_json_encode($uids),
         'proc_post_max_size_bytes'        => $post_max_size_bytes,
         'proc_file_entity_max_filesize'   => parse_size(variable_get('file_entity_max_filesize', '')),
         'proc_keyring_id'                 => $ciphers_data['keyring_cid'],
-      ),
-    ),
+      ],
+    ],
     'type' => 'setting',
-  );
+  ];
 
   $form['#attached']['js'][0]['data']['proc'] += _proc_common_get_decryption_form_data($privkey);
 
-  $form['upload'] = array(
+  $form['upload'] = [
     '#name' => 'files[]',
     '#type' => 'file',
     '#disabled' => FALSE,
-  );
+  ];
 
-  $form['pc-upload-description'] = array(
+  $form['pc-upload-description'] = [
     '#type' => 'item',
     '#title' => t('Choose a file to encrypt and sign'),
-  );
+  ];
 
-  $hidden_fields = array(
+  $hidden_fields = [
     'cipher_text',
     'generation_timestamp',
     'generation_timespan',
@@ -569,30 +569,30 @@ function _proc_sign_file($form, &$form_state, $uids) {
     'source_file_last_change',
     'signed',
     'author_pubkey',
-  );
+  ];
 
   foreach ($hidden_fields as $hidden_field) {
-    $form[$hidden_field] = array('#type' => 'hidden');
+    $form[$hidden_field] = ['#type' => 'hidden'];
   }
 
   $form['author_pubkey']['#value'] = $pubkey;
 
-  $form['button'] = array(
+  $form['button'] = [
     '#type' => 'submit',
     '#value' => t('Save'),
-    '#attributes' => array(
-      'onclick' => array(
+    '#attributes' => [
+      'onclick' => [
         _proc_get_onclick_saving(),
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
 
-  $form['button']['#ajax'] = array(
+  $form['button']['#ajax'] = [
     'callback' => '_proc_encrypt_file_submit_callback',
     'wrapper'  => '-proc-encrypt-file-form',
     'method'   => 'replace',
     'effect'   => 'fade',
-  );
+  ];
 
   $form_state['build_info']['args'][0] = $uids_csv;
 

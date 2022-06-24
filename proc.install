@@ -11,61 +11,61 @@ include_once 'inc/proc.functions.inc';
  * Implements hook_schema().
  */
 function proc_schema() {
-  $schema = array();
+  $schema = [];
 
-  $schema['proc'] = array(
+  $schema['proc'] = [
     'description' => 'The base table for proc.',
-    'fields' => array(
-      'pid' => array(
+    'fields' => [
+      'pid' => [
         'description' => 'Armored entity primary identifier.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
-      'uid' => array(
+      ],
+      'uid' => [
         'description' => 'User id from the users table.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'label' => array(
+      ],
+      'label' => [
         'description' => 'The label of this protected content.',
         'type' => 'text',
         'size' => 'small',
-      ),
-      'status' => array(
+      ],
+      'status' => [
         'description' => 'Boolean indicating whether the proc is published (visible to non-administrators).',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 1,
-      ),
-      'type' => array(
+      ],
+      'type' => [
         'description' => 'Entity instance type.',
         'type' => 'text',
         'size' => 'medium',
-      ),
-      'created' => array(
+      ],
+      'created' => [
         'description' => 'The Unix timestamp when the armored was created.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'changed' => array(
+      ],
+      'changed' => [
         'description' => 'The Unix timestamp when the armored was changed.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'meta' => array(
+      ],
+      'meta' => [
         'description' => 'Unprotected metadata of this protected content.',
         'type' => 'text',
         'size' => 'normal',
         'not null' => TRUE,
         'default' => NULL,
-      ),
-    ),
-    'primary key' => array('pid'),
-  );
+      ],
+    ],
+    'primary key' => ['pid'],
+  ];
 
   return $schema;
 }
@@ -76,65 +76,65 @@ function proc_schema() {
 function proc_modules_enabled($modules) {
   if (in_array('proc', $modules)) {
 
-    $fields = array(
-      'proc_armored' => array(
+    $fields = [
+      'proc_armored' => [
         'field_name' => 'proc_armored',
         'type' => 'text_long',
         'size' => 'big',
-      ),
-      'proc_recipient' => array(
+      ],
+      'proc_recipient' => [
         'field_name' => 'proc_recipient',
         'type' => 'entityreference',
         'cardinality' => FIELD_CARDINALITY_UNLIMITED,
-        'settings' => array(
+        'settings' => [
           'target_type' => 'user',
-          'target_bundles' => array('user'),
-        ),
-      ),
-      'proc_armoredown' => array(
+          'target_bundles' => ['user'],
+        ],
+      ],
+      'proc_armoredown' => [
         'field_name' => 'proc_armoredown',
         'type' => 'entityreference',
         'cardinality' => 1,
-        'settings' => array(
+        'settings' => [
           'target_type' => 'user',
-          'target_bundles' => array('user'),
-        ),
-      ),
-    );
+          'target_bundles' => ['user'],
+        ],
+      ],
+    ];
     _proc_field_create_fields($fields);
 
-    $instances = array(
-      'armored_keyring' => array(
+    $instances = [
+      'armored_keyring' => [
         'field_name' => 'proc_armored',
         'label' => t('Serialized data of proc_keyring bundle'),
         'entity_type' => 'proc',
         'bundle' => 'proc_keyring',
-      ),
-      'armoredowner_keyring' => array(
+      ],
+      'armoredowner_keyring' => [
         'field_name' => 'proc_armoredown',
         'label' => t('Owner of protected content keyring'),
         'entity_type' => 'proc',
         'bundle' => 'proc_keyring',
-      ),
-      'armoredowner_ciphertext' => array(
+      ],
+      'armoredowner_ciphertext' => [
         'field_name' => 'proc_armoredown',
         'label' => t('Owner of protected content cipher text'),
         'entity_type' => 'proc',
         'bundle' => 'proc_ciphertxt',
-      ),
-      'armored_ciphertext' => array(
+      ],
+      'armored_ciphertext' => [
         'field_name' => 'proc_armored',
         'label' => t('Serialized data of proc_ciphertxt bundle'),
         'entity_type' => 'proc',
         'bundle' => 'proc_ciphertxt',
-      ),
-      'recipient_ciphertxt' => array(
+      ],
+      'recipient_ciphertxt' => [
         'field_name' => 'proc_recipient',
         'entity_type' => 'proc',
         'bundle' => 'proc_ciphertxt',
         'label' => t('Ciphertext recipient user reference'),
-      ),
-    );
+      ],
+    ];
     _proc_field_create_instances($instances);
   }
 }
@@ -166,7 +166,7 @@ function proc_update_7000() {
   foreach ($recorded_key_entries as $recorded_key_entry) {
     // If key has been saved empty:
     if (strpos($recorded_key_entry->proc_armored_value, '"public_key";s:0:""') == TRUE) {
-      watchdog('proc', 'Deleting empty key entry pid: %pid', array('%pid' => $recorded_key_entry->entity_id), WATCHDOG_INFO);
+      watchdog('proc', 'Deleting empty key entry pid: %pid', ['%pid' => $recorded_key_entry->entity_id], WATCHDOG_INFO);
       try {
         entity_delete('proc', $recorded_key_entry->entity_id);
       }
@@ -185,11 +185,11 @@ function proc_update_7001() {
     'proc',
     'title',
     'label',
-    array (
+    [
       'description' => 'The label of this protected content.',
       'type' => 'text',
       'size' => 'small'
-    )
+    ]
   );
 }
 
@@ -197,12 +197,12 @@ function proc_update_7001() {
  * Add and populate changed column.
  */
 function proc_update_7002() {
-  $definition = array(
+  $definition = [
     'description' => 'The Unix timestamp when the armored was changed.',
     'type' => 'int',
     'not null' => TRUE,
     'default' => 0,
-  );
+  ];
   db_add_field('proc', 'changed', $definition);
   // Popopulate:
   db_update('proc')->expression('changed', 'created')->execute();
@@ -226,11 +226,11 @@ function proc_update_7003(&$sandbox) {
   }
 
   if (!db_field_exists('proc', 'meta')){
-    $definition = array(
+    $definition = [
       'description' => 'Unprotected metadata of this protected content.',
       'type'        => 'text',
       'size'        => 'normal',
-    );
+    ];
     db_add_field('proc', 'meta', $definition);
   }
 
@@ -238,7 +238,7 @@ function proc_update_7003(&$sandbox) {
   $query->entityCondition('entity_type', 'proc', '=');
   $result = $query->execute();
 
-  $pids = array();
+  $pids = [];
   foreach ($result['proc'] as $pid) {
     $pids[] = $pid->pid;
   }
@@ -264,11 +264,11 @@ function proc_update_7003(&$sandbox) {
         $generation_timestamp = check_plain($unserialized_value['generation_timestamp']);
         $generation_timespan  = check_plain($unserialized_value['generation_timespan']);
         $browser_fingerprint  = check_plain($unserialized_value['browser_fingerprint']);
-        $proc_metadata = array(
+        $proc_metadata = [
           'generation_timestamp' => check_plain($generation_timestamp),
           'generation_timespan'  => check_plain($generation_timespan),
           'browser_fingerprint'  => check_plain($browser_fingerprint),
-        );
+        ];
         if ($proc_wrapper->type->value() == 'proc_ciphertxt') {
           $proc_metadata['source_file_size'] = check_plain($unserialized_value['source_file_size']);
           $proc_metadata['source_file_type'] = check_plain($unserialized_value['source_file_type']);
@@ -290,11 +290,11 @@ function proc_update_7003(&$sandbox) {
         $proc_wrapper->save();
 
         $message = 'Run !index: populated metadata field on entity !pid of type !type.';
-        $replacement = array(
+        $replacement = [
           '!index' => $sandbox['savings'],
           '!pid'   => $pid,
           '!type'  => $type_size,
-        );
+        ];
         watchdog('proc', $message, $replacement, WATCHDOG_INFO);
 
       }
@@ -312,9 +312,9 @@ function proc_update_7003(&$sandbox) {
   if ($sandbox['#finished'] == 1) {
     ini_set('memory_limit', $current_memory_limit);
     $message = 'Processed !pids_total proc entity(ies).';
-    $replacement = array(
+    $replacement = [
       '!pids_total' => $pids_total,
-    );
+    ];
     watchdog('proc', $message, $replacement, WATCHDOG_INFO);
   }
 }

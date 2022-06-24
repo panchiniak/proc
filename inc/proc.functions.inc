@@ -39,7 +39,7 @@ function _proc_get_pubkeys(array $items, string $type = NULL) {
   if (!isset($type)) {
     $type = 'uid';
   }
-  $pubkeys = array();
+  $pubkeys = [];
   foreach ($items as $item) {
     $key_data = _proc_get_keys($item, $type);
     $pubkeys[] = [
@@ -86,7 +86,7 @@ function _proc_field_create_instances(array $instances) {
  *   Array containing cryptographic library settings defined on .info.
  */
 function _proc_get_cryptolib_settings() {
-  $crypto_lib_settings = array();
+  $crypto_lib_settings = [];
 
   $path = drupal_get_path('module', 'proc') . '/proc.info';
   $info = drupal_parse_info_file($path);
@@ -142,7 +142,7 @@ function _proc_get_keys(string $item_id, string $type = NULL) {
     $keyring_created = $keyring[key($keyring)]->created;
     $keyring_changed = $keyring[key($keyring)]->changed;
     $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
-    $keyring_keys = array();
+    $keyring_keys = [];
     $keyring_keys['encrypted_private_key'] = $keyring['encrypted_private_key'];
     $keyring_keys['public_key'] = $keyring['public_key'];
     $keyring_keys['created'] = $keyring_created;
@@ -174,7 +174,7 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
 
   if (empty($result)) {
     // Entity not found also returns access denied:
-    return array();
+    return [];
   }
   $proc_wrapper = entity_metadata_wrapper('proc', $cid);
   $is_recipient = FALSE;
@@ -188,7 +188,7 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
     }
   }
 
-  $cipher_text_data = array();
+  $cipher_text_data = [];
 
   // Skip cipher if it is defined the retrieval of metadata only.
   if ($metadata_only != TRUE) {
@@ -222,16 +222,16 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
     $form_state = new stdClass();
   }
 
-  $context = array(
+  $context = [
     'unalterable_cipher_object' => clone $proc_wrapper,
     'unalterable_form' => clone $form,
     'unalterable_form_state' => clone $form_state,
-  );
+  ];
   drupal_alter('get_cipher_text', $cipher_text_data, $context);
 
   if (empty($cipher_text_data) || !$is_recipient) {
     // Return empty if current user does not belong to recipients list.
-    return array();
+    return [];
   }
   return $cipher_text_data;
 }
@@ -275,7 +275,7 @@ function _proc_get_csv_argument($csv_data) {
     $csv_data = preg_replace('/\?.+/', '', $csv_data);
     $csv_data = check_plain($csv_data);
     $csv_values = str_getcsv($csv_data);
-    $csv_data = array();
+    $csv_data = [];
     foreach ($csv_values as $csv_value) {
       if (is_numeric($csv_value) && $csv_value = (int) $csv_value) {
         $csv_data[] = $csv_value;
@@ -334,7 +334,7 @@ function _proc_get_post_max_size_bytes() {
  *   Array containing sanitized CSVs strings and arrays
  */
 function _proc_get_csv_arguments(array $csvs) {
-  $csvs_strings = array();
+  $csvs_strings = [];
   foreach ($csvs as $csvs_key => $csv_data) {
     $csv_data = _proc_get_csv_argument($csv_data);
     if (is_array($csv_data)) {
@@ -384,12 +384,12 @@ function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
   foreach ($cids as $cid) {
     $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
   }
-  $form_pass = array(
+  $form_pass = [
     '#type'        => 'password',
     '#title'       => t('Protected Content Password'),
     '#description' => t('You must type in the password you have used when registering your Protected Content Key.'),
     '#required'    => TRUE,
-  );
+  ];
   return [
     'privkey'     => $privkey,
     'keyring_cid' => $keyring['keyring_cid'],
@@ -434,11 +434,11 @@ function _proc_common_get_pubkeys(array $uids) {
  */
 function _proc_common_inject_lib($op) {
   _proc_lib_load();
-  $form_attachment = array(
-    drupal_get_path('module', 'proc') . '/js/proc.' . $op . '.js' => array(
+  $form_attachment = [
+    drupal_get_path('module', 'proc') . '/js/proc.' . $op . '.js' => [
       'type' => 'file',
-    ),
-  );
+    ],
+  ];
   return $form_attachment;
 }
 
@@ -453,7 +453,7 @@ function _proc_common_inject_lib($op) {
  */
 function _proc_common_get_decryption_form_data($privkey) {
   global $user;
-  return array(
+  return [
     'proc_uid' => $user->uid,
     'proc_pass' => drupal_hash_base64(drupal_get_hash_salt() . $user->uid),
     'proc_mail' => $user->mail,
@@ -461,7 +461,7 @@ function _proc_common_get_decryption_form_data($privkey) {
     'proc_privkey' => $privkey,
     'proc_labels' => _proc_js_labels(),
     'proc_skip_size_mismatch' => variable_get('proc_skip_size_mismatch', FALSE),
-  );
+  ];
 
 }
 
@@ -479,7 +479,7 @@ function _proc_get_proc_menu_callback($pids) {
       $ciphers[] = _proc_get_cipher((int) $pid, NULL, NULL)['cipher_text'];
     }
   }
-  drupal_json_output(array('ciphers' => $ciphers));
+  drupal_json_output(['ciphers' => $ciphers]);
 }
 
 /**
@@ -497,14 +497,14 @@ function _proc_get_pubkey_menu_callback($items, $type) {
   }
   $items_array = _proc_get_csv_argument($items);
   $pubkeys = _proc_get_pubkeys($items_array, $type);
-  drupal_json_output(array('pubkey' => $pubkeys));
+  drupal_json_output(['pubkey' => $pubkeys]);
 }
 
 /**
  * Helper function for defining js labels.
  */
 function _proc_js_labels() {
-  return array(
+  return [
     'proc_fileapi_err_msg'            => t('Your browser does not support file API.'),
     'proc_button_state_processing'    => t('Processing...'),
     'proc_max_encryption_size'        => t('Error. Maximum file size allowed:'),
@@ -524,7 +524,7 @@ function _proc_js_labels() {
     'proc_decryption_size_mismatch'   => t('Error: size mismatch.'),
     'proc_button_update_label'        => t('Update'),
     'proc_introducing_signature'      => t('Indroducing key passphrase for signature...'),
-  );
+  ];
 }
 
 /**
@@ -535,12 +535,12 @@ function _proc_cipher_serialize($cipher, $cid, $changed, $form, $form_state) {
   if (!isset($cid)) {
     $cid = '';
   }
-  $context = array(
+  $context = [
     'unalterable_serialization_source_form'       => $form,
     'unalterable_serialization_source_form_state' => $form_state,
     'unalterable_serialization_source_cid'        => $cid,
     'unalterable_serialization_source_changed'    => $changed,
-  );
+  ];
   drupal_alter('cipher_serialize', $cipher_serialized, $context);
   return $cipher_serialized;
 }
@@ -550,11 +550,11 @@ function _proc_cipher_serialize($cipher, $cid, $changed, $form, $form_state) {
  */
 function _proc_cipher_unserialize($cipher, $cid, $form, $form_state) {
   $cipher_unserialized = unserialize($cipher);
-  $context = array(
+  $context = [
     'unalterable_unserialization_source_cid'        => $cid,
     'unalterable_unserialization_source_form'       => $form,
     'unalterable_unserialization_source_form_state' => $form_state,
-  );
+  ];
   drupal_alter('cipher_unserialize', $cipher_unserialized, $context);
   return $cipher_unserialized;
 }
@@ -571,21 +571,21 @@ function _proc_update_ciphertext($cid, $form, $form_state, $recipients_uids_new)
   $browser_fingerprint_field_id = 'browser_fingerprint_cid_' . $cid;
   $generation_timestamp_field_id = 'generation_timestamp_cid_' . $cid;
   // Merge current and new data and metadata:
-  $ciphertxt_data[$cid] = array(
+  $ciphertxt_data[$cid] = [
     // Reuse unchanged values on encryption update:
     'source_file_size'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_size']),
     'source_file_name'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_name']),
     'source_file_type'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_type']),
-  );
+  ];
   // If a new cryptograpgic update happened:
   if ($form_state['values'][$generation_timespan_field_id]) {
-    $ciphertxt_data[$cid] = array(
+    $ciphertxt_data[$cid] = [
       // Set new changed values on encryption update:
       'generation_timespan'  => check_plain($form_state['values'][$generation_timespan_field_id]),
       'generation_timestamp' => check_plain($form_state['values'][$generation_timestamp_field_id]),
       'browser_fingerprint'  => check_plain($form_state['values'][$browser_fingerprint_field_id]),
       'cipher_text'          => check_plain($form_state['values'][$cid_cipher_field_id]),
-    );
+    ];
     $proc_wrapper->proc_recipient->set($recipients_uids_new);
 
   }
@@ -593,7 +593,7 @@ function _proc_update_ciphertext($cid, $form, $form_state, $recipients_uids_new)
   else {
     // We want only the ciphertext stored in database:
     if ($cipher_data = check_plain(unserialize($proc_wrapper->proc_armored->value())['cipher_text'])) {
-      $ciphertxt_data[$cid] = array('cipher_text' => $cipher_data);
+      $ciphertxt_data[$cid] = ['cipher_text' => $cipher_data];
     }
     else {
       // We want only the ciphertext possibly stored elsewhere:

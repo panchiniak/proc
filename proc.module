@@ -11,32 +11,32 @@ require_once 'inc/proc.functions.inc';
  * Implements hook_permission().
  */
 function proc_permission() {
-  return array(
-    'register protected content keys' => array(
+  return [
+    'register protected content keys' => [
       'title' => t('Register protected content keys'),
       'description' => t('Allow user to access Protected Content Keys registration page.'),
-    ),
-    'new protected file' => array(
+    ],
+    'new protected file' => [
       'title' => t('Create new protected file'),
       'description' => t('Allow user to access Create New Protected File page.'),
-    ),
-    'create cipher' => array(
+    ],
+    'create cipher' => [
       'title' => t('Create new cipher'),
       'description' => t('Allow user to create new cipher entity.'),
-    ),
-    'view cipher' => array(
+    ],
+    'view cipher' => [
       'title' => t('View cipher'),
       'description' => t('Allow user to view cipher entity.'),
-    ),
-    'delete cipher' => array(
+    ],
+    'delete cipher' => [
       'title' => t('Delete cipher'),
       'description' => t('Allow user to delete cipher entity.'),
-    ),
-    'update cipher' => array(
+    ],
+    'update cipher' => [
       'title' => t('Edit cipher'),
       'description' => t('Allow user to update cipher entity.'),
-    ),
-  );
+    ],
+  ];
 }
 
 /**
@@ -54,63 +54,63 @@ function proc_help($path) {
  */
 function proc_menu() {
 
-  $items['proc/keyring/add'] = array(
+  $items['proc/keyring/add'] = [
     'title' => 'Manage Encryption Keys',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_generate_keys'),
-    'access arguments' => array('register protected content keys'),
+    'page arguments' => ['_proc_generate_keys'],
+    'access arguments' => ['register protected content keys'],
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
-  );
-  $items['proc/add/%'] = array(
+  ];
+  $items['proc/add/%'] = [
     'title' => 'Add file',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_encrypt_file', 2),
-    'access arguments' => array('new protected file'),
+    'page arguments' => ['_proc_encrypt_file', 2],
+    'access arguments' => ['new protected file'],
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
-  );
-  $items['proc/%'] = array(
+  ];
+  $items['proc/%'] = [
     'title' => 'View Protected Content',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_decrypt_to_file', 1),
+    'page arguments' => ['_proc_decrypt_to_file', 1],
     'access callback' => '_proc_recipient_multiple',
-    'access arguments' => array(1),
+    'access arguments' => [1],
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
-  );
-  $items['proc/update/%/%'] = array(
+  ];
+  $items['proc/update/%/%'] = [
     'title' => 'Update Protected Content',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_update', 2, 3),
+    'page arguments' => ['_proc_update', 2, 3],
     'access callback' => '_proc_recipient_multiple',
-    'access arguments' => array(2),
+    'access arguments' => [2],
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
-  );
-  $items['proc/api/get/%'] = array(
+  ];
+  $items['proc/api/get/%'] = [
     'title' => 'Get Protected Content',
     'page callback' => '_proc_get_proc_menu_callback',
     'page arguments' => [3],
     'access callback' => '_proc_recipient',
-    'access arguments' => array(3),
+    'access arguments' => [3],
     'file' => 'inc/proc.functions.inc',
-  );
-  $items['proc/api/getpubkey/%/%'] = array(
+  ];
+  $items['proc/api/getpubkey/%/%'] = [
     'title' => 'Get Public Key',
     'page callback' => '_proc_get_pubkey_menu_callback',
     'page arguments' => [3, 4],
-    'access arguments' => array('new protected file'),
+    'access arguments' => ['new protected file'],
     'file' => 'inc/proc.functions.inc',
-  );
-  $items['proc/sign/%'] = array(
+  ];
+  $items['proc/sign/%'] = [
     'title' => 'Sign a file',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_sign_file', 2),
-    'access arguments' => array('new protected file'),
+    'page arguments' => ['_proc_sign_file', 2],
+    'access arguments' => ['new protected file'],
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
-  );
+  ];
 
 
   return $items;
@@ -120,34 +120,34 @@ function proc_menu() {
  * Implements hook_views_api().
  */
 function proc_views_api() {
-  return array(
+  return [
     'api' => '3.0',
     'path' => drupal_get_path('module', 'proc') . '/inc',
-  );
+  ];
 }
 
 /**
  * Implements hook_libraries_info().
  */
 function proc_libraries_info() {
-  $libs = array();
+  $libs = [];
 
   $crypto_info = _proc_get_cryptolib_settings();
 
-  $libs[$crypto_info['folder']] = array(
+  $libs[$crypto_info['folder']] = [
     'name' => $crypto_info['versionstring'],
     'vendor url' => $crypto_info['vendor'],
     'download url' => $crypto_info['url'],
-    'version arguments' => array(
+    'version arguments' => [
       'file' => $crypto_info['file'],
       'pattern' => '/v(([0-9]\.?)+)/',
       'lines' => 1,
       'cols' => 24,
-    ),
-    'files' => array(
-      'js' => array($crypto_info['file']),
-    ),
-  );
+    ],
+    'files' => [
+      'js' => [$crypto_info['file']],
+    ],
+  ];
 
   return $libs;
 }
@@ -156,42 +156,42 @@ function proc_libraries_info() {
  * Implements hook_entity_info().
  */
 function proc_entity_info() {
-  $info = array(
-    'proc' => array(
+  $info = [
+    'proc' => [
       'label' => t('Protected Content'),
       'entity class' => 'Proc',
       'base table' => 'proc',
       'label callback' => 'entity_class_label',
       'uri callback' => 'entity_class_uri',
-      'entity keys' => array(
+      'entity keys' => [
         'id' => 'pid',
         'bundle' => 'type',
-      ),
-      'bundle keys' => array(
+      ],
+      'bundle keys' => [
         'bundle' => 'type',
-      ),
-      'bundles' => array(
-        'proc_keyring' => array(
+      ],
+      'bundles' => [
+        'proc_keyring' => [
           'label' => t('Keyring'),
-        ),
-        'proc_ciphertxt' => array(
+        ],
+        'proc_ciphertxt' => [
           'label' => t('Ciphertext'),
-        ),
-      ),
-      'view modes' => array(
-        'full' => array(
+        ],
+      ],
+      'view modes' => [
+        'full' => [
           'label' => t('Default'),
           'custom settings' => FALSE,
-        ),
-      ),
+        ],
+      ],
       'module' => 'proc',
       'access callback' => 'proc_access',
       'controller class' => 'EntityAPIController',
       'metadata controller class' => '',
       'fieldable' => TRUE,
       'views controller class' => 'EntityDefaultViewsController',
-    ),
-  );
+    ],
+  ];
   return $info;
 }
 
@@ -203,65 +203,65 @@ function proc_entity_info() {
  * created automatically.
  */
 function proc_entity_property_info() {
-  $info = array();
+  $info = [];
   $properties = &$info['proc']['properties'];
 
-  $properties['pid'] = array(
+  $properties['pid'] = [
     'type' => 'integer',
     'schema field' => 'pid',
     'label' => t('Proc Armored entity ID'),
     'setter callback' => 'entity_property_verbatim_set',
-  );
-  $properties['type'] = array(
+  ];
+  $properties['type'] = [
     'type' => 'text',
     'schema field' => 'type',
     'required' => TRUE,
     'label' => t('Proc Armored entity type (bundle)'),
     'setter callback' => 'entity_property_verbatim_set',
-  );
-  $properties['uid'] = array(
+  ];
+  $properties['uid'] = [
     'type' => 'user',
     'schema field' => 'uid',
     'required' => TRUE,
     'label' => t('Proc Armored author'),
     'setter callback' => 'entity_property_verbatim_set',
-  );
-  $properties['label'] = array(
+  ];
+  $properties['label'] = [
     'type'  => 'text',
     'schema field' => 'label',
     'required' => TRUE,
     'label' => t('Protected content label'),
     'description' => t('Friendly identifier for armored data'),
     'setter callback' => 'entity_property_verbatim_set',
-  );
-  $properties['status'] = array(
+  ];
+  $properties['status'] = [
     'type' => 'boolean',
     'schema field' => 'status',
     'label' => t('Proc Armored entity status'),
     'setter callback' => 'entity_property_verbatim_set',
-  );
-  $properties['created'] = array(
+  ];
+  $properties['created'] = [
     'type' => 'date',
     'schema field' => 'created',
     'required' => TRUE,
     'label' => t('Proc Armored created timestamp'),
     'setter callback' => 'entity_property_verbatim_set',
-  );
-  $properties['changed'] = array(
+  ];
+  $properties['changed'] = [
     'type' => 'date',
     'schema field' => 'changed',
     'required' => TRUE,
     'label' => t('Proc Armored changed timestamp'),
     'setter callback' => 'entity_property_verbatim_set',
-  );
-  $properties['meta'] = array(
+  ];
+  $properties['meta'] = [
     'type'  => 'text',
     'schema field' => 'meta',
     'required' => TRUE,
     'label' => t('Protected content metadata'),
     'description' => t('Metadata generated on cipher creation'),
     'setter callback' => 'entity_property_verbatim_set',
-  );
+  ];
   return $info;
 }
 
@@ -275,7 +275,7 @@ class Proc extends Entity {
    */
   protected function defaultUri() {
     if (($this->type == 'proc_ciphertxt') && (_proc_recipient($this->identifier()))) {
-      return array('path' => 'proc/' . $this->identifier());
+      return ['path' => 'proc/' . $this->identifier()];
     }
     return FALSE;
   }
@@ -321,11 +321,11 @@ function proc_entity_update($entity, $type){
       module_invoke_all('cipher_update_postsave', $entity, $type);
       $success_update_message = t(
         'File %file_label (%file_id) updated successfully for %number_recipients user(s)',
-        array(
+        [
           '%file_label' => $entity->label,
           '%file_id' => $entity->pid,
           '%number_recipients' => count($entity->proc_recipient[LANGUAGE_NONE]),
-        )
+        ]
       );
       drupal_set_message($success_update_message);
     }

@@ -21,27 +21,27 @@ function proc_storage_help($path) {
  * Implements hook_permission().
  */
 function proc_storage_permission() {
-  return array(
-    'administer proc-storage' => array(
+  return [
+    'administer proc-storage' => [
       'title' => t('Administer Protected Content Storage'),
       'description' => t('Protected Content Storage settings'),
       'restrict access' => TRUE,
-    ),
-  );
+    ],
+  ];
 }
 
 /**
  * Implements hook_menu().
  */
 function proc_storage_menu() {
-  $items['admin/config/proc-storage'] = array(
+  $items['admin/config/proc-storage'] = [
     'title' => 'Protected Content Storage Settings',
     'description' => 'Settings of Protected Content Storage',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_proc_storage_settings_form'),
-    'access arguments' => array('administer proc-storage'),
+    'page arguments' => ['_proc_storage_settings_form'],
+    'access arguments' => ['administer proc-storage'],
     'file' => 'inc/proc_storage.forms.inc',
-  );
+  ];
   return $items;
 }
 
@@ -94,13 +94,13 @@ function proc_storage_cipher_serialize_alter(&$cipher, $context) {
     // Therefore, if there was a file usage added, it will be removed:
     if ($context['unalterable_serialization_source_cid']){
       $query = db_select('file_usage', 'fu')
-        ->fields('fu', array('fid'))
+        ->fields('fu', ['fid'])
         ->condition('fu.module', 'proc_storage')
         ->condition('fu.id', $context['unalterable_serialization_source_cid']);
       $fids = $query->execute()->fetchAll();
 
       if (!empty($fids)){
-        $fids_array = array();
+        $fids_array = [];
         foreach ($fids as $fid){
           $fids_array[] = $fid->fid;
         }
@@ -143,19 +143,19 @@ function proc_storage_cipher_unserialize_alter(&$cipher, $context) {
 
             $content_availability_warning = t(
               'Error of content availability. Trying to access another copy if any. Protected Content ID: <b>@proc-id</b>.',
-              array(
+              [
               '@proc-id' => $context['unalterable_unserialization_source_cid'],
-              )
+              ]
             );
             drupal_set_message($content_availability_warning, 'warning');
 
             watchdog(
               'proc_storage',
               'Error accessing protected content: %pid from URI: %uri ',
-              array(
+              [
                 '%pid' => $context['unalterable_unserialization_source_cid'],
                 '%uri' => $file_object->uri,
-              ), WATCHDOG_INFO);
+              ], WATCHDOG_INFO);
 
             $availability_error = TRUE;
           }
@@ -179,16 +179,16 @@ function proc_storage_action_info() {
   else{
     $label = t('Update to database storage');
   }
-  return array(
-    'proc_storage_switch_action' => array(
+  return [
+    'proc_storage_switch_action' => [
       'label' => $label,
       'type' => 'proc',
       'configurable' => FALSE,
-      'triggers' => array('any'),
+      'triggers' => ['any'],
       'pass rows' => TRUE,
-      'permissions' => array('administer proc-storage'),
-    ),
-  );
+      'permissions' => ['administer proc-storage'],
+    ],
+  ];
 }
 
 /**
@@ -199,7 +199,7 @@ function proc_storage_action_info() {
  * @param array $context
  *   Context of protected content.
  */
-function proc_storage_switch_action(&$entity, $context = array()) {
+function proc_storage_switch_action(&$entity, $context = []) {
   _proc_update_ciphertext($entity->pid, NULL, NULL, NULL);
 }
 
@@ -215,9 +215,9 @@ function _proc_storage_settings_form_validate($form, &$form_state) {
     ){
       form_set_error('proc_storage_global_stream_wrapper', t(
         'Stream wrapper <b>@invalid-stream-wrapper</b> is invalid.',
-        array(
+        [
           '@invalid-stream-wrapper' => $local_stream_wrapper,
-          )
+          ]
       ));
     }
   }

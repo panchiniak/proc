@@ -12,28 +12,28 @@ include_once 'inc/proc_refield.functions.inc';
  */
 function proc_refield_install() {
 
-  $fields = array(
-    'proc_refield' => array(
+  $fields = [
+    'proc_refield' => [
       'field_name' => 'proc_refield',
       'type' => 'entityreference',
       'cardinality' => FIELD_CARDINALITY_UNLIMITED,
-      'settings' => array(
+      'settings' => [
         'target_type' => 'proc',
-        'target_bundles' => array('proc_ciphertxt'),
-      ),
-    ),
-  );
+        'target_bundles' => ['proc_ciphertxt'],
+      ],
+    ],
+  ];
 
   _proc_refield_field_create_fields($fields);
 
-  $instances = array(
-    'proc_refield_my_cipher' => array(
+  $instances = [
+    'proc_refield_my_cipher' => [
       'field_name' => 'proc_refield',
       'label' => 'Entity reference to my cipher texts',
       'entity_type' => 'proc',
       'bundle' => 'proc_ciphertxt',
-    ),
-  );
+    ],
+  ];
 
   _proc_refield_field_create_instances($instances);
 }

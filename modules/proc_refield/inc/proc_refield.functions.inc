@@ -67,7 +67,7 @@ function _proc_refield_recipients_menu_callback($view) {
   if ($recipients_view) {
     $recipients_view->set_arguments($filter_arguments_set);
     $recipients_view->execute();
-    $selected_user_ids = array();
+    $selected_user_ids = [];
     foreach ($recipients_view->result as $row_key => $row) {
       $selected_user_ids[] = $row->uid;
     }

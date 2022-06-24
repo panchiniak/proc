@@ -14,11 +14,11 @@ class ProcTestCase extends DrupalWebTestCase {
    * Gets info for test results overview.
    */
   public static function getInfo() {
-    return array(
+    return [
       'name' => 'Proc',
       'description' => 'Check existence of proc entity.',
       'group' => 'Protected Content',
-    );
+    ];
   }
 
   /**
