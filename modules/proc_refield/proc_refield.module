@@ -39,6 +39,7 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
 
   $encryption_operarion = 0;
 
+
   if (
     isset($field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'][1]) ||
     $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'] == 1
@@ -51,6 +52,13 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
     $encryption_form_id = '-proc-encrypt-file';
   }
   if ($encryption_operarion) {
+    // Input methods:
+    // 0 - Disabled
+    // 1 - Text field
+    // 2 - Text area
+    $input_method = $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['input'];
+    
+
     $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('@operation a file', ['@operation' => ucfirst($encryption_operarion)]) . '</span>';
     // Default value and path are avaialble to be changed at hooks alter:
     $recipients_argument['value'] = 'NULL';

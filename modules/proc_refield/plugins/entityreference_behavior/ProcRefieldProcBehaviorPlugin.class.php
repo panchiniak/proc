@@ -35,6 +35,7 @@ class ProcRefieldProcBehaviorPlugin extends EntityReference_BehaviorHandler_Abst
       }
     }
 
+
     $form['onclick']['enable'] = [
       '#title' => t('Encryption operation'),
       '#description' => t('Choose the encryption operation. Signing requires encryption keys from the author.'),
@@ -53,8 +54,16 @@ class ProcRefieldProcBehaviorPlugin extends EntityReference_BehaviorHandler_Abst
       '#default_value' => isset($instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['fetcher']) ? $instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['fetcher'] : '- None -',
       '#description' => t('Choose a user reference view as recipient fecther. User IDs returned will be used to select available recipients for encryption. Users listed must be holders of a protected content keyring.'),
     ];
-
+    $form['onclick']['input'] = [
+      '#title' => t('Text input mode'),
+      '#description' => t('Enable a text input mode instead of standard file encryption.'),
+      '#type' => 'radios',
+      '#options' => [
+        '0' => t('Disabled'),
+        '1' => t('Enabled'),
+      ],
+      '#default_value' => isset($instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['input']) ? $instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['input'] : 0,
+    ];
     return $form;
   }
-
 }

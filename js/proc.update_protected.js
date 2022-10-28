@@ -95,6 +95,7 @@
                             const decrypted = await openpgp.decrypt({
                                 decryptionKeys: decryptedPrivateKey,
                                 message,
+                                // @todo make format dynamic for allowing the update of texts (ie. armored format instead of binary)
                                 format: 'binary'
                             });
 

@@ -14,6 +14,7 @@
                 ciphersChanged    = Drupal.settings.proc.procs_changed,
                 sourcesFileNames  = Drupal.settings.proc.proc_sources_file_names,
                 sourcesFilesSizes = Drupal.settings.proc.proc_sources_file_sizes,
+                sourcesInputModes = Drupal.settings.proc.proc_sources_input_modes,
                 fileApiErrMsg     = Drupal.settings.proc.proc_fileapi_err_msg,
                 ciphersSigned     = Drupal.settings.proc.proc_signed,
                 skipSizeMismatch  = Drupal.settings.proc.proc_skip_size_mismatch;
@@ -180,14 +181,18 @@
                                                 }
                                             }
                                             else{
-
-
                                                 const message = await openpgp.readMessage({ armoredMessage: cipherText });
+
+                                                let procFormat = 'binary';
+                                                if (sourcesInputModes[cipherIndex]) {
+                                                    procFormat = sourcesInputModes[cipherIndex];
+                                                }
+
                                                 decrypted = await openpgp.decrypt({
                                                     decryptionKeys: decryptedPrivateKey,
                                                     // verificationKeys: publicKeys,
                                                     message,
-                                                    format: 'binary'
+                                                    format: procFormat
                                                 });
 
                                                 if (decrypted){

@@ -28,16 +28,18 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
 
   $form['#attached']['js'] = _proc_common_inject_lib('decrypt_protected_to_file');
 
-  $proc_sources_file_names = [];
-  $proc_sources_file_sizes = [];
-  $proc_ids                = [];
-  $procs_changed           = [];
+  $proc_sources_file_names  = [];
+  $proc_sources_file_sizes  = [];
+  $proc_sources_input_modes = [];
+  $proc_ids                 = [];
+  $procs_changed            = [];
 
   foreach ($cids_ciphers as $cid_cipher) {
-    $proc_sources_file_names[] = $cid_cipher['source_file_name'];
-    $proc_sources_file_sizes[] = $cid_cipher['source_file_size'];
-    $proc_ids[]                = $cid_cipher['cipher_cid'];
-    $procs_changed[]           = $cid_cipher['changed'];
+    $proc_sources_file_names[]  = $cid_cipher['source_file_name'];
+    $proc_sources_file_sizes[]  = $cid_cipher['source_file_size'];
+    $proc_sources_input_modes[] = $cid_cipher['source_input_mode'];
+    $proc_ids[]                 = $cid_cipher['cipher_cid'];
+    $procs_changed[]            = $cid_cipher['changed'];
 
     // An older proc does not contain signed flag in its metadata:
     if (isset($cid_cipher['signed'])) {
@@ -52,11 +54,12 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
   }
 
   $multiple_decryption_form_elements = [
-    'proc_sources_file_names' => $proc_sources_file_names,
-    'proc_sources_file_sizes' => $proc_sources_file_sizes,
-    'proc_ids'                => $proc_ids,
-    'procs_changed'           => $procs_changed,
-    'proc_signed'             => $proc_signed,
+    'proc_sources_file_names'  => $proc_sources_file_names,
+    'proc_sources_file_sizes'  => $proc_sources_file_sizes,
+    'proc_sources_input_modes' => $proc_sources_input_modes,
+    'proc_ids'                 => $proc_ids,
+    'procs_changed'            => $procs_changed,
+    'proc_signed'              => $proc_signed,
   ];
 
   $form['#attached']['js'][] = [
@@ -210,8 +213,19 @@ function _proc_update_submit($form, &$form_state) {
 /**
  * Helper function for encryption of files.
  */
-function _proc_encrypt_file($form, &$form_state, $uids) {
+function _proc_encrypt($form, &$form_state, $uids, $format = null) {
   global $user;
+
+  $valid_formats = [
+    'armored' => 'encrypt_text', 
+    'binary' => 'encrypt_file'
+  ];
+
+  if (!array_key_exists($format, $valid_formats)) {
+    drupal_set_message('Error on encryption format. It has to be binary or armored.', 'error');
+    return;
+  }
+  cache_clear_all(NULL, 'cache_form', TRUE);
 
   // Sanitize and preprocess argument:
   $csv      = _proc_get_csv_arguments(['uids_csv' => $uids]);
@@ -227,7 +241,7 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
     unset($recipients_pubkeys[$recipients_pubkey_key]['key']);
   }
 
-  $form['#attached']['js'] = _proc_common_inject_lib('encrypt_file');
+  $form['#attached']['js'] = _proc_common_inject_lib($valid_formats[$format]);
 
   $uids_keys_changed = array_flip($uids);
   foreach ($uids_keys_changed as $uid_fliped_key => $uid_fliped) {
@@ -248,17 +262,6 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
 
   $form['#attached']['js'][0]['data']['proc'] += _proc_common_get_decryption_form_data(NULL);
 
-  $form['upload'] = [
-    '#name' => 'files[]',
-    '#type' => 'file',
-    '#disabled' => FALSE,
-  ];
-
-  $form['pc-upload-description'] = [
-    '#type' => 'item',
-    '#title' => t('Choose a file'),
-  ];
-
   $hidden_fields = [
     'cipher_text',
     'generation_timestamp',
@@ -275,26 +278,48 @@ function _proc_encrypt_file($form, &$form_state, $uids) {
     $form[$hidden_field] = ['#type' => 'hidden'];
   }
 
-  $form['button'] = [
-    '#type' => 'submit',
-    '#value' => t('Save'),
-    '#attributes' => [
-      'onclick' => [
-        _proc_get_onclick_saving(),
-      ],
-    ],
-  ];
-
-  $form['button']['#ajax'] = [
-    'callback' => '_proc_encrypt_file_submit_callback',
-    'wrapper'  => '-proc-encrypt-file-form',
-    'method'   => 'replace',
-    'effect'   => 'fade',
-  ];
-
   $form_state['build_info']['args'][0] = $uids_csv;
 
-  return $form;
+  if ($format == 'binary') {
+
+    $form['upload'] = [
+      '#name' => 'files[]',
+      '#type' => 'file',
+      '#disabled' => FALSE,
+    ];
+    $form['pc-upload-description'] = [
+      '#type' => 'item',
+      '#title' => t('Choose a file'),
+    ];
+    $form['button'] = [
+      '#type' => 'button',
+      '#value' => t('Save'),
+      '#attributes' => [
+        'onclick' => [
+          _proc_get_onclick_saving(),
+        ],
+      ],
+    ];
+    $form['button']['#ajax'] = [
+      'callback' => '_proc_encrypt_submit_callback',
+      'wrapper'  => '-proc-encrypt-file-form',
+      'method'   => 'replace',
+      'effect'   => 'fade',
+    ];
+    return $form;
+  }
+
+  if ($format == 'armored') { 
+  
+    $form['plaintext'] = [
+      '#type' => 'textarea',  
+    ];
+    $form['button'] = [
+      '#type' => 'submit',
+      '#value' => t('Encrypt'),
+    ];
+    return $form;
+  }
 }
 
 /**
@@ -407,90 +432,93 @@ function _proc_generate_keys_submit($form, &$form_state) {
 /**
  * Submit function for cipher text submission.
  */
-function _proc_encrypt_file_submit_callback($form, &$form_state) {
+function _proc_encrypt_submit_callback($form, &$form_state) {
   global $user;
   global $base_url;
   global $language;
 
-  $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);
-  // Sorting UIDs just because sorting is beautiful.
-  asort($recipients_uids);
-  $recipients_uids = array_values($recipients_uids);
+  if ($form_state['values']['cipher_text']) {
 
-  // At this moment UIDs have been alredy checked.
-  // @todo consider using drupal_check_token to assure form data integrity.
-  // Prepare the form values for submission.
-  $ciphertxt_data = [
-    'cipher_text' => check_plain($form_state['values']['cipher_text']),
-  ];
-
-  $ciphertxt_metadata = [
-    'source_file_size'     => check_plain($form_state['values']['source_file_size']),
-    'generation_timespan'  => check_plain($form_state['values']['generation_timespan']),
-    'source_file_type'     => check_plain($form_state['values']['source_file_type']),
-    'browser_fingerprint'  => check_plain($form_state['values']['browser_fingerprint']),
-    'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
-    'source_file_name'     => check_plain($form_state['values']['source_file_name']),
-    'signed'               => check_plain($form_state['values']['signed']),
-  ];
-
-  $entity = entity_create('proc', ['type' => 'proc_ciphertxt']);
-
-  if (!empty($ciphertxt_metadata['source_file_name'])) {
-    $wrapper = entity_metadata_wrapper('proc', $entity);
-    // @todo deprecate property uid in favor of proc_armoredown field.
-    $wrapper->uid = $user->uid;
-    $wrapper->proc_armoredown->set($user->uid);
-    $current_timestamp = time();
-
-    $wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data, NULL, $current_timestamp, $form, $form_state);
-
-    $wrapper->meta = serialize($ciphertxt_metadata);
-    $wrapper->proc_recipient->set($recipients_uids);
-    $wrapper->language($language->language);
-    $wrapper->label = $ciphertxt_metadata['source_file_name'];
-    $wrapper->created = $current_timestamp;
-    $wrapper->changed = $current_timestamp;
-    $wrapper->save();
-  }
-  // @todo add option to turn off cipher post save default messages.
-  if (isset($entity->pid)) {
-    $success_encryption_message = t(
-      'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
-      [
-        '@exclusive-access-link' => url('proc/' . $entity->pid),
-        '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
-      ]
-    );
-    $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
-    $watchdog_args = ['@type' => 'proc_ciphertxt', '%pid' => $entity->pid];
-    watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
-
-  }
-  else {
-    $failure_encryption_message = t('Sorry. Cipher text of your file has not been saved. Close other tabs in your browser to release some memory and try again.');
+    $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);
+    // Sorting UIDs just because sorting is beautiful.
+    asort($recipients_uids);
+    $recipients_uids = array_values($recipients_uids);
+  
+    // At this moment UIDs have been alredy checked.
+    // @todo consider using drupal_check_token to assure form data integrity.
+    // Prepare the form values for submission.
+    $ciphertxt_data = [
+      'cipher_text' => check_plain($form_state['values']['cipher_text']),
+    ];
+  
+    $ciphertxt_metadata = [
+      'source_file_size'     => check_plain($form_state['values']['source_file_size']),
+      'generation_timespan'  => check_plain($form_state['values']['generation_timespan']),
+      'source_file_type'     => check_plain($form_state['values']['source_file_type']),
+      'browser_fingerprint'  => check_plain($form_state['values']['browser_fingerprint']),
+      'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
+      'source_file_name'     => check_plain($form_state['values']['source_file_name']),
+      'signed'               => check_plain($form_state['values']['signed']),
+    ];
+  
+    $entity = entity_create('proc', ['type' => 'proc_ciphertxt']);
+  
+    if (!empty($ciphertxt_metadata['source_file_name'])) {
+      $wrapper = entity_metadata_wrapper('proc', $entity);
+      // @todo deprecate property uid in favor of proc_armoredown field.
+      $wrapper->uid = $user->uid;
+      $wrapper->proc_armoredown->set($user->uid);
+      $current_timestamp = time();
+  
+      $wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data, NULL, $current_timestamp, $form, $form_state);
+  
+      $wrapper->meta = serialize($ciphertxt_metadata);
+      $wrapper->proc_recipient->set($recipients_uids);
+      $wrapper->language($language->language);
+      $wrapper->label = $ciphertxt_metadata['source_file_name'];
+      $wrapper->created = $current_timestamp;
+      $wrapper->changed = $current_timestamp;
+      $wrapper->save();
+    }
+    // @todo add option to turn off cipher post save default messages.
+    if (isset($entity->pid)) {
+      $success_encryption_message = t(
+        'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
+        [
+          '@exclusive-access-link' => url('proc/' . $entity->pid),
+          '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
+        ]
+      );
+      $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
+      $watchdog_args = ['@type' => 'proc_ciphertxt', '%pid' => $entity->pid];
+      watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
+  
+    }
+    else {
+      $failure_encryption_message = t('Sorry. Cipher text of your file has not been saved. Close other tabs in your browser to release some memory and try again.');
+      $context = [
+        'unalterable_encryption_source_form' => $form,
+      ];
+      drupal_alter('cipher_postsave_failure_encryption_message', $failure_encryption_message, $context);
+      if (!empty($failure_encryption_message)) {
+        drupal_set_message($failure_encryption_message, 'error');
+      }
+    }
     $context = [
       'unalterable_encryption_source_form' => $form,
+      'unalterable_pid' => $entity->pid,
     ];
-    drupal_alter('cipher_postsave_failure_encryption_message', $failure_encryption_message, $context);
-    if (!empty($failure_encryption_message)) {
-      drupal_set_message($failure_encryption_message, 'error');
+    drupal_alter('cipher_postsave_success_encryption_message', $success_encryption_message, $context);
+    if (!empty($success_encryption_message)) {
+      drupal_set_message($success_encryption_message);
     }
+  
+    cache_clear_all(NULL, 'cache_form', TRUE);
+    module_invoke_all('cipher_postsave', $entity->pid, $form_state, $entity);
+    $commands[] = ajax_command_remove('div.messages');
+    $commands[] = ajax_command_before('#main-content', theme('status_messages'));
+    ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
   }
-  $context = [
-    'unalterable_encryption_source_form' => $form,
-    'unalterable_pid' => $entity->pid,
-  ];
-  drupal_alter('cipher_postsave_success_encryption_message', $success_encryption_message, $context);
-  if (!empty($success_encryption_message)) {
-    drupal_set_message($success_encryption_message);
-  }
-
-  cache_clear_all(NULL, 'cache_form', TRUE);
-  module_invoke_all('cipher_postsave', $entity->pid, $form_state, $entity);
-  $commands[] = ajax_command_remove('div.messages');
-  $commands[] = ajax_command_before('#main-content', theme('status_messages'));
-  ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
 }
 
 /**
@@ -588,7 +616,7 @@ function _proc_sign_file($form, &$form_state, $uids) {
   ];
 
   $form['button']['#ajax'] = [
-    'callback' => '_proc_encrypt_file_submit_callback',
+    'callback' => '_proc_encrypt_submit_callback',
     'wrapper'  => '-proc-encrypt-file-form',
     'method'   => 'replace',
     'effect'   => 'fade',
@@ -597,4 +625,105 @@ function _proc_sign_file($form, &$form_state, $uids) {
   $form_state['build_info']['args'][0] = $uids_csv;
 
   return $form;
+}
+
+/**
+ * Submit function for cipher text submission on text input mode.
+ */
+function _proc_encrypt_submit($form, &$form_state) {  
+  global $user;
+  global $base_url;
+  global $language;
+
+  if ($form_state['values']['cipher_text']) { 
+
+    $recipients_uids = str_getcsv($form_state['build_info']['args'][0]);
+    // Sorting UIDs just because sorting is beautiful.
+    asort($recipients_uids);
+    $recipients_uids = array_values($recipients_uids);
+  
+    // At this moment UIDs have been alredy checked.
+    // @todo consider using drupal_check_token to assure form data integrity.
+    // Prepare the form values for submission.
+    $ciphertxt_data = [
+      'cipher_text' => check_plain($form_state['values']['cipher_text']),
+    ];
+  
+    $ciphertxt_metadata = [
+      'source_file_size'     => check_plain($form_state['values']['source_file_size']),
+      'generation_timespan'  => check_plain($form_state['values']['generation_timespan']),
+      'source_file_type'     => check_plain($form_state['values']['source_file_type']),
+      'browser_fingerprint'  => check_plain($form_state['values']['browser_fingerprint']),
+      'generation_timestamp' => check_plain($form_state['values']['generation_timestamp']),
+      'source_file_name'     => check_plain($form_state['values']['source_file_name']),
+      'signed'               => check_plain($form_state['values']['signed']),
+      'input_mode'           => 'armored',
+    ];
+  
+    $entity = entity_create('proc', ['type' => 'proc_ciphertxt']);
+  
+    if (!empty($ciphertxt_metadata['source_file_name'])) {
+      $wrapper = entity_metadata_wrapper('proc', $entity);
+      // @todo deprecate property uid in favor of proc_armoredown field.
+      $wrapper->uid = $user->uid;
+      $wrapper->proc_armoredown->set($user->uid);
+      $current_timestamp = time();
+  
+      $wrapper->proc_armored = _proc_cipher_serialize($ciphertxt_data, NULL, $current_timestamp, $form, $form_state);
+  
+      $wrapper->meta = serialize($ciphertxt_metadata);
+      $wrapper->proc_recipient->set($recipients_uids);
+      $wrapper->language($language->language);
+      $wrapper->label = $ciphertxt_metadata['source_file_name'];
+      $wrapper->created = $current_timestamp;
+      $wrapper->changed = $current_timestamp;
+      $wrapper->save();
+    }
+    // @todo add option to turn off cipher post save default messages.
+    if (isset($entity->pid)) {
+      $success_encryption_message = t(
+        'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
+        [
+          '@exclusive-access-link' => url('proc/' . $entity->pid),
+          '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
+        ]
+      );
+      $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
+      $watchdog_args = ['@type' => 'proc_ciphertxt', '%pid' => $entity->pid];
+      watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
+  
+    }
+    else {
+      $failure_encryption_message = t('Sorry. Cipher text of your file has not been saved. Close other tabs in your browser to release some memory and try again.');
+      $context = [
+        'unalterable_encryption_source_form' => $form,
+      ];
+      drupal_alter('cipher_postsave_failure_encryption_message', $failure_encryption_message, $context);
+      if (!empty($failure_encryption_message)) {
+        drupal_set_message($failure_encryption_message, 'error');
+      }
+    }
+    $context = [
+      'unalterable_encryption_source_form' => $form,
+      'unalterable_pid' => $entity->pid,
+    ];
+    drupal_alter('cipher_postsave_success_encryption_message', $success_encryption_message, $context);
+    if (!empty($success_encryption_message)) {
+      drupal_set_message($success_encryption_message);
+    }
+  
+    cache_clear_all(NULL, 'cache_form', TRUE);
+    module_invoke_all('cipher_postsave_text', $entity->pid, $form_state, $entity);
+  }
+  else {
+    $failure_encryption_text_client = t('Uknown failure on the creation of the cipher text at the side of the web browser. Please try it again with another web browser');
+    $context = [
+      'unalterable_encryption_text_source_form' => $form,
+    ];
+    drupal_alter('cipher_presave_failure_encryption_text', $failure_encryption_text_client, $context);
+    if (!empty($failure_encryption_message)) {
+      drupal_set_message($failure_encryption_text_client, 'error');
+    }
+  }
+  cache_clear_all(NULL, 'cache_form', TRUE);
 }

@@ -96,3 +96,6 @@ function hook_cipher_unserialize_alter(array $cipher, array $context) {
  */
 function hook_cipher_update_postsave(array $entity, string $type) {
 }
+
+// @todo: add cipher_presave_failure_encryption_text
+// @todo: add cipher_postsave_text

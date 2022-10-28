@@ -62,10 +62,10 @@ function proc_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   ];
-  $items['proc/add/%'] = [
-    'title' => 'Add file',
+  $items['proc/add/%/%'] = [  
+    'title' => 'Add content',
     'page callback' => 'drupal_get_form',
-    'page arguments' => ['_proc_encrypt_file', 2],
+    'page arguments' => ['_proc_encrypt', 2, 3],
     'access arguments' => ['new protected file'],
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
@@ -111,8 +111,14 @@ function proc_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'inc/proc.forms.inc',
   ];
-
-
+  // $items['proc/add-text/%'] = [
+  //   'title' => 'Add text',
+  //   'page callback' => 'drupal_get_form',
+  //   'page arguments' => ['_proc_encrypt_text', 2],
+  //   'access arguments' => ['new protected file'],
+  //   'type' => MENU_LOCAL_TASK,
+  //   'file' => 'inc/proc.forms.inc',
+  // ];
   return $items;
 }
 
