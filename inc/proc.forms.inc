@@ -221,6 +221,11 @@ function _proc_encrypt($form, &$form_state, $uids, $format = null) {
     'binary' => 'encrypt_file'
   ];
 
+  // For the sake of compatibility:
+  if (!isset($format)) {
+    $format = 'binary';
+  }
+
   if (!array_key_exists($format, $valid_formats)) {
     drupal_set_message('Error on encryption format. It has to be binary or armored.', 'error');
     return;
