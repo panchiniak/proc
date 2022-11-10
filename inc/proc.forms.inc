@@ -26,7 +26,8 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
   $form['pass'] = $ciphers_data['form_pass'];
   $cids_ciphers = $ciphers_data['ciphers'];
 
-  $form['#attached']['js'] = _proc_common_inject_lib('decrypt_protected_to_file');
+  //$form['#attached']['js'] = _proc_common_inject_lib('decrypt_protected_to_file');
+  $form['#attached']['js'] = _proc_common_inject_lib('decrypt');
 
   $proc_sources_file_names  = [];
   $proc_sources_file_sizes  = [];
@@ -731,4 +732,127 @@ function _proc_encrypt_submit($form, &$form_state) {
     }
   }
   cache_clear_all(NULL, 'cache_form', TRUE);
+}
+/**
+ * Definition of the form and metadata for decryption.
+ */
+function _proc_decrypt($form, &$form_state, $cids) {
+  global $user;
+
+  // Once we will fetch the ciphertexts with ajax we want now only to
+  // send changed timestamps (for verifying if cached version may be used)
+  // and metadata as file size (for verifying decryption sucess) and
+  // file name (for recreting the file).
+  $cids         = _proc_get_csv_argument($cids);
+  $ciphers_data = _proc_common_get_ciphers($cids, TRUE);
+
+  // Decryption requires a keyring:
+  if (!$ciphers_data['pubkey']) {
+    drupal_access_denied();
+  }
+
+  $privkey      = $ciphers_data['privkey'];
+  $form['pass'] = $ciphers_data['form_pass'];
+  $cids_ciphers = $ciphers_data['ciphers'];
+
+  $form['#attached']['js'] = _proc_common_inject_lib('decrypt');
+
+  $proc_sources_file_names  = [];
+  $proc_sources_file_sizes  = [];
+  $proc_sources_input_modes = [];
+  $proc_ids                 = [];
+  $procs_changed            = [];
+
+  foreach ($cids_ciphers as $cid_cipher) {
+    $proc_sources_file_names[]  = $cid_cipher['source_file_name'];
+    $proc_sources_file_sizes[]  = $cid_cipher['source_file_size'];
+    $proc_sources_input_modes[] = $cid_cipher['source_input_mode'];
+    $proc_ids[]                 = $cid_cipher['cipher_cid'];
+    $procs_changed[]            = $cid_cipher['changed'];
+
+    // An older proc does not contain signed flag in its metadata:
+    if (isset($cid_cipher['signed'])) {
+      // Keyring ID as a flag will be used in js for the retrieval
+      // of the public key of the aledged signing author:
+      $proc_signed[] = $cid_cipher['signed'];
+    }
+    else {
+      // Otherwise, assume it is unsigned:
+      $proc_signed[] = 0;
+    }
+  }
+
+  $multiple_decryption_form_elements = [
+    'proc_sources_file_names'  => $proc_sources_file_names,
+    'proc_sources_file_sizes'  => $proc_sources_file_sizes,
+    'proc_sources_input_modes' => $proc_sources_input_modes,
+    'proc_ids'                 => $proc_ids,
+    'procs_changed'            => $procs_changed,
+    'proc_signed'              => $proc_signed,
+  ];
+
+  $armored_content = FALSE;
+  foreach ($proc_sources_input_modes as $content_input_mode) {
+    if ($content_input_mode == 'armored') {
+      $armored_content = TRUE;
+      break;
+    }
+  }
+  $only_file_output_mode = TRUE;
+
+  if ($armored_content) {
+    // If there is some armored content, allow only file output mode 
+    // to be switched off:
+    $decryption_arguments = drupal_get_query_parameters();
+    if (is_array($decryption_arguments)) {
+      if (isset($decryption_arguments['only_file_output_mode']) && $decryption_arguments['only_file_output_mode'] == 'FALSE') {
+        $only_file_output_mode = FALSE;
+      }
+    }
+  }
+  // Allow textarea as output mode only if the input
+  // mode was set to armored.
+  if (!$only_file_output_mode) {
+    $text_area_fields = []; 
+    foreach ($proc_sources_input_modes as $content_key => $input_mode) {
+      if ($input_mode == 'armored') {
+        $text_area_fields[] = $proc_ids[$content_key];
+      }
+    }
+    $text_area_form_elements = [];
+    foreach ($text_area_fields as $text_area_field_proc_id) {
+      $text_area_form_elements[$text_area_field_proc_id]['#type']          = 'textarea';
+      $text_area_form_elements[$text_area_field_proc_id]['#default_value'] = t('# Redacted #');
+      $text_area_form_elements[$text_area_field_proc_id]['#disabled']      = true;
+    }
+    $form += $text_area_form_elements;
+  } 
+
+  $form['#attached']['js'][] = [
+    'data' => ['proc' => _proc_common_get_decryption_form_data($privkey)],
+    'type' => 'setting',
+  ];
+
+  $form['#attached']['js'][0]['data']['proc'] += $multiple_decryption_form_elements;
+
+  $get_proc_link_fragment = drupal_hash_base64(drupal_random_bytes(32));
+  $get_proc_link = l(
+        t('Decrypt'),
+        current_path(),
+        [
+          'attributes' => [
+            'id' => 'decryption-link',
+            'class' => [
+              'btn',
+              'btn-default',
+            ],
+          ],
+          'fragment' => $get_proc_link_fragment,
+        ]
+    );
+
+  $form['pc_access_link'] = [
+    '#markup' => $get_proc_link,
+  ];
+  return $form;
 }

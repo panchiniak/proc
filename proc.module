@@ -81,7 +81,7 @@ function proc_menu() {
   $items['proc/%'] = [
     'title' => 'View Protected Content',
     'page callback' => 'drupal_get_form',
-    'page arguments' => ['_proc_decrypt_to_file', 1],
+    'page arguments' => ['_proc_decrypt', 1],
     'access callback' => '_proc_recipient_multiple',
     'access arguments' => [1],
     'type' => MENU_LOCAL_TASK,
