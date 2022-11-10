@@ -109,16 +109,16 @@
 
                     if (encrypted) {
                         $('input[name=cipher_text]')[0].value = encrypted;
-                        $('input[name=source_file_name]')[0].value = 'test';
+                        $('input[name=source_file_name]')[0].value = 'redacted.txt';
                         $('input[name=source_file_size]')[0].value = plainTextSize;
-                        $('input[name=source_file_type]')[0].value = 'test';
-                        $('input[name=source_file_last_change]')[0].value = 'test';
+                        $('input[name=source_file_type]')[0].value = 'text/plain';
+                        $('input[name=source_file_last_change]')[0].value = '0';
                         $('input[name=browser_fingerprint]')[0].value = `${navigator.userAgent}, (${screen.width} x ${screen.height})`;
                         $('input[name=generation_timestamp]')[0].value = startSeconds;
                         $('input[name=generation_timespan]')[0].value = total;
                         $('input[name=signed]')[0].value = 0;
-                        // Do not sent the plain text!
-                        // $('input[name=plaintext]')[0].value = '';
+                        // Do not send the plain text!
+                        $('#edit-plaintext')[0].value = '';
                         if ($('input[name=cipher_text]')[0].value) {
                             $('#-proc-encrypt').submit();
                         }
