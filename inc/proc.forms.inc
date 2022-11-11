@@ -33,6 +33,7 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
   $proc_sources_input_modes = [];
   $proc_ids                 = [];
   $procs_changed            = [];
+  $proc_signed              = [];
 
   foreach ($cids_ciphers as $cid_cipher) {
     $proc_sources_file_names[]  = $cid_cipher['source_file_name'];
@@ -40,6 +41,7 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
     $proc_sources_input_modes[] = $cid_cipher['source_input_mode'];
     $proc_ids[]                 = $cid_cipher['cipher_cid'];
     $procs_changed[]            = $cid_cipher['changed'];
+
 
     // An older proc does not contain signed flag in its metadata:
     if (isset($cid_cipher['signed'])) {
@@ -197,8 +199,10 @@ function _proc_update($form, &$form_state, $cids, $uids) {
  * Update proc cipher text entity submit callback.
  */
 function _proc_update_submit($form, &$form_state) {
-  if ($destination = drupal_get_destination()) {
-    $form_state['redirect'] = $destination;
+  $destination = drupal_get_destination();
+
+  if (isset($destination['destination'])) {
+    $form_state['redirect'] = $destination['destination'];
   }
 
   $recipients_uids = _proc_get_csv_argument($form_state['build_info']['args'][1]);
@@ -383,9 +387,9 @@ function _proc_generate_keys($form, &$form_state) {
  */
 function _proc_generate_keys_submit($form, &$form_state) {
   global $user;
-
-  if ($destination = drupal_get_destination()) {
-    $form_state['redirect'] = $destination;
+  $destination = drupal_get_destination();
+  if (isset($destination['destination'])) {
+    $form_state['redirect'] = $destination['destination'];
   }
 
   // Prepare the form values for submission.
@@ -520,6 +524,7 @@ function _proc_encrypt_submit_callback($form, &$form_state) {
   
     cache_clear_all(NULL, 'cache_form', TRUE);
     module_invoke_all('cipher_postsave', $entity->pid, $form_state, $entity);
+    $commands = [];
     $commands[] = ajax_command_remove('div.messages');
     $commands[] = ajax_command_before('#main-content', theme('status_messages'));
     ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
@@ -768,11 +773,13 @@ function _proc_decrypt($form, &$form_state, $cids) {
     $proc_sources_input_modes[] = $cid_cipher['source_input_mode'];
     $proc_ids[]                 = $cid_cipher['cipher_cid'];
     $procs_changed[]            = $cid_cipher['changed'];
+    $proc_signed                = [];
 
     // An older proc does not contain signed flag in its metadata:
     if (isset($cid_cipher['signed'])) {
       // Keyring ID as a flag will be used in js for the retrieval
       // of the public key of the aledged signing author:
+
       $proc_signed[] = $cid_cipher['signed'];
     }
     else {

@@ -18,7 +18,7 @@ class ProcRefieldProcBehaviorPlugin extends EntityReference_BehaviorHandler_Abst
         $all_user_views[$view->name] = $view->human_name . ' - ' . $view->name;
       }
     }
-
+    $form = [];
     $form['onclick'] = [
       '#type' => 'fieldset',
       '#title' => t('Protected content API'),
@@ -34,7 +34,6 @@ class ProcRefieldProcBehaviorPlugin extends EntityReference_BehaviorHandler_Abst
         $crypto_mode_default = $instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['enable'];
       }
     }
-
 
     $form['onclick']['enable'] = [
       '#title' => t('Encryption operation'),

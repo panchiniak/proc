@@ -41,6 +41,7 @@ function _proc_refield_field_create_instances(array $instances) {
  *   Array containing entity reference widget identifiers.
  */
 function _proc_refield_get_proc_refield_widget() {
+  $proc_refield_widget = [];
   $proc_refield_widget[] = 'entityreference_autocomplete';
   drupal_alter('proc_refield_get_widget', $proc_refield_widget);
   return $proc_refield_widget;
@@ -55,6 +56,7 @@ function _proc_refield_get_proc_refield_widget() {
 function _proc_refield_recipients_menu_callback($view) {
 
   $filter_arguments = drupal_get_query_parameters();
+  $filter_arguments_set = [];
   if (is_array($filter_arguments)) {
     foreach ($filter_arguments as $filter_arguments) {
       $filter_arguments_set[] = $filter_arguments;

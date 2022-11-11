@@ -382,6 +382,7 @@ function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
   $privkey = $keyring['encrypted_private_key'];
   $pubkey  = $keyring['public_key'];
 
+  $cid_cipher = [];
   foreach ($cids as $cid) {
     $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
   }
@@ -572,6 +573,7 @@ function _proc_update_ciphertext($cid, $form, $form_state, $recipients_uids_new)
   $browser_fingerprint_field_id = 'browser_fingerprint_cid_' . $cid;
   $generation_timestamp_field_id = 'generation_timestamp_cid_' . $cid;
   // Merge current and new data and metadata:
+  $ciphertxt_data = [];
   $ciphertxt_data[$cid] = [
     // Reuse unchanged values on encryption update:
     'source_file_size'     => check_plain(unserialize($proc_wrapper->meta->value())['source_file_size']),
