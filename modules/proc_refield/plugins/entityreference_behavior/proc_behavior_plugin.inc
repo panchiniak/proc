@@ -7,7 +7,7 @@
 
 $plugin = [
   'title' => t('Protected Content Reference Field Behavior'),
-  'description' => t('Enable Protectec Content API.'),
+  'description' => t('Enable Protected Content API.'),
   'class' => 'ProcRefieldProcBehaviorPlugin',
   'behavior type' => 'instance',
 ];
