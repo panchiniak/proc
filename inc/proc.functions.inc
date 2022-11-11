@@ -428,7 +428,7 @@ function _proc_common_get_pubkeys(array $uids) {
  *
  * @param string $op
  *   Cryptographic operation
- *   encrypt_file, decrypt_protected_to_file, etc.
+ *   encrypt, decrypt, etc.
  *
  * @return array
  *   Array containing js form attachment.

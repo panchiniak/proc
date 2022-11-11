@@ -26,7 +26,6 @@ function _proc_decrypt_to_file($form, &$form_state, $cids) {
   $form['pass'] = $ciphers_data['form_pass'];
   $cids_ciphers = $ciphers_data['ciphers'];
 
-  //$form['#attached']['js'] = _proc_common_inject_lib('decrypt_protected_to_file');
   $form['#attached']['js'] = _proc_common_inject_lib('decrypt');
 
   $proc_sources_file_names  = [];
