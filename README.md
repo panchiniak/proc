@@ -13,7 +13,7 @@ CONTENTS OF THIS FILE
 INTRODUCTION
 ------------
 The Protected Content (proc) module adds to your Drupal installation end-to-end/client side encryption and
-decryption of content.
+decryption of content (texts or files).
 It is very simple to use. Once it is installed (see Installation below):
 
  * Access proc/keyring/add to generate keys for the current user.
