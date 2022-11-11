@@ -8,8 +8,6 @@ CONTENTS OF THIS FILE
 
  * Configuration
 
- * Future roadmap
-
  * Maintainers
 
 INTRODUCTION
@@ -34,10 +32,6 @@ Create an entity reference field, set autocomplete widget, choose Disabled,
 Simple encryption or Encryption with Signature at Protected Content API.
 You may also to choose a user reference view as recipients fetcher.
 Check the API for implementing thefuncionality with different widgets.
-
-FUTURE ROADMAP
---------------
-None so far.
 
 MAINTAINERS
 -----------
