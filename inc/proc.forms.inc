@@ -6,94 +6,6 @@
  */
 
 /**
- * Definition of the form and metadata for decryption.
- */
-function _proc_decrypt_to_file($form, &$form_state, $cids) {
-  global $user;
-  // Once we will fetch the ciphertexts with ajax we want now only to
-  // send changed timestamps (for verifying if cached version may be used)
-  // and metadata as file size (for verifying decryption sucess) and
-  // file name (for recreting the file).
-  $cids         = _proc_get_csv_argument($cids);
-  $ciphers_data = _proc_common_get_ciphers($cids, TRUE);
-
-  // Decryption requires a keyring:
-  if (!$ciphers_data['pubkey']) {
-    drupal_access_denied();
-  }
-
-  $privkey      = $ciphers_data['privkey'];
-  $form['pass'] = $ciphers_data['form_pass'];
-  $cids_ciphers = $ciphers_data['ciphers'];
-
-  $form['#attached']['js'] = _proc_common_inject_lib('decrypt');
-
-  $proc_sources_file_names  = [];
-  $proc_sources_file_sizes  = [];
-  $proc_sources_input_modes = [];
-  $proc_ids                 = [];
-  $procs_changed            = [];
-  $proc_signed              = [];
-
-  foreach ($cids_ciphers as $cid_cipher) {
-    $proc_sources_file_names[]  = $cid_cipher['source_file_name'];
-    $proc_sources_file_sizes[]  = $cid_cipher['source_file_size'];
-    $proc_sources_input_modes[] = $cid_cipher['source_input_mode'];
-    $proc_ids[]                 = $cid_cipher['cipher_cid'];
-    $procs_changed[]            = $cid_cipher['changed'];
-
-
-    // An older proc does not contain signed flag in its metadata:
-    if (isset($cid_cipher['signed'])) {
-      // Keyring ID as a flag will be used in js for the retrieval
-      // of the public key of the aledged signing author:
-      $proc_signed[] = $cid_cipher['signed'];
-    }
-    else {
-      // Otherwise, assume it is unsigned:
-      $proc_signed[] = 0;
-    }
-  }
-
-  $multiple_decryption_form_elements = [
-    'proc_sources_file_names'  => $proc_sources_file_names,
-    'proc_sources_file_sizes'  => $proc_sources_file_sizes,
-    'proc_sources_input_modes' => $proc_sources_input_modes,
-    'proc_ids'                 => $proc_ids,
-    'procs_changed'            => $procs_changed,
-    'proc_signed'              => $proc_signed,
-  ];
-
-  $form['#attached']['js'][] = [
-    'data' => ['proc' => _proc_common_get_decryption_form_data($privkey)],
-    'type' => 'setting',
-  ];
-
-  $form['#attached']['js'][0]['data']['proc'] += $multiple_decryption_form_elements;
-
-  $get_proc_link_fragment = drupal_hash_base64(drupal_random_bytes(32));
-  $get_proc_link = l(
-        t('Decrypt'),
-        current_path(),
-        [
-          'attributes' => [
-            'id' => 'decryption-link',
-            'class' => [
-              'btn',
-              'btn-default',
-            ],
-          ],
-          'fragment' => $get_proc_link_fragment,
-        ]
-    );
-
-  $form['pc_access_link'] = [
-    '#markup' => $get_proc_link,
-  ];
-  return $form;
-}
-
-/**
  * Update proc cipher text entity.
  */
 function _proc_update($form, &$form_state, $cids, $uids) {
@@ -774,7 +686,6 @@ function _proc_decrypt($form, &$form_state, $cids) {
     $proc_sources_input_modes[] = $cid_cipher['source_input_mode'];
     $proc_ids[]                 = $cid_cipher['cipher_cid'];
     $procs_changed[]            = $cid_cipher['changed'];
-    // $proc_signed[]              = $cid_cipher['signed'];
 
     // An older proc does not contain signed flag in its metadata:
     if (isset($cid_cipher['signed'])) {
