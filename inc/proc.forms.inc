@@ -766,6 +766,7 @@ function _proc_decrypt($form, &$form_state, $cids) {
   $proc_sources_input_modes = [];
   $proc_ids                 = [];
   $procs_changed            = [];
+  $proc_signed              = [];
 
   foreach ($cids_ciphers as $cid_cipher) {
     $proc_sources_file_names[]  = $cid_cipher['source_file_name'];
@@ -773,7 +774,7 @@ function _proc_decrypt($form, &$form_state, $cids) {
     $proc_sources_input_modes[] = $cid_cipher['source_input_mode'];
     $proc_ids[]                 = $cid_cipher['cipher_cid'];
     $procs_changed[]            = $cid_cipher['changed'];
-    $proc_signed                = [];
+    // $proc_signed[]              = $cid_cipher['signed'];
 
     // An older proc does not contain signed flag in its metadata:
     if (isset($cid_cipher['signed'])) {
