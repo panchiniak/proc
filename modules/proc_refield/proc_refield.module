@@ -52,12 +52,17 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
     $encryption_form_id = '-proc-encrypt-file';
   }
   if ($encryption_operarion) {
-    // Input methods:
-    // 0 - Disabled
-    // 1 - Text field
-    // 2 - Text area
-    $input_method = $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['input'];
-    
+    // Input modes:
+    // 0 - File (default)
+    // 1 - Text/armored
+    $text_input_mode = $field_instance['settings']['behaviors']['proc_behavior_plugin']['onclick']['input'];
+
+    $path_pre_sufix = '';
+
+    if ($text_input_mode) {
+      // Add /armored to the Add content link.
+      $path_pre_sufix = '/armored';
+    }
 
     $add_file_link_text = '<span id="add-file-proc-link-' . $element['target_id']['#field_name'] . '" class="btn btn-default">' . t('@operation a file', ['@operation' => ucfirst($encryption_operarion)]) . '</span>';
     // Default value and path are avaialble to be changed at hooks alter:
@@ -109,6 +114,8 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
               Drupal.settings.basePath +
               'proc/" . $encryption_operarion . "/';
 
+            let procAddFilePathPreSufix = '" . $path_pre_sufix . "';
+
             let procAddFilePathSufix =
               '?proc_refield=' + procOriginModuleName +
               '&proc_refield_field_id=' + procOriginFieldName +
@@ -116,6 +123,10 @@ function proc_refield_field_widget_form_alter(&$element, &$form_state, &$context
               '&proc_refield_field_entity_type=' + procOriginFieldEntityType  +
               '&proc_recipients_view_fetcher=' + procOriginFieldEntityFetcher +
               '&input_element_id=' + inputElementId;
+
+            if (procAddFilePathPreSufix.length > 0) {
+              procAddFilePathSufix = procAddFilePathPreSufix + procAddFilePathSufix;
+            }
 
             " . $view_recipients_fetcher_argument . "
 

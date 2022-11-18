@@ -6,21 +6,36 @@
  */
 
 /**
- * Allow modules to alter proc_refield form element.
+ * Allow modules to alter recipients fetcher argument.
  *
- * @param array $element
- *   Form element of proc reference field.
+ * @param array $recipients_argument
+ *   Alterable array of recipients fetcher arguments (criteria and path).
+ * @param array $context
+ *   Unalterable context enriched by field instance and form element.
  */
-function hook_proc_refield_widget_process_alter(array $element) {
+function hook_recipients_fetcher_argument_alter(array $recipients_argument, array $context) {
 }
 
 /**
- * Allow modules to alter proc refield widget list.
+ * Allow modules to alter direct fetcher snippet.
  *
- * @param array $proc_refield_widget
- *   List of available entity reference field widgets.
+ * @param string $direct_fetcher
+ *   Direct fetcher code as JS snippet.
+ * @param array $context
+ *   Unalterable context enriched by field instance and form element.
  */
-function hook_proc_refield_get_widget_alter(array $proc_refield_widget) {
+function hook_direct_recipients_fetcher_alter(string $direct_fetcher, array $context) {
+}
+
+/**
+ * Allow modules to alter view recipients fetcher argument snippet.
+ *
+ * @param string $view_recipients_fetcher_argument
+ *   Views fetcher code as JS snippet.
+ * @param array $context
+ *   Unalterable context enriched by field instance and form element.
+ */
+function hook_view_recipients_fetcher_argument_alter(string $view_recipients_fetcher_argument, array $context) {
 }
 
 /**
@@ -47,12 +62,10 @@ function hook_decrypt_proc_file_link_alter(string $decrypt_file_link, array $con
 }
 
 /**
- * Allow modules to alter the cipher owner verification of authors.
+ * Allow modules to alter proc refield widget list.
  *
- * @param array $all_current_recipients
- *   Alterable array containin all current recipients.
- * @param array $context
- *   Unalterable context.
+ * @param array $proc_refield_widget
+ *   List of available entity reference field widgets.
  */
-function hook_emnies_proc_cipher_update_owner_check_alter(array $all_current_recipients, array $context) {
+function hook_proc_refield_get_widget_alter(array $proc_refield_widget) {
 }
