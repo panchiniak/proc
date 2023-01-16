@@ -210,7 +210,8 @@ function proc_entity_info() {
  */
 function proc_entity_property_info() {
   $info = [];
-  $properties = &$info['proc']['properties'];
+  // $properties = &$info['proc']['properties'];
+  $properties = $info['proc']['properties'];
 
   $properties['pid'] = [
     'type' => 'integer',

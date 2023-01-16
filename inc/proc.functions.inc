@@ -475,7 +475,8 @@ function _proc_common_get_decryption_form_data($privkey) {
  */
 function _proc_get_proc_menu_callback($pids) {
   $pids = _proc_get_csv_argument($pids);
-  $ciphers = &drupal_static(__FUNCTION__, []);
+  // $ciphers = &drupal_static(__FUNCTION__, []);
+  $ciphers = $pids;
   if (!isset($ciphers[0])) {
     foreach ($pids as $pid) {
       $ciphers[] = _proc_get_cipher((int) $pid, NULL, NULL)['cipher_text'];
