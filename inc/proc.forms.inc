@@ -143,7 +143,7 @@ function _proc_encrypt($form, &$form_state, $uids, $format = null) {
   }
 
   if (!array_key_exists($format, $valid_formats)) {
-    drupal_set_message('Error on encryption format. It has to be binary or armored.', 'error');
+    \Drupal::messenger()->addError('Error on encryption format. It has to be binary or armored.');
     return;
   }
   cache_clear_all(NULL, 'cache_form', TRUE);
@@ -169,17 +169,22 @@ function _proc_encrypt($form, &$form_state, $uids, $format = null) {
     $uids_keys_changed[$uid_fliped_key] = $recipients_pubkeys[$uid_fliped]['changed'];
   }
 
-  $form['#attached']['js'][] = [
-    'data' => [
-      'proc' => [
-        'proc_recipients_pubkeys_changed' => drupal_json_encode($uids_keys_changed),
-        'proc_recipients_uids'            => drupal_json_encode($uids),
-        'proc_post_max_size_bytes'        => $post_max_size_bytes,
-        'proc_file_entity_max_filesize'   => parse_size(variable_get('file_entity_max_filesize', '')),
-      ],
-    ],
-    'type' => 'setting',
-  ];
+  // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $form['#attached']['js'][] = [
+//     'data' => [
+//       'proc' => [
+//         'proc_recipients_pubkeys_changed' => drupal_json_encode($uids_keys_changed),
+//         'proc_recipients_uids'            => drupal_json_encode($uids),
+//         'proc_post_max_size_bytes'        => $post_max_size_bytes,
+//         'proc_file_entity_max_filesize'   => parse_size(variable_get('file_entity_max_filesize', '')),
+//       ],
+//     ],
+//     'type' => 'setting',
+//   ];
+
 
   $form['#attached']['js'][0]['data']['proc'] += _proc_common_get_decryption_form_data(NULL);
 
@@ -253,8 +258,8 @@ function _proc_generate_keys($form, &$form_state) {
   if (empty($form_state['values'])) {
     // If current user has already registered a keyring:
     if (!empty(_proc_get_pubkeys([$user->uid], 'uid')[0]['changed'])) {
-      drupal_set_message(t("Your encryption keys are already generated. You don't need to generate new ones unless you have lost your password."), 'warning', FALSE);
-      drupal_set_message(t('Warning: if you generate new encryption keys, you will lose access to all encrypted files which were previously sent to you.'), 'warning', FALSE);
+      \Drupal::messenger()->addWarning(t("Your encryption keys are already generated. You don't need to generate new ones unless you have lost your password."));
+      \Drupal::messenger()->addWarning(t('Warning: if you generate new encryption keys, you will lose access to all encrypted files which were previously sent to you.'));
     }
   };
 
@@ -315,7 +320,7 @@ function _proc_generate_keys_submit($form, &$form_state) {
     'browser_fingerprint'  => check_plain($form_state['values']['browser_fingerprint']),
   ];
 
-  $entity = entity_create('proc', ['type' => 'proc_keyring']);
+  $entity = \Drupal::entityTypeManager()->getStorage('proc')->create(['type' => 'proc_keyring']);
 
   // Save only if key has been effectively generated:
   if (substr($keyring_data['public_key'], 5, 26) == 'BEGIN PGP PUBLIC KEY BLOCK') {
@@ -333,19 +338,19 @@ function _proc_generate_keys_submit($form, &$form_state) {
   }
 
   if (isset($entity->pid)) {
-    module_invoke_all('keyring_postsave', $entity->pid, $form_state, $user->uid);
-    drupal_set_message(t('Encryption keys generated successfully.'));
-    drupal_set_message(t("Your password can't be recovered. You must remember it. If you create new keys all previously Protected Content sent to you will be forever lost (and there is nothing we can do about that)."), 'info');
+    \Drupal::moduleHandler()->invokeAll('keyring_postsave', [$entity->pid, $form_state, $user->uid]);
+    \Drupal::messenger()->addMessage(t('Encryption keys generated successfully.'));
+    \Drupal::messenger()->(t("Your password can't be recovered. You must remember it. If you create new keys all previously Protected Content sent to you will be forever lost (and there is nothing we can do about that)."));
   }
   else {
     // @todo add keyring generation failure hook
     if (!_proc_browser_supported()) {
-      drupal_set_message(t('Key generation error. It looks like you are using some unsupported browser. Please try it again using another one.'), 'error');
+      \Drupal::messenger()->addError(t('Key generation error. It looks like you are using some unsupported browser. Please try it again using another one.'));
     }
     else {
-      drupal_set_message(t('Sorry. Your public key has not been saved to the database. You might need to close tabs in your browser to release memory, or do it again using another browser.'), 'error');
+      \Drupal::messenger()->addError(t('Sorry. Your public key has not been saved to the database. You might need to close tabs in your browser to release memory, or do it again using another browser.'));
     }
-    watchdog('proc', 'Error on key generation/storage. User agent: %user-agent', ['%user-agent' => $_SERVER['HTTP_USER_AGENT']], WATCHDOG_ERROR);
+    \Drupal::logger('proc')->error('Error on key generation/storage. User agent: %user-agent', ['%user-agent' => $_SERVER['HTTP_USER_AGENT']]);
   }
   cache_clear_all(NULL, 'cache_form', TRUE);
 }
@@ -382,7 +387,7 @@ function _proc_encrypt_submit_callback($form, &$form_state) {
       'signed'               => check_plain($form_state['values']['signed']),
     ];
   
-    $entity = entity_create('proc', ['type' => 'proc_ciphertxt']);
+    $entity = \Drupal::entityTypeManager()->getStorage('proc')->create(['type' => 'proc_ciphertxt']);
   
     if (!empty($ciphertxt_metadata['source_file_name'])) {
       $wrapper = entity_metadata_wrapper('proc', $entity);
@@ -403,16 +408,22 @@ function _proc_encrypt_submit_callback($form, &$form_state) {
     }
     // @todo add option to turn off cipher post save default messages.
     if (isset($entity->pid)) {
-      $success_encryption_message = t(
-        'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
-        [
-          '@exclusive-access-link' => url('proc/' . $entity->pid),
-          '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
-        ]
-      );
-      $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
+      // @FIXME
+// url() expects a route name or an external URI.
+// $success_encryption_message = t(
+//         'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
+//         [
+//           '@exclusive-access-link' => url('proc/' . $entity->pid),
+//           '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
+//         ]
+//       );
+
+      // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
+
       $watchdog_args = ['@type' => 'proc_ciphertxt', '%pid' => $entity->pid];
-      watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
+      \Drupal::logger('proc')->notice('@type: added %pid.', []);
   
     }
     else {
@@ -422,7 +433,7 @@ function _proc_encrypt_submit_callback($form, &$form_state) {
       ];
       drupal_alter('cipher_postsave_failure_encryption_message', $failure_encryption_message, $context);
       if (!empty($failure_encryption_message)) {
-        drupal_set_message($failure_encryption_message, 'error');
+        \Drupal::messenger()->addError($failure_encryption_message);
       }
     }
     $context = [
@@ -431,14 +442,23 @@ function _proc_encrypt_submit_callback($form, &$form_state) {
     ];
     drupal_alter('cipher_postsave_success_encryption_message', $success_encryption_message, $context);
     if (!empty($success_encryption_message)) {
-      drupal_set_message($success_encryption_message);
+      \Drupal::messenger()->addMessage($success_encryption_message);
     }
   
     cache_clear_all(NULL, 'cache_form', TRUE);
-    module_invoke_all('cipher_postsave', $entity->pid, $form_state, $entity);
+    \Drupal::moduleHandler()->invokeAll('cipher_postsave', [$entity->pid, $form_state, $entity]);
     $commands = [];
     $commands[] = ajax_command_remove('div.messages');
-    $commands[] = ajax_command_before('#main-content', theme('status_messages'));
+    // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $commands[] = ajax_command_before('#main-content', theme('status_messages'));
+
     ajax_deliver(['#type' => 'ajax', '#commands' => $commands]);
   }
 }
@@ -482,18 +502,23 @@ function _proc_sign_file($form, &$form_state, $uids) {
     $uids_keys_changed[$uid_fliped_key] = $recipients_pubkeys[$uid_fliped]['changed'];
   }
 
-  $form['#attached']['js'][] = [
-    'data' => [
-      'proc' => [
-        'proc_recipients_pubkeys_changed' => drupal_json_encode($uids_keys_changed),
-        'proc_recipients_uids'            => drupal_json_encode($uids),
-        'proc_post_max_size_bytes'        => $post_max_size_bytes,
-        'proc_file_entity_max_filesize'   => parse_size(variable_get('file_entity_max_filesize', '')),
-        'proc_keyring_id'                 => $ciphers_data['keyring_cid'],
-      ],
-    ],
-    'type' => 'setting',
-  ];
+  // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $form['#attached']['js'][] = [
+//     'data' => [
+//       'proc' => [
+//         'proc_recipients_pubkeys_changed' => drupal_json_encode($uids_keys_changed),
+//         'proc_recipients_uids'            => drupal_json_encode($uids),
+//         'proc_post_max_size_bytes'        => $post_max_size_bytes,
+//         'proc_file_entity_max_filesize'   => parse_size(variable_get('file_entity_max_filesize', '')),
+//         'proc_keyring_id'                 => $ciphers_data['keyring_cid'],
+//       ],
+//     ],
+//     'type' => 'setting',
+//   ];
+
 
   $form['#attached']['js'][0]['data']['proc'] += _proc_common_get_decryption_form_data($privkey);
 
@@ -582,7 +607,7 @@ function _proc_encrypt_submit($form, &$form_state) {
       'input_mode'           => 'armored',
     ];
   
-    $entity = entity_create('proc', ['type' => 'proc_ciphertxt']);
+    $entity = \Drupal::entityTypeManager()->getStorage('proc')->create(['type' => 'proc_ciphertxt']);
   
     if (!empty($ciphertxt_metadata['source_file_name'])) {
       $wrapper = entity_metadata_wrapper('proc', $entity);
@@ -603,16 +628,22 @@ function _proc_encrypt_submit($form, &$form_state) {
     }
     // @todo add option to turn off cipher post save default messages.
     if (isset($entity->pid)) {
-      $success_encryption_message = t(
-        'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
-        [
-          '@exclusive-access-link' => url('proc/' . $entity->pid),
-          '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
-        ]
-      );
-      $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
+      // @FIXME
+// url() expects a route name or an external URI.
+// $success_encryption_message = t(
+//         'Success. Please share with the recipient the Exclusive Access Link for your Protected Content: <a href="@exclusive-access-link">@full-exclusive-access-link</a>',
+//         [
+//           '@exclusive-access-link' => url('proc/' . $entity->pid),
+//           '@full-exclusive-access-link' => url($base_url . '/proc/' . $entity->pid),
+//         ]
+//       );
+
+      // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $proc_link = l(t('decrypt'), 'proc/' . $entity->pid);
+
       $watchdog_args = ['@type' => 'proc_ciphertxt', '%pid' => $entity->pid];
-      watchdog('proc', '@type: added %pid.', $watchdog_args, WATCHDOG_NOTICE, $proc_link);
+      \Drupal::logger('proc')->notice('@type: added %pid.', []);
   
     }
     else {
@@ -622,7 +653,7 @@ function _proc_encrypt_submit($form, &$form_state) {
       ];
       drupal_alter('cipher_postsave_failure_encryption_message', $failure_encryption_message, $context);
       if (!empty($failure_encryption_message)) {
-        drupal_set_message($failure_encryption_message, 'error');
+        \Drupal::messenger()->addError($failure_encryption_message);
       }
     }
     $context = [
@@ -631,11 +662,11 @@ function _proc_encrypt_submit($form, &$form_state) {
     ];
     drupal_alter('cipher_postsave_success_encryption_message', $success_encryption_message, $context);
     if (!empty($success_encryption_message)) {
-      drupal_set_message($success_encryption_message);
+      \Drupal::messenger()->addMessage($success_encryption_message);
     }
   
     cache_clear_all(NULL, 'cache_form', TRUE);
-    module_invoke_all('cipher_postsave_text', $entity->pid, $form_state, $entity);
+    \Drupal::moduleHandler()->invokeAll('cipher_postsave_text', [$entity->pid, $form_state, $entity]);
   }
   else {
     $failure_encryption_text_client = t('Uknown failure on the creation of the cipher text at the side of the web browser. Please try it again with another web browser');
@@ -644,7 +675,7 @@ function _proc_encrypt_submit($form, &$form_state) {
     ];
     drupal_alter('cipher_presave_failure_encryption_text', $failure_encryption_text_client, $context);
     if (!empty($failure_encryption_message)) {
-      drupal_set_message($failure_encryption_text_client, 'error');
+      \Drupal::messenger()->addError($failure_encryption_text_client);
     }
   }
   cache_clear_all(NULL, 'cache_form', TRUE);
@@ -754,20 +785,23 @@ function _proc_decrypt($form, &$form_state, $cids) {
   $form['#attached']['js'][0]['data']['proc'] += $multiple_decryption_form_elements;
 
   $get_proc_link_fragment = drupal_hash_base64(drupal_random_bytes(32));
-  $get_proc_link = l(
-        t('Decrypt'),
-        current_path(),
-        [
-          'attributes' => [
-            'id' => 'decryption-link',
-            'class' => [
-              'btn',
-              'btn-default',
-            ],
-          ],
-          'fragment' => $get_proc_link_fragment,
-        ]
-    );
+  // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $get_proc_link = l(
+//         t('Decrypt'),
+//         current_path(),
+//         [
+//           'attributes' => [
+//             'id' => 'decryption-link',
+//             'class' => [
+//               'btn',
+//               'btn-default',
+//             ],
+//           ],
+//           'fragment' => $get_proc_link_fragment,
+//         ]
+//     );
+
 
   $form['pc_access_link'] = [
     '#markup' => $get_proc_link,

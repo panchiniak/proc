@@ -144,31 +144,50 @@ function proc_modules_enabled($modules) {
  */
 function proc_uninstall() {
   // Delete previously created fields:
-  field_delete_field('proc_armored');
-  field_delete_field('proc_recipient');
-  field_delete_field('proc_armoredown');
+  // @FIXME
+// Fields and field instances are now exportable configuration entities, and
+// the Field Info API has been removed.
+// 
+// 
+// @see https://www.drupal.org/node/2012896
+// field_delete_field('proc_armored');
+
+  // @FIXME
+// Fields and field instances are now exportable configuration entities, and
+// the Field Info API has been removed.
+// 
+// 
+// @see https://www.drupal.org/node/2012896
+// field_delete_field('proc_recipient');
+
+  // @FIXME
+// Fields and field instances are now exportable configuration entities, and
+// the Field Info API has been removed.
+// 
+// 
+// @see https://www.drupal.org/node/2012896
+// field_delete_field('proc_armoredown');
+
   field_purge_batch(0);
-  variable_del('proc_skip_size_mismatch');
-  variable_del('proc_update_7003_memory_limit');
+  \Drupal::config('proc.settings')->clear('proc_skip_size_mismatch')->save();
+  \Drupal::config('proc.settings')->clear('proc_update_7003_memory_limit')->save();
 }
 
 /**
  * Remove empty key entries if any.
  */
 function proc_update_7000() {
-  $query = db_query(
-    'SELECT p.entity_id, p.proc_armored_value FROM {field_data_proc_armored} p WHERE bundle = :type', [
+  $query = \Drupal::database()->query('SELECT p.entity_id, p.proc_armored_value FROM {field_data_proc_armored} p WHERE bundle = :type', [
       ':type' => 'proc_keyring',
-    ]
-  );
+    ]);
   $recorded_key_entries = $query->fetchAll();
   // For each key:
   foreach ($recorded_key_entries as $recorded_key_entry) {
     // If key has been saved empty:
     if (strpos($recorded_key_entry->proc_armored_value, '"public_key";s:0:""') == TRUE) {
-      watchdog('proc', 'Deleting empty key entry pid: %pid', ['%pid' => $recorded_key_entry->entity_id], WATCHDOG_INFO);
+      \Drupal::logger('proc')->info('Deleting empty key entry pid: %pid', ['%pid' => $recorded_key_entry->entity_id]);
       try {
-        entity_delete('proc', $recorded_key_entry->entity_id);
+        $recorded_key_entry->entity_id->delete();
       }
       catch (Exception $e) {
         watchdog_exception('proc', $e);
@@ -205,7 +224,7 @@ function proc_update_7002() {
   ];
   db_add_field('proc', 'changed', $definition);
   // Popopulate:
-  db_update('proc')->expression('changed', 'created')->execute();
+  \Drupal::database()->update('proc')->expression('changed', 'created')->execute();
 }
 
 /**
@@ -220,7 +239,7 @@ function proc_update_7002() {
  */
 function proc_update_7003(&$sandbox) {
   $current_memory_limit = ini_get('memory_limit');
-  $proc_update_memory_limit = variable_get('proc_update_7003_memory_limit', '1024M');
+  $proc_update_memory_limit = \Drupal::config('proc.settings')->get('proc_update_7003_memory_limit');
   if ($current_memory_limit != $proc_update_memory_limit){
     ini_set('memory_limit', $proc_update_memory_limit);
   }
@@ -295,7 +314,7 @@ function proc_update_7003(&$sandbox) {
           '!pid'   => $pid,
           '!type'  => $type_size,
         ];
-        watchdog('proc', $message, $replacement, WATCHDOG_INFO);
+        \Drupal::logger('proc')->info($message, []);
 
       }
       $sandbox['savings']++;
@@ -315,6 +334,6 @@ function proc_update_7003(&$sandbox) {
     $replacement = [
       '!pids_total' => $pids_total,
     ];
-    watchdog('proc', $message, $replacement, WATCHDOG_INFO);
+    \Drupal::logger('proc')->info($message, []);
   }
 }

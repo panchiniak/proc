@@ -59,7 +59,14 @@ function _proc_get_pubkeys(array $items, string $type = NULL) {
 function _proc_field_create_fields(array $fields) {
   foreach ($fields as $field) {
     if (!field_read_field($field['field_name'])) {
-      field_create_field($field);
+      // @FIXME
+// Fields and field instances are now exportable configuration entities, and
+// the Field Info API has been removed.
+// 
+// 
+// @see https://www.drupal.org/node/2012896
+// field_create_field($field);
+
     }
   }
 }
@@ -74,7 +81,14 @@ function _proc_field_create_instances(array $instances) {
   foreach ($instances as $instance) {
     if (!field_read_instance('proc', $instance['field_name'], $instance['bundle'])) {
       field_attach_create_bundle('proc', $instance['bundle']);
-      field_create_instance($instance);
+      // @FIXME
+// Fields and field instances are now exportable configuration entities, and
+// the Field Info API has been removed.
+// 
+// 
+// @see https://www.drupal.org/node/2012896
+// field_create_instance($instance);
+
     }
   }
 }
@@ -138,7 +152,7 @@ function _proc_get_keys(string $item_id, string $type = NULL) {
   $result = $query->execute();
 
   if (isset($result['proc'])) {
-    $keyring = entity_load('proc', array_keys($result['proc']));
+    $keyring = \Drupal::entityTypeManager()->getStorage('proc');
     $keyring_created = $keyring[key($keyring)]->created;
     $keyring_changed = $keyring[key($keyring)]->changed;
     $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
@@ -462,7 +476,7 @@ function _proc_common_get_decryption_form_data($privkey) {
     'proc_name' => $user->name,
     'proc_privkey' => $privkey,
     'proc_labels' => _proc_js_labels(),
-    'proc_skip_size_mismatch' => variable_get('proc_skip_size_mismatch', FALSE),
+    'proc_skip_size_mismatch' => \Drupal::config('proc.settings')->get('proc_skip_size_mismatch'),
   ];
 
 }

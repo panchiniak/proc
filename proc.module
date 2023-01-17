@@ -308,16 +308,16 @@ function proc_access($op, $task, $account = NULL, $entity_type = NULL) {
   }
   switch ($op) {
     case 'create':
-      return user_access('create cipher', $account);
+      return $account->hasPermission('create cipher');
 
     case 'view':
-      return user_access('view cipher', $account);
+      return $account->hasPermission('view cipher');
 
     case 'delete':
-      return user_access('delete cipher', $account);
+      return $account->hasPermission('delete cipher');
 
     case 'update':
-      return user_access('update cipher', $account);
+      return $account->hasPermission('update cipher');
   }
 }
 
@@ -327,7 +327,7 @@ function proc_access($op, $task, $account = NULL, $entity_type = NULL) {
 function proc_entity_update($entity, $type){
   if (isset($entity->changed) && $type == 'proc'){
     if ($entity->changed > $entity->original->changed){
-      module_invoke_all('cipher_update_postsave', $entity, $type);
+      \Drupal::moduleHandler()->invokeAll('cipher_update_postsave', [$entity, $type]);
       $success_update_message = t(
         'File %file_label (%file_id) updated successfully for %number_recipients user(s)',
         [
@@ -336,7 +336,7 @@ function proc_entity_update($entity, $type){
           '%number_recipients' => count($entity->proc_recipient[LANGUAGE_NONE]),
         ]
       );
-      drupal_set_message($success_update_message);
+      \Drupal::messenger()->addMessage($success_update_message);
     }
   }
 }
