@@ -1,0 +1,4 @@
+administer proc configuration:
+  title: 'Administer proc configuration'
+  description: 'Optional description.'
+  restrict access: true

@@ -1,5 +1,0 @@
-proc_update_7003_memory_limit: 1024M
-proc_storage_global_stream_wrapper: 'private://'
-proc_storage_enabled: 0
-proc_storage_file_name_prefix: ''
-proc_skip_size_mismatch: false

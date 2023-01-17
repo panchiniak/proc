@@ -2,338 +2,95 @@
 
 /**
  * @file
- * Set up a structure for storing pgp keys and cipher texts.
+ * Install, update and uninstall functions for the Protected Content module.
  */
-
-include_once 'inc/proc.functions.inc';
 
 /**
- * Implements hook_schema().
+ * Implements hook_install().
  */
-function proc_schema() {
-  $schema = [];
-
-  $schema['proc'] = [
-    'description' => 'The base table for proc.',
-    'fields' => [
-      'pid' => [
-        'description' => 'Armored entity primary identifier.',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ],
-      'uid' => [
-        'description' => 'User id from the users table.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ],
-      'label' => [
-        'description' => 'The label of this protected content.',
-        'type' => 'text',
-        'size' => 'small',
-      ],
-      'status' => [
-        'description' => 'Boolean indicating whether the proc is published (visible to non-administrators).',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 1,
-      ],
-      'type' => [
-        'description' => 'Entity instance type.',
-        'type' => 'text',
-        'size' => 'medium',
-      ],
-      'created' => [
-        'description' => 'The Unix timestamp when the armored was created.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ],
-      'changed' => [
-        'description' => 'The Unix timestamp when the armored was changed.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ],
-      'meta' => [
-        'description' => 'Unprotected metadata of this protected content.',
-        'type' => 'text',
-        'size' => 'normal',
-        'not null' => TRUE,
-        'default' => NULL,
-      ],
-    ],
-    'primary key' => ['pid'],
-  ];
-
-  return $schema;
-}
-
-/**
- * Implements hook_modules_enabled().
- */
-function proc_modules_enabled($modules) {
-  if (in_array('proc', $modules)) {
-
-    $fields = [
-      'proc_armored' => [
-        'field_name' => 'proc_armored',
-        'type' => 'text_long',
-        'size' => 'big',
-      ],
-      'proc_recipient' => [
-        'field_name' => 'proc_recipient',
-        'type' => 'entityreference',
-        'cardinality' => FIELD_CARDINALITY_UNLIMITED,
-        'settings' => [
-          'target_type' => 'user',
-          'target_bundles' => ['user'],
-        ],
-      ],
-      'proc_armoredown' => [
-        'field_name' => 'proc_armoredown',
-        'type' => 'entityreference',
-        'cardinality' => 1,
-        'settings' => [
-          'target_type' => 'user',
-          'target_bundles' => ['user'],
-        ],
-      ],
-    ];
-    _proc_field_create_fields($fields);
-
-    $instances = [
-      'armored_keyring' => [
-        'field_name' => 'proc_armored',
-        'label' => t('Serialized data of proc_keyring bundle'),
-        'entity_type' => 'proc',
-        'bundle' => 'proc_keyring',
-      ],
-      'armoredowner_keyring' => [
-        'field_name' => 'proc_armoredown',
-        'label' => t('Owner of protected content keyring'),
-        'entity_type' => 'proc',
-        'bundle' => 'proc_keyring',
-      ],
-      'armoredowner_ciphertext' => [
-        'field_name' => 'proc_armoredown',
-        'label' => t('Owner of protected content cipher text'),
-        'entity_type' => 'proc',
-        'bundle' => 'proc_ciphertxt',
-      ],
-      'armored_ciphertext' => [
-        'field_name' => 'proc_armored',
-        'label' => t('Serialized data of proc_ciphertxt bundle'),
-        'entity_type' => 'proc',
-        'bundle' => 'proc_ciphertxt',
-      ],
-      'recipient_ciphertxt' => [
-        'field_name' => 'proc_recipient',
-        'entity_type' => 'proc',
-        'bundle' => 'proc_ciphertxt',
-        'label' => t('Ciphertext recipient user reference'),
-      ],
-    ];
-    _proc_field_create_instances($instances);
-  }
+function proc_install() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
 }
 
 /**
  * Implements hook_uninstall().
  */
 function proc_uninstall() {
-  // Delete previously created fields:
-  // @FIXME
-// Fields and field instances are now exportable configuration entities, and
-// the Field Info API has been removed.
-// 
-// 
-// @see https://www.drupal.org/node/2012896
-// field_delete_field('proc_armored');
-
-  // @FIXME
-// Fields and field instances are now exportable configuration entities, and
-// the Field Info API has been removed.
-// 
-// 
-// @see https://www.drupal.org/node/2012896
-// field_delete_field('proc_recipient');
-
-  // @FIXME
-// Fields and field instances are now exportable configuration entities, and
-// the Field Info API has been removed.
-// 
-// 
-// @see https://www.drupal.org/node/2012896
-// field_delete_field('proc_armoredown');
-
-  field_purge_batch(0);
-  \Drupal::config('proc.settings')->clear('proc_skip_size_mismatch')->save();
-  \Drupal::config('proc.settings')->clear('proc_update_7003_memory_limit')->save();
+  \Drupal::messenger()->addStatus(__FUNCTION__);
 }
 
 /**
- * Remove empty key entries if any.
+ * Implements hook_schema().
  */
-function proc_update_7000() {
-  $query = \Drupal::database()->query('SELECT p.entity_id, p.proc_armored_value FROM {field_data_proc_armored} p WHERE bundle = :type', [
-      ':type' => 'proc_keyring',
-    ]);
-  $recorded_key_entries = $query->fetchAll();
-  // For each key:
-  foreach ($recorded_key_entries as $recorded_key_entry) {
-    // If key has been saved empty:
-    if (strpos($recorded_key_entry->proc_armored_value, '"public_key";s:0:""') == TRUE) {
-      \Drupal::logger('proc')->info('Deleting empty key entry pid: %pid', ['%pid' => $recorded_key_entry->entity_id]);
-      try {
-        $recorded_key_entry->entity_id->delete();
-      }
-      catch (Exception $e) {
-        watchdog_exception('proc', $e);
-      }
-    }
-  }
-}
-
-/**
- * Rename proc table field.
- */
-function proc_update_7001() {
-  db_change_field(
-    'proc',
-    'title',
-    'label',
-    [
-      'description' => 'The label of this protected content.',
-      'type' => 'text',
-      'size' => 'small'
-    ]
-  );
-}
-
-/**
- * Add and populate changed column.
- */
-function proc_update_7002() {
-  $definition = [
-    'description' => 'The Unix timestamp when the armored was changed.',
-    'type' => 'int',
-    'not null' => TRUE,
-    'default' => 0,
+function proc_schema() {
+  $schema['proc_example'] = [
+    'description' => 'Table description.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique record ID.',
+      ],
+      'uid' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The {users}.uid of the user who created the record.',
+      ],
+      'status' => [
+        'description' => 'Boolean indicating whether this record is active.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ],
+      'type' => [
+        'type' => 'varchar_ascii',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Type of the record.',
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Timestamp when the record was created.',
+      ],
+      'data' => [
+        'type' => 'blob',
+        'not null' => TRUE,
+        'size' => 'big',
+        'description' => 'The arbitrary data for the item.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'type' => ['type'],
+      'uid' => ['uid'],
+      'status' => ['status'],
+    ],
   ];
-  db_add_field('proc', 'changed', $definition);
-  // Popopulate:
-  \Drupal::database()->update('proc')->expression('changed', 'created')->execute();
+
+  return $schema;
 }
 
 /**
- * Add and populate meta field on proc table.
- *
- * This update ajusts your php memory limits automatically returning it to the
- * original value at the end. 1024MB was tested for updating files up to 54M.
- * If you store encrypted files bigger than that, please consider adjusting the
- * threshold. Bigger and many files may cause faillure of lack of memory while
- * running this update. Please be advised to test it on production-like
- * conditions.
+ * Implements hook_requirements().
  */
-function proc_update_7003(&$sandbox) {
-  $current_memory_limit = ini_get('memory_limit');
-  $proc_update_memory_limit = \Drupal::config('proc.settings')->get('proc_update_7003_memory_limit');
-  if ($current_memory_limit != $proc_update_memory_limit){
-    ini_set('memory_limit', $proc_update_memory_limit);
-  }
+function proc_requirements($phase) {
+  $requirements = [];
 
-  if (!db_field_exists('proc', 'meta')){
-    $definition = [
-      'description' => 'Unprotected metadata of this protected content.',
-      'type'        => 'text',
-      'size'        => 'normal',
+  if ($phase == 'runtime') {
+    $value = mt_rand(0, 100);
+    $requirements['proc_status'] = [
+      'title' => t('Protected Content status'),
+      'value' => t('Protected Content value: @value', ['@value' => $value]),
+      'severity' => $value > 50 ? REQUIREMENT_INFO : REQUIREMENT_WARNING,
     ];
-    db_add_field('proc', 'meta', $definition);
   }
 
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'proc', '=');
-  $result = $query->execute();
-
-  $pids = [];
-  foreach ($result['proc'] as $pid) {
-    $pids[] = $pid->pid;
-  }
-
-  $pids_total = count($pids);
-
-  if (!isset($sandbox['current_pid'])) {
-    $sandbox['current_pid'] = 0;
-    $sandbox['savings']     = 0;
-  }
-
-  foreach ($pids as $key => $pid) {
-
-    if ($key == $sandbox['current_pid']) {
-
-      $proc_wrapper = entity_metadata_wrapper('proc', $pid);
-
-      // If meta is still empty:
-      if (empty($proc_wrapper->meta->value())) {
-
-        $unserialized_value = unserialize($proc_wrapper->proc_armored->value());
-
-        $generation_timestamp = check_plain($unserialized_value['generation_timestamp']);
-        $generation_timespan  = check_plain($unserialized_value['generation_timespan']);
-        $browser_fingerprint  = check_plain($unserialized_value['browser_fingerprint']);
-        $proc_metadata = [
-          'generation_timestamp' => check_plain($generation_timestamp),
-          'generation_timespan'  => check_plain($generation_timespan),
-          'browser_fingerprint'  => check_plain($browser_fingerprint),
-        ];
-        if ($proc_wrapper->type->value() == 'proc_ciphertxt') {
-          $proc_metadata['source_file_size'] = check_plain($unserialized_value['source_file_size']);
-          $proc_metadata['source_file_type'] = check_plain($unserialized_value['source_file_type']);
-          $proc_metadata['source_file_name'] = check_plain($unserialized_value['source_file_name']);
-
-          $armored['cipher_text'] = check_plain($unserialized_value['cipher_text']);
-          $type_size = 'file (' . $proc_metadata['source_file_size'] . ' bytes)';
-
-        }
-        else {
-          $armored['public_key']            = check_plain($unserialized_value['public_key']);
-          $armored['encrypted_private_key'] = check_plain($unserialized_value['encrypted_private_key']);
-
-          $type_size = 'keyring';
-        }
-        $proc_wrapper->meta         = serialize($proc_metadata);
-        $proc_wrapper->proc_armored = serialize($armored);
-
-        $proc_wrapper->save();
-
-        $message = 'Run !index: populated metadata field on entity !pid of type !type.';
-        $replacement = [
-          '!index' => $sandbox['savings'],
-          '!pid'   => $pid,
-          '!type'  => $type_size,
-        ];
-        \Drupal::logger('proc')->info($message, []);
-
-      }
-      $sandbox['savings']++;
-      cache_clear_all('*', 'cache', TRUE);
-    }
-  }
-
-  if ($sandbox['current_pid'] != $pids_total) {
-    $sandbox['current_pid']++;
-  }
-
-  $sandbox['#finished'] = ($sandbox['current_pid'] / $pids_total);
-
-  if ($sandbox['#finished'] == 1) {
-    ini_set('memory_limit', $current_memory_limit);
-    $message = 'Processed !pids_total proc entity(ies).';
-    $replacement = [
-      '!pids_total' => $pids_total,
-    ];
-    \Drupal::logger('proc')->info($message, []);
-  }
+  return $requirements;
 }
