@@ -33,6 +33,14 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Example'),
       '#default_value' => $this->config('proc.settings')->get('example'),
     ];
+    $classes = get_declared_classes();
+    ksm($classes);
+    
+    // var_dump($classes);
+    // foreach ($classes as $class) {
+    //   var_dump($class . '<br>');
+    // }
+      
     return parent::buildForm($form, $form_state);
   }
 
