@@ -1,37 +1,57 @@
-# Custom module library for general purposes.
-proc:
+openpgpjs:
   js:
-    js/proc.js: {}
-  css:
-    component:
-      css/proc.css: {}
-  dependencies:
-    - core/drupalSettings
-    - proc/jquery-labelauty
+    js/openpgp.min.js
 
-# Third-party library (self hosted).
-jquery-labelauty:
-  remote: https://github.com/fntneves/jquery-labelauty
-  version: 1.1.0
-  license:
-    name: MIT
-    url: https://github.com/fntneves/jquery-labelauty/blob/v1.1.0/LICENSE
-    gpl-compatible: true
+proc-generate-keys:
   js:
-    /libraries/jquery-labelauty/source/jquery-labelauty.js: {}
-  css:
-    component:
-      /libraries/jquery-labelauty/source/jquery-labelauty.css: {}
+    js/proc-generate-keys.js: {}
   dependencies:
     - core/jquery
 
-# Third-party library (CDN).
-vuejs:
-  remote: https://vuejs.org
-  version: 2.0.5
-  license:
-    name: MIT
-    url: https://github.com/vuejs/vue/blob/dev/LICENSE
-    gpl-compatible: true
-  js:
-    https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js: {type: external, minified: true}
+# proc:
+#   js:
+#     js/proc-generate-keys.js: {}
+#   dependencies:
+#     - core/drupal
+#     - core/jquery
+#     - core/once
+# proc:
+#   js:
+#     js/ProcGenerateKeys.js: {}
+#   dependencies:
+#     - core/drupalSettings
+#     - proc/jquery-labelauty
+# Third-party library (self hosted).
+# jquery-labelauty:
+#   remote: https://github.com/fntneves/jquery-labelauty
+#   version: 1.1.0
+#   license:
+#     name: MIT
+#     url: https://github.com/fntneves/jquery-labelauty/blob/v1.1.0/LICENSE
+#     gpl-compatible: true
+#   js:
+#     /libraries/jquery-labelauty/source/jquery-labelauty.js: {}
+#   css:
+#     component:
+#       /libraries/jquery-labelauty/source/jquery-labelauty.css: {}
+#   dependencies:
+#     - core/jquery
+# # Third-party library (CDN).
+# vuejs:
+#   remote: https://vuejs.org
+#   version: 2.0.5
+#   license:
+#     name: MIT
+#     url: https://github.com/vuejs/vue/blob/dev/LICENSE
+#     gpl-compatible: true
+#   js:
+#     https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js: {type: external, minified: true}
+# openpgpjs:
+#   version: 1.x
+#   css:
+#     layout:
+#       css/cuddly-slider-layout.css: {}
+#     theme:
+#       css/cuddly-slider-theme.css: {}
+#   js:
+#     js/cuddly-slider.js: {}

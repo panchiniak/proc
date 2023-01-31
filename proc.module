@@ -4,3 +4,43 @@
  * @file
  * Primary module hooks for Protected Content module.
  */
+
+ /**
+ * Implements hook_form_alter().
+ */
+function proc_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if ($form_id == 'proc_keys_generation_form') {
+    // ksm('test');
+    // $form['#attached']['library'][] = 'js/ProcGenerateKeys.js';
+    $form['#attached']['library'][] = 'proc/openpgpjs';
+    $form['#attached']['library'][] = 'proc/proc-generate-keys';
+    
+    // $form['#attached'] = [
+    //   'library' => ['proc/js/ProcGenerateKeys.js'],
+    //   'drupalSettings' => [],
+    // ];
+
+    // ksm($form);
+    // $form['#attached'][] = [
+    //   'library' => ['proc/prockeysgen'],
+    //   'drupalSettings' => [],
+    // ];
+
+
+    // $formObject = $form_state->getFormObject();
+    // if ($formObject instanceof \Drupal\Core\Entity\EntityFormInterface) {
+    //   $entity = $formObject->getEntity();
+    //   if (
+    //     $entity->getEntityTypeId() === 'node'
+    //     && in_array($entity->bundle(), ['organisation', 'location', 'event', 'article'])
+    //   ) {
+    //     
+    //   }
+    // }
+
+
+  }
+  
+
+  /* @var Drupal\Core\Entity\FieldableEntityInterface $entity */
+}
