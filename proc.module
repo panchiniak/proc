@@ -23,6 +23,11 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
       ]
     ],
   ];
+  $form['#action'] = 'generate-keys';
+  // $form['#action'] = '../user';
+  
+
+  // ksm($form);
 
     // $formObject = $form_state->getFormObject();
     // if ($formObject instanceof \Drupal\Core\Entity\EntityFormInterface) {

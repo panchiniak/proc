@@ -120,10 +120,11 @@
               $('input[name=generation_timespan]')[0].value   = total;
               $('input[name=browser_fingerprint]')[0].value   = `${navigator.userAgent} , (${screen.width} x ${screen.height})`;
 
-              // $('#-proc-generate-keys').submit();
+              $('#proc-keys-generation-form').submit();
             }
             else {
               alert(password_error);
+              resetPassword();
             }
           }
         );

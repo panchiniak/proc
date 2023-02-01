@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 
 
 /**
- * Generate PGP keys assymetric keys.
+ * Generate PGP asymmetric keys.
  */
 class ProcKeysGenerationForm extends FormBase {
 
@@ -81,14 +81,14 @@ class ProcKeysGenerationForm extends FormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    // ksm($form_state);
-    // $title = $form_state->getValue('title');
-    // if (strlen($title) < 5) {
-    //   // Set an error for the form element with a key of "title".
-    //   $form_state->setErrorByName('title', $this->t('The title must be at least 5 characters long.'));
-    // }
-  }
+  // public function validateForm(array &$form, FormStateInterface $form_state) {
+  //   // ksm($form_state);
+  //   // $title = $form_state->getValue('title');
+  //   // if (strlen($title) < 5) {
+  //   //   // Set an error for the form element with a key of "title".
+  //   //   $form_state->setErrorByName('title', $this->t('The title must be at least 5 characters long.'));
+  //   // }
+  // }
 
   /**
    * Implements a form submit handler.
@@ -106,7 +106,9 @@ class ProcKeysGenerationForm extends FormBase {
      * with the title.
      */
     // $title = $form_state->getValue('title');
-    $this->messenger()->addMessage($this->t('%proc-entity was created.', ['%proc-entity' => 'Key']));
-    // ksm('test');
+    // $this->messenger()->addMessage($this->t('You specified a title of %title.', ['%title' => $title]));
+    // $this->messenger()->addMessage($this->t('Done'));
+    ksm($form_state->getValue('public_key'));
   }
+
 }
