@@ -1,13 +1,14 @@
 openpgpjs:
   js:
-    js/openpgp.min.js
+    js/openpgp.min.js: {}
 
 proc-generate-keys:
   js:
     js/proc-generate-keys.js: {}
   dependencies:
+    - core/drupal
     - core/jquery
-
+    - core/once
 # proc:
 #   js:
 #     js/proc-generate-keys.js: {}

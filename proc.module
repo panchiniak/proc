@@ -5,27 +5,24 @@
  * Primary module hooks for Protected Content module.
  */
 
+ require_once 'inc/proc.functions.inc';
+
  /**
  * Implements hook_form_alter().
  */
-function proc_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  if ($form_id == 'proc_keys_generation_form') {
-    // ksm('test');
-    // $form['#attached']['library'][] = 'js/ProcGenerateKeys.js';
-    $form['#attached']['library'][] = 'proc/openpgpjs';
-    $form['#attached']['library'][] = 'proc/proc-generate-keys';
-    
-    // $form['#attached'] = [
-    //   'library' => ['proc/js/ProcGenerateKeys.js'],
-    //   'drupalSettings' => [],
-    // ];
-
-    // ksm($form);
-    // $form['#attached'][] = [
-    //   'library' => ['proc/prockeysgen'],
-    //   'drupalSettings' => [],
-    // ];
-
+function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $form['#attached'] = [
+    'library' => [
+      0 => 'proc/openpgpjs',
+      1 => 'proc/proc-generate-keys',
+    ],
+    'drupalSettings' => [
+      'proc' => [
+        'proc_labels' => _proc_js_labels(),
+        'proc_data'   => _proc_common_get_decryption_form_data(NULL), 
+      ]
+    ],
+  ];
 
     // $formObject = $form_state->getFormObject();
     // if ($formObject instanceof \Drupal\Core\Entity\EntityFormInterface) {
@@ -38,9 +35,4 @@ function proc_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     //   }
     // }
 
-
-  }
-  
-
-  /* @var Drupal\Core\Entity\FieldableEntityInterface $entity */
 }

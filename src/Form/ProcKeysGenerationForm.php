@@ -34,27 +34,38 @@ class ProcKeysGenerationForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
+    $proc_hidden_fields_key_generation = [
+      // @todo: move this to static property of ProcKeys class 
+      'public_key',
+      'encrypted_private_key',
+      // @todo: move this to static property of Proc class 
+      'generation_timestamp',
+      'generation_timespan',
+      'browser_fingerprint'
+    ];
+
+    foreach ($proc_hidden_fields_key_generation as $hidden_field) {
+      $form[$hidden_field] = ['#type' => 'hidden'];
+    }
+
     // Password Confirm.
     $form['password_confirm'] = [
       '#type' => 'password_confirm',
+      '#required' => TRUE,
     ];
 
     // Group submit handlers in an actions element with a key of "actions" so
     // that it gets styled correctly, and so that other modules may add actions
     // to the form. This is not required, but is convention.
-    $form['actions'] = [
-      '#type' => 'actions',
-    ];
 
-    // Add a submit button that handles the submission of the form.
+    // $form['actions'] = [
+    //   '#type' => 'actions',
+    // ];
+    
     $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Submit'),
     ];
-
-    $classes = get_declared_classes();
-    ksm($classes);
-
 
     return $form;
   }
@@ -71,7 +82,7 @@ class ProcKeysGenerationForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    ksm($form_state);
+    // ksm($form_state);
     // $title = $form_state->getValue('title');
     // if (strlen($title) < 5) {
     //   // Set an error for the form element with a key of "title".
@@ -94,7 +105,8 @@ class ProcKeysGenerationForm extends FormBase {
      * This would normally be replaced by code that actually does something
      * with the title.
      */
-    $title = $form_state->getValue('title');
-    $this->messenger()->addMessage($this->t('You specified a title of %title.', ['%title' => $title]));
+    // $title = $form_state->getValue('title');
+    $this->messenger()->addMessage($this->t('%proc-entity was created.', ['%proc-entity' => 'Key']));
+    // ksm('test');
   }
 }
