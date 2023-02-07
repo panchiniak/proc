@@ -2,3 +2,14 @@ administer proc configuration:
   title: 'Administer proc configuration'
   description: 'Optional description.'
   restrict access: true
+delete proc entity:
+  title: 'Delete entity content'
+add proc entity:
+  title: 'Add entity content'
+view proc entity:
+  title: 'View entity content'
+edit proc entity:
+  title: 'Edit entity content'
+administer proc entity:
+  title: 'Administer settings'
+  

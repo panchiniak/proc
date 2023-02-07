@@ -1,4 +1,9 @@
+/**
+ * @file
+ * Protected Content key generation.
+ */
 (function ($, Drupal, once) {
+  'use strict';
   Drupal.behaviors.ProcBehavior = {
     attach: function (context, settings) {
       once('procGenerateKeys', 'html', context).forEach(function (element) {

@@ -56,3 +56,8 @@ proc-generate-keys:
 #       css/cuddly-slider-theme.css: {}
 #   js:
 #     js/cuddly-slider.js: {}
+# LibProc:
+#   js:
+#     js/proc.js: {}
+#   dependencies:
+#     - core/drupal
