@@ -38,7 +38,7 @@
           'click', async function (e) {
             e.preventDefault();
 
-            let pass = $('#edit-password-confirm-pass1')[0].value
+            let pass = $('#edit-password-confirm-pass1')[0].value,
                 passConfirm = $('#edit-password-confirm-pass2')[0].value;
 
             // Replace the password by a placeholder string for not submiting the
