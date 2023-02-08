@@ -115,6 +115,16 @@ class ProcKeysGenerationForm extends FormBase {
     ksm($form_state->getValue('generation_timespan'));
     // ksm($form_state->getValue('browser_fingerprint'));
 
+    $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+    $user_uid = $user->id();
+
+    ksm($user_uid);
+
+    $proc = \Drupal::entityTypeManager()->getStorage('proc')->create([
+      // 'user_id' => $user_uid, 
+      'title' => 'Another node'
+    ]);
+
   }
 
 }

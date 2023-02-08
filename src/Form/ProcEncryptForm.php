@@ -35,13 +35,15 @@ class ProcEncryptForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $proc_hidden_fields_key_generation = [
-      // @todo: move this to static property of ProcKeys class 
-      'public_key',
-      'encrypted_private_key',
-      // @todo: move this to static property of Proc class 
-      'generation_timestamp',
-      'generation_timespan',
-      'browser_fingerprint'
+			'cipher_text',
+			'source_file_name',
+			'source_file_size',
+			'source_file_type',
+			'source_file_last_change',
+			'browser_fingerprint',
+			'generation_timestamp',
+			'generation_timespan',
+			'signed',
     ];
 
     foreach ($proc_hidden_fields_key_generation as $hidden_field) {

@@ -8,7 +8,7 @@ proc.generate_keys:
     _access: 'TRUE'
 
 proc.encrypt:
-  path: '/proc/add/1'
+  path: '/proc/add/{proc}'
   defaults:
     _title: 'Encrypt'
     _form: '\Drupal\proc\Form\ProcEncryptForm'
