@@ -5,7 +5,7 @@
  * Primary module hooks for Protected Content module.
  */
 
- require_once 'inc/proc.functions.inc';
+require_once 'inc/proc.functions.inc';
 
  /**
  * Implements hook_form_alter().
@@ -25,22 +25,9 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
       ]
     ],
   ];
-  $form['#action'] = 'generate-keys';
-  // $form['#action'] = '../user/2';
-  
 
-  // ksm($form);
-
-    // $formObject = $form_state->getFormObject();
-    // if ($formObject instanceof \Drupal\Core\Entity\EntityFormInterface) {
-    //   $entity = $formObject->getEntity();
-    //   if (
-    //     $entity->getEntityTypeId() === 'node'
-    //     && in_array($entity->bundle(), ['organisation', 'location', 'event', 'article'])
-    //   ) {
-    //     
-    //   }
-    // }
+  $path_service = \Drupal::service('redirect.destination')->getAsArray()['destination'];
+  $form['#action'] = $path_service;
 
 }
 
@@ -49,8 +36,6 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
  */
 function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   $proc_data = _proc_common_get_decryption_form_data(NULL);
-
-  // $current_uri = \Drupal::request()->getRequestUri();
 
   $current_path = \Drupal::service('path.current')->getPath();
 

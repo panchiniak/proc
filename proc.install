@@ -23,6 +23,63 @@ function proc_uninstall() {
  * Implements hook_schema().
  */
 function proc_schema() {
+
+  // $schema['proc'] = [
+  //   'description' => 'The base table for proc.',
+  //   'fields' => [
+  //     'pid' => [
+  //       'description' => 'Armored entity primary identifier.',
+  //       'type' => 'serial',
+  //       'unsigned' => TRUE,
+  //       'not null' => TRUE,
+  //     ],
+  //     'uid' => [
+  //       'description' => 'User id from the users table.',
+  //       'type' => 'int',
+  //       'not null' => TRUE,
+  //       'default' => 0,
+  //     ],
+  //     'label' => [
+  //       'description' => 'The label of this protected content.',
+  //       'type' => 'text',
+  //       'size' => 'small',
+  //     ],
+  //     'status' => [
+  //       'description' => 'Boolean indicating whether the proc is published (visible to non-administrators).',
+  //       'type' => 'int',
+  //       'not null' => TRUE,
+  //       'default' => 1,
+  //     ],
+  //     'type' => [
+  //       'description' => 'Entity instance type.',
+  //       'type' => 'text',
+  //       'size' => 'medium',
+  //     ],
+  //     'created' => [
+  //       'description' => 'The Unix timestamp when the armored was created.',
+  //       'type' => 'int',
+  //       'not null' => TRUE,
+  //       'default' => 0,
+  //     ],
+  //     'changed' => [
+  //       'description' => 'The Unix timestamp when the armored was changed.',
+  //       'type' => 'int',
+  //       'not null' => TRUE,
+  //       'default' => 0,
+  //     ],
+  //     'meta' => [
+  //       'description' => 'Unprotected metadata of this protected content.',
+  //       'type' => 'text',
+  //       'size' => 'normal',
+  //       'not null' => TRUE,
+  //       'default' => NULL,
+  //     ],
+  //   ],
+  //   'primary key' => ['pid'],
+  // ];
+
+
+
   $schema['proc_example'] = [
     'description' => 'Table description.',
     'fields' => [

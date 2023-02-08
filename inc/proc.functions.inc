@@ -49,6 +49,7 @@ function _proc_common_get_decryption_form_data($privkey = NULL) {
   $hash = \Drupal\Core\Site\Settings::getHashSalt();
   $hash_base64 = \Drupal\Component\Utility\Crypt::hashBase64($hash . $user_uid);
 
+
   return [
     'proc_uid'     => $user_uid,
     'proc_pass'    => $hash_base64,

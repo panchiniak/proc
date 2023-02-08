@@ -102,7 +102,9 @@
                 userIDs: [{name: procData.proc_name, email: procData.proc_email}],
                 type: 'rsa',
                 passphrase: cryptoPass,
-                rsaBits: 2048,
+                // @todo: made this configurable:
+                // rsaBits: 2048,
+                rsaBits: 4096,
                 format: 'armored',
               }).catch(
                 // This error is possibly due to tampering atempt.
@@ -123,7 +125,8 @@
               $('input[name=encrypted_private_key]')[0].value = privateKey;
               $('input[name=generation_timestamp]')[0].value  = endSeconds;
               $('input[name=generation_timespan]')[0].value   = total;
-              $('input[name=browser_fingerprint]')[0].value   = `${navigator.userAgent} , (${screen.width} x ${screen.height})`;
+              $('input[name=browser_fingerprint]')[0].value   = `${navigator.userAgent} , (${screen.width} x ${screen.height})`,
+              $('input[name=proc_email]')[0].value            =  procData.proc_email;
 
               $('#proc-keys-generation-form').submit();
             }

@@ -123,51 +123,118 @@ class Proc extends ContentEntityBase implements ProcInterface {
       ->setDescription(t('The UUID of the Proc entity.'))
       ->setReadOnly(TRUE);
 
-    // Name field for the contact.
-    // We set display options for the view as well as the form.
-    // Users with correct privileges can change the view and edit configuration.
-    // $fields['name'] = BaseFieldDefinition::create('string')
-    //   ->setLabel(t('Name'))
-    //   ->setDescription(t('The name of the Proc entity.'))
-    //   ->setSettings([
-    //     'max_length' => 255,
-    //     'text_processing' => 0,
-    //   ])
-    //   // Set no default value.
-    //   ->setDefaultValue(NULL)
-    //   ->setDisplayOptions('view', [
-    //     'label' => 'above',
-    //     'type' => 'string',
-    //     'weight' => -6,
-    //   ])
-    //   ->setDisplayOptions('form', [
-    //     'type' => 'string_textfield',
-    //     'weight' => -6,
-    //   ])
-    //   ->setDisplayConfigurable('form', TRUE)
-    //   ->setDisplayConfigurable('view', TRUE);
+    $fields['label'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Label'))
+      ->setDescription(t('The label of the Proc entity.'))
+      ->setSettings([
+        'max_length' => 255,
+        'text_processing' => 0,
+      ])
+      // Set no default value.
+      ->setDefaultValue(NULL)
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => -6,
+      ])
+      ->setDisplayOptions('form', [
+        'type' => 'string_textfield',
+        'weight' => -6,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
 
-    // $fields['first_name'] = BaseFieldDefinition::create('string')
-    //   ->setLabel(t('First Name'))
-    //   ->setDescription(t('The first name of the Proc entity.'))
-    //   ->setSettings([
-    //     'max_length' => 255,
-    //     'text_processing' => 0,
-    //   ])
-    //   // Set no default value.
-    //   ->setDefaultValue(NULL)
-    //   ->setDisplayOptions('view', [
-    //     'label' => 'above',
-    //     'type' => 'string',
-    //     'weight' => -5,
-    //   ])
-    //   ->setDisplayOptions('form', [
-    //     'type' => 'string_textfield',
-    //     'weight' => -5,
-    //   ])
-    //   ->setDisplayConfigurable('form', TRUE)
-    //   ->setDisplayConfigurable('view', TRUE);
+    $fields['status'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Publishing status'))
+      ->setDescription(t('A boolean indicating whether the Proc entity is published.'))
+      ->setDefaultValue(TRUE)
+      ->setSettings(['on_label' => 'Published', 'off_label' => 'Unpublished'])
+      ->setDisplayOptions('view', [
+        'label' => 'visible',
+        'type' => 'boolean',
+        'weight' => 2,
+      ])
+      ->setDisplayOptions('form', [
+        'type' => 'boolean_checkbox',
+        'weight' => 2,
+      ])
+      ->setDisplayConfigurable('view', TRUE)
+      ->setDisplayConfigurable('form', TRUE);
 
+      $fields['type'] = BaseFieldDefinition::create('string')
+        ->setLabel(t('Type'))
+        ->setDescription(t('The type of the Proc entity (keyring or ciphertext).'))
+        ->setSettings([
+          'max_length' => 255,
+          'text_processing' => 0,
+        ])
+        // Set no default value.
+        ->setDefaultValue('keyring')
+        ->setDisplayOptions('view', [
+          'label' => 'above',
+          'type' => 'string',
+          'weight' => -6,
+        ])
+        ->setDisplayOptions('form', [
+          'type' => 'string_textfield',
+          'weight' => -6,
+        ])
+        ->setDisplayConfigurable('form', TRUE)
+        ->setDisplayConfigurable('view', TRUE)
+        ->setReadOnly(TRUE);
+
+      $fields['type'] = BaseFieldDefinition::create('list_string')
+        ->setLabel(t('Type of the proc'))
+        ->setDescription(t('Defines a proc as keyring or ciphertext.'))
+        ->setDefaultValue('keyring')
+        ->setSettings([
+          'allowed_values' => [
+            'keyring' => 'Keyring',
+            'cipher' => 'Cipher Text',
+          ],
+        ])
+        ->setDisplayOptions('view', [
+          'label' => 'visible',
+          'type' => 'list_default',
+          'weight' => 6,
+        ])
+        ->setDisplayOptions('form', [
+          'type' => 'options_select',
+          'weight' => 6,
+        ])
+        ->setDisplayConfigurable('view', TRUE)
+        ->setDisplayConfigurable('form', TRUE);
+
+      $fields['meta'] = BaseFieldDefinition::create('map')
+        ->setLabel((t('Metadata')))
+        ->setDescription(t('Metadata for the proc'));
+
+      $fields['created'] = BaseFieldDefinition::create('created')
+        ->setLabel(t('Created'))
+        ->setDescription(t('The time that the entity was created.'));
+  
+      $fields['changed'] = BaseFieldDefinition::create('changed')
+        ->setLabel(t('Changed'))
+        ->setDescription(t('The time that the entity was last edited.'))
+        ->setDefaultValue('browser_figerprint');
+  
+      $fields['armored'] = BaseFieldDefinition::create('map')
+        ->setLabel(t('Armored'))
+        ->setDescription(t('The armored value of the Proc entity.'))
+        // Set no default value.
+        ->setDefaultValue(NULL)
+        ->setDisplayOptions('view', [
+          'label' => 'above',
+          'type' => 'string',
+          'weight' => -6,
+        ])
+        ->setDisplayOptions('form', [
+          'type' => 'string_textfield',
+          'weight' => -6,
+        ])
+        ->setDisplayConfigurable('form', TRUE)
+        ->setDisplayConfigurable('view', TRUE);
+  
     // Owner field of the contact.
     // Entity reference field, holds the reference to the user object.
     // The view shows the user name field of the user.
@@ -195,41 +262,9 @@ class Proc extends ContentEntityBase implements ProcInterface {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    // Role field for the contact.
-    // The values shown in options are 'administrator' and 'user'.
-    // $fields['role'] = BaseFieldDefinition::create('list_string')
-    //   ->setLabel(t('Role'))
-    //   ->setDescription(t('The role of the Proc entity.'))
-    //   ->setSettings([
-    //     'allowed_values' => [
-    //       'administrator' => 'administrator',
-    //       'user' => 'user',
-    //     ],
-    //   ])
-    //   // Set the default value of this field to 'user'.
-    //   ->setDefaultValue('user')
-    //   ->setDisplayOptions('view', [
-    //     'label' => 'above',
-    //     'type' => 'string',
-    //     'weight' => -2,
-    //   ])
-    //   ->setDisplayOptions('form', [
-    //     'type' => 'options_select',
-    //     'weight' => -2,
-    //   ])
-    //   ->setDisplayConfigurable('form', TRUE)
-    //   ->setDisplayConfigurable('view', TRUE);
-
-    // $fields['langcode'] = BaseFieldDefinition::create('language')
-    //   ->setLabel(t('Language code'))
-    //   ->setDescription(t('The language code of ContentEntityExample entity.'));
-    $fields['created'] = BaseFieldDefinition::create('created')
-      ->setLabel(t('Created'))
-      ->setDescription(t('The time that the entity was created.'));
-
-    $fields['changed'] = BaseFieldDefinition::create('changed')
-      ->setLabel(t('Changed'))
-      ->setDescription(t('The time that the entity was last edited.'));
+    $fields['langcode'] = BaseFieldDefinition::create('language')
+      ->setLabel(t('Language code'))
+      ->setDescription(t('The language code of Proc entity.'));
 
     return $fields;
   }

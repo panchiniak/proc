@@ -4,7 +4,8 @@ namespace Drupal\proc\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-
+use Drupal\proc;
+use Drupal\Component\Serialization\Json;
 
 /**
  * Generate PGP asymmetric keys.
@@ -41,7 +42,8 @@ class ProcKeysGenerationForm extends FormBase {
       // @todo: move this to static property of Proc class 
       'generation_timestamp',
       'generation_timespan',
-      'browser_fingerprint'
+      'browser_fingerprint',
+      'proc_email',
     ];
 
     foreach ($proc_hidden_fields_key_generation as $hidden_field) {
@@ -101,29 +103,25 @@ class ProcKeysGenerationForm extends FormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    /*
-     * This would normally be replaced by code that actually does something
-     * with the title.
-     */
-    // $title = $form_state->getValue('title');
-    // $this->messenger()->addMessage($this->t('You specified a title of %title.', ['%title' => $title]));
-    $this->messenger()->addMessage($this->t('Done'));
-    ksm($form_state->getValue('public_key'));
-    ksm($form_state->getValue('encrypted_private_key'));
-    // ksm($form_state->getValue('generation_timestamp'));
-    ksm($form_state->getValue('generation_timespan'));
-    // ksm($form_state->getValue('browser_fingerprint'));
+  public function submitForm(array &$form, FormStateInterface $form_state) {  
+    $keyring = [
+      'privkey' => $form_state->getValue('encrypted_private_key'),
+      'pubkey'  => $form_state->getValue('public_key'),
+    ];
+    $meta = [
+      'generation_timestamp' => $form_state->getValue('generation_timestamp'),
+      'generation_timespan' => $form_state->getValue('generation_timespan'),
+      'browser_fingerprint' => $form_state->getValue('browser_fingerprint'),
+      'proc_email'          => $form_state->getValue('proc_email'),
+    ];
 
-    $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
-    $user_uid = $user->id();
+    $proc = \Drupal\proc\Entity\Proc::create();
+    $proc->set('armored', $keyring)
+      ->set('meta', $meta)
+      ->set('label', $meta['proc_email'])
+      ->save();
 
-    ksm($user_uid);
-
-    $proc = \Drupal::entityTypeManager()->getStorage('proc')->create([
-      // 'user_id' => $user_uid, 
-      'title' => 'Another node'
-    ]);
+    $this->messenger()->addMessage($this->t('Your key is saved.'));
 
   }
 

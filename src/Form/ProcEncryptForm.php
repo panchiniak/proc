@@ -5,7 +5,6 @@ namespace Drupal\proc\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
-
 /**
  * Generate PGP asymmetric keys.
  */
@@ -50,49 +49,15 @@ class ProcEncryptForm extends FormBase {
       $form[$hidden_field] = ['#type' => 'hidden'];
     }
 
-    // Password Confirm.
-    // $form['password_confirm'] = [
-    //   '#type' => 'password_confirm',
-    //   '#required' => TRUE,
-    // ];
-
-    // File.
     $form['file'] = [
 			'#type' => 'file',
-			// '#title' => 'File',
 			'#description' => $this->t(''),
     ];
-  
-
-    // Group submit handlers in an actions element with a key of "actions" so
-    // that it gets styled correctly, and so that other modules may add actions
-    // to the form. This is not required, but is convention.
-
-    // $form['actions'] = [
-    //   '#type' => 'actions',
-    // ];
-
-
-    // Button.
-    // $form['button'] = [
-    //   '#type' => 'button',
-		// 	'#enabled' => true,
-    //   '#value' => 'Encrypt',
-    //   '#description' => $this->t('Button, #type = button'),
-    // ];
-
 
     $form['actions']['encrypt'] = [
       '#type' => 'button',
       '#value' => $this->t('Encrypt'),
     ];
-
-		
-
-    // $form['actions']['submit'] = [
-    //   '#type' => 'submit',
-    //   '#value' => $this->t('Submit'),
-    // ];
 
     return $form;
   }
@@ -141,6 +106,7 @@ class ProcEncryptForm extends FormBase {
     // ksm($form_state->getValue('generation_timestamp'));
     ksm($form_state->getValue('generation_timespan'));
     // ksm($form_state->getValue('browser_fingerprint'));
+
 
     
 
