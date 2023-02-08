@@ -9,6 +9,16 @@ proc-generate-keys:
     - core/drupal
     - core/jquery
     - core/once
+
+proc-encrypt:
+  js:
+    js/proc-encrypt.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/once
+
+
 # proc:
 #   js:
 #     js/proc-generate-keys.js: {}

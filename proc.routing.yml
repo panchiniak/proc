@@ -1,8 +1,17 @@
-proc.example:
+proc.generate_keys:
   path: '/proc/generate-keys'
   defaults:
     _title: 'Generate Keys'
     _form: '\Drupal\proc\Form\ProcKeysGenerationForm'
+  requirements:
+    _permission: 'access content'
+    _access: 'TRUE'
+
+proc.encrypt:
+  path: '/proc/add/1'
+  defaults:
+    _title: 'Encrypt'
+    _form: '\Drupal\proc\Form\ProcEncryptForm'
   requirements:
     _permission: 'access content'
     _access: 'TRUE'

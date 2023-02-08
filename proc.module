@@ -43,3 +43,26 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
     // }
 
 }
+
+ /**
+ * Implements hook_form_alter().
+ */
+function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $proc_data = _proc_common_get_decryption_form_data(NULL);
+
+  $form['#attached'] = [
+    'library' => [
+      0 => 'proc/openpgpjs',
+      1 => 'proc/proc-encrypt',
+    ],
+    'drupalSettings' => [
+      'proc' => [
+        'proc_labels' => _proc_js_labels(),
+        'proc_data'   => $proc_data, 
+      ]
+    ],
+  ];
+  $form['#action'] = 'generate-keys';
+
+  
+}
