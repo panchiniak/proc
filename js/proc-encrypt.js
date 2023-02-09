@@ -113,8 +113,6 @@
 								await pubKeyAjax(remoteKeyCsv);
 							}
 
-							// console.log(recipientsPubkeys);
-
 							const publicKeys = await Promise.all(recipientsPubkeys.map(armoredKey => openpgp.readKey({ armoredKey })));
 							let startSeconds = new Date().getTime() / 1000;
 							let array = new Uint8Array(evt.target.result);
