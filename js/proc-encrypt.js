@@ -32,19 +32,20 @@
 
 					document.getElementById('edit-encrypt').value = procJsLabels.proc_button_state_processing;
 
-					// $('label[for=edit-pc-upload-description]')[0].innerText =
-					// `${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit}
-					// ${procJsLabels.proc_type} ${files[0].type}
-					// ${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
-					// let realMaxSize = dynamicMaximumSize;
-					// if (fileSize > dynamicMaximumSize || fileSize > fileEntityMaxSize) {
-					//     if (fileEntityMaxSize < dynamicMaximumSize){
-					//         realMaxSize = fileEntityMaxSize;
-					//     }
-					//     $("form#-proc-encrypt-file").prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
-					//     document.getElementById('edit-button').value = procJsLabels.proc_save_button_label;
-					//     return;
-					// }
+					$('#edit-file--description')[0].innerText =
+					`${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit}
+					${procJsLabels.proc_type} ${files[0].type}
+					${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
+
+					let realMaxSize = dynamicMaximumSize;
+					if (fileSize > dynamicMaximumSize || fileSize > fileEntityMaxSize) {
+					    if (fileEntityMaxSize < dynamicMaximumSize){
+					        realMaxSize = fileEntityMaxSize;
+					    }
+					    $("form#-proc-encrypt-file").prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
+					    document.getElementById('edit-button').value = procJsLabels.proc_save_button_label;
+					    return;
+					}
 
 					let file = evt.target.files[0];
 					let reader = new FileReader();
@@ -55,7 +56,7 @@
 
 							// At this moment we only know about validated recipient UIDs
 							// and the time stamps of their keys:
-							let recipientsUidsKeysChanged = JSON.parse(drupalSettings.proc.proc.proc_recipients_pubkeys_changed),
+							let recipientsUidsKeysChanged = JSON.parse(drupalSettings.proc.proc_recipients_pubkeys_changed),
 								remoteKey = [],
 								userIdIterator;
 
@@ -90,7 +91,7 @@
 
 								const pubKeyAjax = async (remoteKeyCsv) => {
 									let response = await fetch(
-										`${window.location.origin +   drupalSettings.proc.basePath}proc/api/getpubkey/${remoteKeyCsv}/uid`
+										`${window.location.origin + drupalSettings.proc.basePath}api/proc/getpubkey/${remoteKeyCsv}/user_id`
 									);
 									pubkeysJson = await response.json();
 
@@ -111,6 +112,8 @@
 								};
 								await pubKeyAjax(remoteKeyCsv);
 							}
+
+							// console.log(recipientsPubkeys);
 
 							const publicKeys = await Promise.all(recipientsPubkeys.map(armoredKey => openpgp.readKey({ armoredKey })));
 							let startSeconds = new Date().getTime() / 1000;

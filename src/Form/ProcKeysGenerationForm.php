@@ -103,25 +103,32 @@ class ProcKeysGenerationForm extends FormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {  
-    $keyring = [
-      'privkey' => $form_state->getValue('encrypted_private_key'),
-      'pubkey'  => $form_state->getValue('public_key'),
-    ];
-    $meta = [
-      'generation_timestamp' => $form_state->getValue('generation_timestamp'),
-      'generation_timespan' => $form_state->getValue('generation_timespan'),
-      'browser_fingerprint' => $form_state->getValue('browser_fingerprint'),
-      'proc_email'          => $form_state->getValue('proc_email'),
-    ];
+  public function submitForm(array &$form, FormStateInterface $form_state) { 
+    
+    if (!empty($form_state->getValue('encrypted_private_key'))) {
+      $keyring = [
+        'privkey' => $form_state->getValue('encrypted_private_key'),
+        'pubkey'  => $form_state->getValue('public_key'),
+      ];
+      $meta = [
+        'generation_timestamp' => $form_state->getValue('generation_timestamp'),
+        'generation_timespan' => $form_state->getValue('generation_timespan'),
+        'browser_fingerprint' => $form_state->getValue('browser_fingerprint'),
+        'proc_email'          => $form_state->getValue('proc_email'),
+      ];
+  
+      $proc = \Drupal\proc\Entity\Proc::create();
+      $proc->set('armored', $keyring)
+        ->set('meta', $meta)
+        ->set('label', $meta['proc_email'])
+        ->save();
+  
+      $this->messenger()->addMessage($this->t('Your key is saved.'));
+    }
+    else {
+      $this->messenger()->addMessage($this->t('Unknown error on the generation of the key. Please try again.'));
+    }
 
-    $proc = \Drupal\proc\Entity\Proc::create();
-    $proc->set('armored', $keyring)
-      ->set('meta', $meta)
-      ->set('label', $meta['proc_email'])
-      ->save();
-
-    $this->messenger()->addMessage($this->t('Your key is saved.'));
 
   }
 

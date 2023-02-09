@@ -51,7 +51,7 @@ class ProcEncryptForm extends FormBase {
 
     $form['file'] = [
 			'#type' => 'file',
-			'#description' => $this->t(''),
+			'#description' => $this->t('Select a file for encryption.'),
     ];
 
     $form['actions']['encrypt'] = [

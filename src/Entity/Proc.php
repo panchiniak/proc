@@ -98,6 +98,14 @@ class Proc extends ContentEntityBase implements ProcInterface {
     return $this;
   }
 
+  /**
+   * Get public key cipher
+   */
+  public function getPubkey() {
+    return $this->get('armored')->target_id;
+  }
+
+
   
   /**
    * {@inheritdoc}
@@ -382,15 +390,3 @@ class Proc extends ContentEntityBase implements ProcInterface {
  *   },
  * )
  */
-// class MyCustomEntity extends ContentEntityBase {
-
-//   /**
-//    * {@inheritdoc}
-//    */
-//   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
-//     $fields = parent::baseFieldDefinitions($entity_type);
-//     $fields['ciphertext'] = BaseFieldDefinition::create('string')
-//       ->setLabel(t('Ciphertext'));
-//   }
-// }
-     

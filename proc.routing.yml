@@ -24,6 +24,15 @@ proc.settings_form:
   requirements:
     _permission: 'administer proc configuration'
 
+proc.json_api_proc:
+  path: '/api/proc/getpubkey/{user_ids}/{search_by}'
+  defaults:
+    _controller: 'Drupal\proc\Controller\JsonApiProcController::index'
+    _title: 'Proc JSON api'
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
 # # Route name can be used in several places; e.g. links, redirects, and local
 # # actions.
 # entity.content_entity_example_contact.canonical:

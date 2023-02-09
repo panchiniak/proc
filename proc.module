@@ -38,8 +38,8 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   $proc_data = _proc_common_get_decryption_form_data(NULL);
 
   $current_path = \Drupal::service('path.current')->getPath();
-
   $path_array = explode('/', $current_path);
+
   ksm($path_array[3]);
 
   $form['#attached'] = [
@@ -51,6 +51,11 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
       'proc' => [
         'proc_labels' => _proc_js_labels(),
         'proc_data'   => $proc_data,
+        // @todo: turn this into a configuration:
+        'proc_file_entity_max_filesize' => 999999,
+        'proc_post_max_size_bytes' => 999999,
+        'proc_recipients_pubkeys_changed' => json_encode(['1' => 5555, '2' => 5555]),
+        'basePath' => '/drupal/d92/web/',
 
 
       ]
