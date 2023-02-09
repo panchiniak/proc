@@ -32,6 +32,7 @@ class JsonApiProcController {
     foreach ($user_ids as $user_id) {
       $query = \Drupal::entityQuery('proc')
         ->condition($search_by, $user_id)
+        ->condition('type', 'keyring')
         ->sort('id', 'DESC')
         ->range(0, 1);
         $proc_ids[] = key($query->execute());
@@ -43,7 +44,7 @@ class JsonApiProcController {
       $proc = \Drupal\proc\Entity\Proc::load($proc_id);
       $result[] = [
         'key' => $proc->get('armored')->getValue()[0]['pubkey'],
-        'changed' => 5555
+        'changed' => $proc->get('created')->getValue()[0]['value']
       ];
     }
 

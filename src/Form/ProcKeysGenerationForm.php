@@ -126,7 +126,7 @@ class ProcKeysGenerationForm extends FormBase {
       $this->messenger()->addMessage($this->t('Your key is saved.'));
     }
     else {
-      $this->messenger()->addMessage($this->t('Unknown error on the generation of the key. Please try again.'));
+      $this->messenger()->addMessage($this->t('Unknown error on the generation of the key. Please try again.'), 'error');
     }
 
 
