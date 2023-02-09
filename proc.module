@@ -40,7 +40,7 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   $current_path = \Drupal::service('path.current')->getPath();
   $path_array = explode('/', $current_path);
 
-  ksm($path_array[3]);
+  // ksm($path_array[3]);
 
   $form['#attached'] = [
     'library' => [

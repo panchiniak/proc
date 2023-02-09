@@ -12,8 +12,8 @@
 					alert(procJsLabels.proc_fileapi_err_msg);
 				}
 
-				if (document.getElementById('edit-button')) {
-					document.getElementById('edit-button').disabled = "TRUE";
+				if (document.getElementById('edit-encrypt')) {
+					document.getElementById('edit-encrypt').disabled = "TRUE";
 				}
 
 				async function handleFileSelect(evt) {
@@ -43,7 +43,7 @@
 					        realMaxSize = fileEntityMaxSize;
 					    }
 					    $("form#-proc-encrypt-file").prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
-					    document.getElementById('edit-button').value = procJsLabels.proc_save_button_label;
+					    document.getElementById('edit-encrypt').value = procJsLabels.proc_save_button_label;
 					    return;
 					}
 
@@ -137,24 +137,15 @@
 							$('input[name=generation_timestamp]')[0].value = startSeconds;
 							$('input[name=generation_timespan]')[0].value = total;
 							$('input[name=signed]')[0].value = 0;
-							document.getElementById('edit-button').removeAttribute("disabled");
-							document.getElementById('edit-button').value = procJsLabels.proc_save_button_label;
+							document.getElementById('edit-encrypt').removeAttribute("disabled");
+							document.getElementById('edit-encrypt').value = procJsLabels.proc_save_button_label;
 						}
 					};
-
-
-
-
-
 
 				}
 				if (document.getElementById('edit-file')) {
 					document.getElementById('edit-file').addEventListener('change', handleFileSelect, false);
 				}
-
-
-
-
 
 			});
 		}
