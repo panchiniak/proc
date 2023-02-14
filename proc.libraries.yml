@@ -1,6 +1,13 @@
 openpgpjs:
+  remote: https://openpgpjs.org
+  version: 5.0.1
+  license:
+    name: GNU Lesser General Public License v3.0
+    url: https://github.com/openpgpjs/openpgpjs/blob/main/LICENSE
+    gpl-compatible: true
   js:
-    js/openpgp.min.js: {}
+    # js/openpgp.min.js: {}
+    https://unpkg.com/openpgp@5.0.1/dist/openpgp.min.js: { type: external, minified: true }
 
 proc-generate-keys:
   js:

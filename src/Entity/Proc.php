@@ -33,6 +33,7 @@ use Drupal\proc\ProcInterface;
  *       "delete" = "Drupal\proc\Form\ProcDeleteForm",
  *     },
  *     "access" = "Drupal\proc\ProcAccessControlHandler",
+ *     "views_data" = "Drupal\proc\ProcViewsData"
  *   },
  *   list_cache_contexts = { "user" },
  *   base_table = "proc",

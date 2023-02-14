@@ -86,6 +86,7 @@ class ProcKeysGenerationForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    // @todo: add validation to be sure the cipher text is not empty
     // Check if the generated keys look like as PGP keys
     // ksm($form_state);
     // $title = $form_state->getValue('title');
