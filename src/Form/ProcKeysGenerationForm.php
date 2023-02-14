@@ -6,6 +6,8 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\proc;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Routing;
+use Drupal\Component\Utility\UrlHelper;
 
 /**
  * Generate PGP asymmetric keys.
@@ -104,6 +106,16 @@ class ProcKeysGenerationForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) { 
+
+    $destination = FALSE;
+    $key_created = FALSE;
+    $success_message = 'Your key is saved.';
+
+    $current_url = \Drupal::request()->headers->get('referer');
+    $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
+    if (isset($parse_result)) {
+      $destination = $parse_result['query']['destination'];
+    }
     
     if (!empty($form_state->getValue('encrypted_private_key'))) {
       $keyring = [
@@ -123,13 +135,20 @@ class ProcKeysGenerationForm extends FormBase {
         ->set('label', $meta['proc_email'])
         ->save();
   
-      $this->messenger()->addMessage($this->t('Your key is saved.'));
+      $key_created = TRUE;
+      if (!$destination) {
+        $this->messenger()->addMessage($this->t($success_message));
+      }
     }
     else {
       $this->messenger()->addMessage($this->t('Unknown error on the generation of the key. Please try again.'), 'error');
     }
 
-
+    if ($destination && $key_created) {
+      $url = \Drupal\Core\Url::fromUri('internal:/' . $destination);     
+      $response = new \Symfony\Component\HttpFoundation\RedirectResponse($url->toString());
+      $response->send();
+      \Drupal::messenger()->addStatus($this->t($success_message));
+    }
   }
-
 }

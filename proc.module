@@ -25,9 +25,11 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
     ],
   ];
 
-  $path_service = \Drupal::service('redirect.destination')->getAsArray()['destination'];
-  $form['#action'] = $path_service;
-
+  $form['#action'] = 'generate-keys';
+  // $path_service = \Drupal::service('redirect.destination')->getAsArray()['destination'];
+  // if ($path_service) {
+  //   $form['#action'] = $path_service;  
+  // }
 }
 
  /**
