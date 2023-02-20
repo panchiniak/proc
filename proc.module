@@ -78,7 +78,7 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
         'proc_file_entity_max_filesize' => 999999,
         'proc_post_max_size_bytes' => 999999,
         'proc_recipients_pubkeys_changed' => json_encode($created),
-        'basePath' => '/drupal/d92/web/',
+        'basePath' => base_path(),
       ]
     ],
   ];
