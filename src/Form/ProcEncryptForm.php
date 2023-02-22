@@ -4,6 +4,8 @@ namespace Drupal\proc\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\proc;
+
 
 /**
  * Generate PGP asymmetric keys.
@@ -102,14 +104,38 @@ class ProcEncryptForm extends FormBase {
     // $title = $form_state->getValue('title');
     // $this->messenger()->addMessage($this->t('You specified a title of %title.', ['%title' => $title]));
     $this->messenger()->addMessage($this->t('Done'));
-    ksm($form_state->getValue('cipher_text'));
-    ksm($form_state->getValue('source_file_name'));
-    // ksm($form_state->getValue('generation_timestamp'));
-    ksm($form_state->getValue('generation_timespan'));
+    // ksm($form_state->getValue('cipher_text'));
+    // ksm($form_state->getValue('source_file_name'));
+    // ksm($form_state->getValue('source_file_size'));
+    // ksm($form_state->getValue('source_file_type'));
+    // ksm($form_state->getValue('source_file_last_change'));
     // ksm($form_state->getValue('browser_fingerprint'));
-
-
+    // ksm($form_state->getValue('generation_timestamp'));
+    // ksm($form_state->getValue('generation_timespan'));
+    // ksm($form_state->getValue('signed'));
     
+    $cipher = ['cipher' => $form_state->getValue('cipher_text')];
+    $meta = [
+      'source_file_name' => $form_state->getValue('source_file_name'),
+      'source_file_size' => $form_state->getValue('source_file_size'),
+      'source_file_type' => $form_state->getValue('source_file_type'),
+      'source_file_last_change' => $form_state->getValue('source_file_last_change'),
+      'browser_fingerprint' => $form_state->getValue('browser_fingerprint'),
+      'generation_timestamp' => $form_state->getValue('generation_timestamp'),
+      'generation_timespan' => $form_state->getValue('generation_timespan'),
+      'signed' => $form_state->getValue('signed'),
+    ];
+
+    $proc = \Drupal\proc\Entity\Proc::create();
+    $proc->set('armored', $cipher)
+      ->set('meta', $meta)
+      ->set('label', $meta['source_file_name'])
+      ->set('type', 'cipher')
+      ->save();
+
+
+
+
 
   }
 
