@@ -54,10 +54,11 @@ class ProcEncryptForm extends FormBase {
 			'#description' => $this->t('Select a file for encryption.'),
     ];
 
-    $form['actions']['encrypt'] = [
-      '#type' => 'button',
-      '#value' => $this->t('Encrypt'),
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Submit'),
     ];
+    
 
     return $form;
   }
@@ -101,8 +102,8 @@ class ProcEncryptForm extends FormBase {
     // $title = $form_state->getValue('title');
     // $this->messenger()->addMessage($this->t('You specified a title of %title.', ['%title' => $title]));
     $this->messenger()->addMessage($this->t('Done'));
-    ksm($form_state->getValue('public_key'));
-    ksm($form_state->getValue('encrypted_private_key'));
+    ksm($form_state->getValue('cipher_text'));
+    ksm($form_state->getValue('source_file_name'));
     // ksm($form_state->getValue('generation_timestamp'));
     ksm($form_state->getValue('generation_timespan'));
     // ksm($form_state->getValue('browser_fingerprint'));

@@ -36,67 +36,60 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
  * Implements hook_form_alter().
  */
 function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-
   $proc_data = _proc_common_get_decryption_form_data(NULL);
-
 
   $current_path = \Drupal::service('path.current')->getPath();
   $path_array = explode('/', $current_path);
-  $parameter = explode(',', $path_array[3]);
-  $parameter_numbers = array_filter($parameter, 'is_numeric');
-  // ksm($parameter_numbers);
-  $selected_user_ids = FALSE;
-  // ksm(count($parameter_numbers));
-  // ksm(count($parameter));
-  // If there are only user numbers as user IDs at proc/add/<user IDs csv>:
-  if (count($parameter_numbers) == count($parameter)) {
-    
-    $selected_user_ids = explode(',', $parameter);
-    // ksm('here');
-    
-  
-  
-    // Given a user ID, get the creation date of its 
-    // newwest encryption key.
-    $proc_ids = [];
-    foreach ($selected_user_ids as $user_id) {
-      $query = \Drupal::entityQuery('proc')
-        ->condition('user_id', $user_id)
-        ->condition('type', 'keyring')
-        ->sort('id', 'DESC')
-        ->range(0, 1);
-      $proc_ids[$user_id] = key($query->execute());
-    }
-  
-    $created = [];
-    foreach ($proc_ids as $user_id => $proc_id) {
-      // Get the creation data of the proc ID:
-      $proc = \Drupal\proc\Entity\Proc::load($proc_id);
-      $created[$user_id] = $proc->get('created')->getValue()[0]['value'];
-    }
-  
-    $form['#attached'] = [
-      'library' => [
-        0 => 'proc/openpgpjs',
-        1 => 'proc/proc-encrypt',
-      ],
-      'drupalSettings' => [
-        'proc' => [
-          'proc_labels' => _proc_js_labels(),
-          'proc_data'   => $proc_data,
-          // @todo: turn this into a configuration:
-          'proc_file_entity_max_filesize' => 999999,
-          'proc_post_max_size_bytes' => 999999,
-          'proc_recipients_pubkeys_changed' => json_encode($created),
-          'basePath' => base_path(),
-        ]
-      ],
-    ];
-    // $form['#action'] = 'generate-keys';
+
+  // ksm($path_array[3]);
+  $selected_user_ids = explode(',', $path_array[3]);
+
+  // Given a user ID, get the creation date of its 
+  // newwest encryption key.
+  $proc_ids = [];
+  foreach ($selected_user_ids as $user_id) {
+    $query = \Drupal::entityQuery('proc')
+      ->condition('user_id', $user_id)
+      ->condition('type', 'keyring')
+      ->sort('id', 'DESC')
+      ->range(0, 1);
+    $proc_ids[$user_id] = key($query->execute());
   }
-  else {
-    ksm('error or submited');
+
+  $created = [];
+  foreach ($proc_ids as $user_id => $proc_id) {
+    // Get the creation data of the proc ID:
+    $proc = \Drupal\proc\Entity\Proc::load($proc_id);
+    if ($proc) {
+      $created[$user_id] = $proc->get('created')->getValue()[0]['value'];  
+    }
+    else {
+      $created[1] = 1;
+    }
+    
   }
-  // If form has already been filled up, do nothing:
+
+
+
+  $form['#attached'] = [
+    'library' => [
+      0 => 'proc/openpgpjs',
+      1 => 'proc/proc-encrypt',
+    ],
+    'drupalSettings' => [
+      'proc' => [
+        'proc_labels' => _proc_js_labels(),
+        'proc_data'   => $proc_data,
+        // @todo: turn this into a configuration:
+        'proc_file_entity_max_filesize' => 999999,
+        'proc_post_max_size_bytes' => 999999,
+        'proc_recipients_pubkeys_changed' => json_encode($created),
+        'basePath' => base_path(),
+      ]
+    ],
+  ];
+  $form['#action'] = '../add/1,2';
+
+
 
 }
