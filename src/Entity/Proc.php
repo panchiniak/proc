@@ -36,7 +36,6 @@ use Drupal\proc\ProcInterface;
  *     "views_data" = "Drupal\proc\ProcViewsData"
  *   },
  *   list_cache_contexts = { "user" },
- *   base_table = "proc",
  *   admin_permission = "administer proc entity",
  *   entity_keys = {
  *     "id" = "id",
@@ -304,8 +303,8 @@ class Proc extends ContentEntityBase implements ProcInterface {
 
     return $fields;
   }
-
-
+  
+  
 
 
 

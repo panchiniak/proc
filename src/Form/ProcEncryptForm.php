@@ -126,16 +126,23 @@ class ProcEncryptForm extends FormBase {
 
     $proc = \Drupal\proc\Entity\Proc::create();
     
+    // $recipients = json_encode([1,2]);
+    $recipients[0] = ['target_id' => 1];
+    $recipients[1] = ['target_id' => 2];
+   
+    
     $proc->set('armored', $cipher)
       ->set('meta', $meta)
       ->set('label', $meta['source_file_name'])
       ->set('type', 'cipher')
+      ->set('recipient_id', $recipients[0])
+      ->set('recipient_id', $recipients[1])
       ->save();
     $proc_id = $proc->id();
     if (is_numeric($proc_id)) {
       $this->messenger()->addMessage(
         $this->t(
-          'Encryption is completed. Access link:'
+          'Encryption is completed. Decryption link:'
         )
       );
       $link_text = $base_url . '/proc/' . $proc_id;

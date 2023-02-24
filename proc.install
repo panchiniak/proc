@@ -10,6 +10,60 @@
 function proc_install() {
   // use Drupal\Core\Field\FieldStorageDefinitionInterface;
   \Drupal::messenger()->addStatus(__FUNCTION__);
+  
+  // use Drupal\Core\Field\BaseFieldDefinition;
+  
+  // Get the entity type manager service.
+  $entity_type_manager = \Drupal::entityTypeManager();
+  
+  // Load the custom entity type you want to add the field to.
+  $custom_entity_type = $entity_type_manager->getDefinition('proc');
+  
+  // Create the new entity reference field.
+  $field_storage_definition = \Drupal\Core\Field\BaseFieldDefinition::create('entity_reference')
+    ->setLabel(t('Cipher recipients set'))
+    ->setDescription(t('Recipients set for a cipher text.'))
+    ->setSetting('target_type', 'user') // Replace with the entity type you want to reference.
+    ->setCardinality(-1) // Set the number of allowed values.
+    ->setDisplayOptions('view', [
+      'label' => 'above',
+      'type' => 'entity_reference_label',
+      'weight' => 0,
+    ])
+    ->setDisplayOptions('form', [
+      'type' => 'entity_reference_autocomplete',
+      'weight' => 0,
+      'settings' => [
+        'match_operator' => 'CONTAINS',
+        'size' => '60',
+        'autocomplete_type' => 'tags',
+        'placeholder' => '',
+      ],
+    ])
+    ->setDisplayConfigurable('form', true)
+    ->setDisplayConfigurable('view', true);
+  
+  // Add the field to the custom entity type.
+  $field_name = 'proc_recipients';
+  $entity_type_manager->getStorage('field_storage_config')->create([
+    'field_name' => $field_name,
+    'entity_type' => 'proc',
+    'type' => 'entity_reference',
+    'cardinality' => -1,
+  ])->save();
+  
+  // Attach the field to the custom entity type.
+  $entity_type_manager->getStorage('proc')->create([
+    'field_name' => $field_name,
+    'entity_type' => $custom_entity_type->id(),
+  //   'bundle' => $custom_entity_type->id(), // Replace with the bundle name if your custom entity type has bundles.
+    'label' => 'Proc Cipher Recipientes Set',
+  ])->save();
+  
+  
+  
+  
+  
   // $proc = \Drupal\proc\Entity\Proc::load($proc_id);
   // $fields['cipher_recipient'] = Drupal\Core\Field\FieldStorageDefinitionInterface::create([
   //   'entity_type' => 'proc',

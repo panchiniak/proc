@@ -36,12 +36,11 @@ proc.json_api_proc:
 proc.decrypt:
   path: '/proc/{proc}'
   defaults:
-    _title: 'Encrypt'
-    _form: '\Drupal\proc\Form\ProcEncryptForm'
+    _title: 'Decrypt'
+    _form: '\Drupal\proc\Form\ProcDecryptForm'
   requirements:
     _permission: 'access content'
     _access: 'TRUE'
-
 
 
 # # Route name can be used in several places; e.g. links, redirects, and local
