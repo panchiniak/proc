@@ -49,7 +49,7 @@ use Drupal\proc\ProcInterface;
  *     "delete-form" = "/proc/{proc}/delete",
  *     "collection" = "/proc/list"
  *   },
- *   field_ui_base_route = "proc.contact_settings",
+ *   field_ui_base_route = "proc.settings",
  * )
  * 
  */
@@ -251,6 +251,33 @@ class Proc extends ContentEntityBase implements ProcInterface {
     $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('User Name'))
       ->setDescription(t('The Name of the associated user.'))
+      ->setSetting('target_type', 'user')
+      ->setSetting('handler', 'default')
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'author',
+        'weight' => -3,
+      ])
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'match_limit' => 10,
+          'size' => 60,
+          'placeholder' => '',
+        ],
+        'weight' => -3,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    // Owner field of the contact.
+    // Entity reference field, holds the reference to the user object.
+    // The view shows the user name field of the user.
+    // The form presents a auto complete field for the user name.
+    $fields['recipient_id'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Recipient Name'))
+      ->setDescription(t('The Name of the recipient user.'))
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
       ->setDisplayOptions('view', [

@@ -88,8 +88,5 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
       ]
     ],
   ];
-  $form['#action'] = '../add/1,2';
-
-
-
+  $form['#action'] = base_path() . $current_path;
 }

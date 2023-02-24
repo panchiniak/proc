@@ -33,6 +33,17 @@ proc.json_api_proc:
   requirements:
     _access: 'TRUE'
 
+proc.decrypt:
+  path: '/proc/{proc}'
+  defaults:
+    _title: 'Encrypt'
+    _form: '\Drupal\proc\Form\ProcEncryptForm'
+  requirements:
+    _permission: 'access content'
+    _access: 'TRUE'
+
+
+
 # # Route name can be used in several places; e.g. links, redirects, and local
 # # actions.
 # entity.content_entity_example_contact.canonical:

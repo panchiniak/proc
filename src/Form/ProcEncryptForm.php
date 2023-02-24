@@ -5,6 +5,9 @@ namespace Drupal\proc\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\proc;
+use \Drupal\Core\Link;
+use \Drupal\Core\Url;
+use Drupal\Core\Render\Markup;
 
 
 /**
@@ -97,23 +100,18 @@ class ProcEncryptForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    /*
-     * This would normally be replaced by code that actually does something
-     * with the title.
-     */
-    // $title = $form_state->getValue('title');
-    // $this->messenger()->addMessage($this->t('You specified a title of %title.', ['%title' => $title]));
-    $this->messenger()->addMessage($this->t('Done'));
-    // ksm($form_state->getValue('cipher_text'));
-    // ksm($form_state->getValue('source_file_name'));
-    // ksm($form_state->getValue('source_file_size'));
-    // ksm($form_state->getValue('source_file_type'));
-    // ksm($form_state->getValue('source_file_last_change'));
-    // ksm($form_state->getValue('browser_fingerprint'));
-    // ksm($form_state->getValue('generation_timestamp'));
-    // ksm($form_state->getValue('generation_timespan'));
-    // ksm($form_state->getValue('signed'));
+    global $base_url;
     
+    $request = \Drupal::request();
+
+    $destination = FALSE;
+    
+    $current_url = \Drupal::request()->headers->get('referer');
+    $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
+    if (isset($parse_result)) {
+      $destination = $parse_result['query']['destination'];
+    }
+
     $cipher = ['cipher' => $form_state->getValue('cipher_text')];
     $meta = [
       'source_file_name' => $form_state->getValue('source_file_name'),
@@ -127,16 +125,37 @@ class ProcEncryptForm extends FormBase {
     ];
 
     $proc = \Drupal\proc\Entity\Proc::create();
+    
     $proc->set('armored', $cipher)
       ->set('meta', $meta)
       ->set('label', $meta['source_file_name'])
       ->set('type', 'cipher')
       ->save();
-
-
-
-
-
+    $proc_id = $proc->id();
+    if (is_numeric($proc_id)) {
+      $this->messenger()->addMessage(
+        $this->t(
+          'Encryption is completed. Access link:'
+        )
+      );
+      $link_text = $base_url . '/proc/' . $proc_id;
+      $url = Url::fromUri('internal:/proc/' . $proc_id);
+      
+      $link = Link::fromTextAndUrl($base_url . '/proc/' . $proc_id, $url)
+        ->toString()
+        ->getGeneratedLink();
+      
+      $this->messenger()->addMessage(
+        Markup::create($link)
+      );
+    }
+    else {
+      $this->messenger()->addMessage($this->t('Error'), TYPE_ERROR);
+    }
+    if ($destination) {
+      $url = \Drupal\Core\Url::fromUri('internal:/' . $destination);
+      $response = new \Symfony\Component\HttpFoundation\RedirectResponse($url->toString());
+      $response->send();
+    }
   }
-
 }

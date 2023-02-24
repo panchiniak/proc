@@ -5,6 +5,7 @@ namespace Drupal\proc\Form;
 use Drupal\Core\Entity\ContentEntityConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\proc\Proc;
 
 /**
  * Provides a form for deleting a proc entity.
