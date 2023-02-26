@@ -8,3 +8,4 @@ dependencies:
   - entity
   - drupal:options
   - drupal:user
+configure: entity.proc_type.collection

@@ -1,6 +1,6 @@
-proc.cipher_type.*:
+proc.proc_type.*:
   type: config_entity
-  label: 'Cipher type config'
+  label: 'Proc type config'
   mapping:
     id:
       type: string

@@ -26,15 +26,5 @@ view protected content:
 edit protected content:
   title: Edit protected content
 
-administer cipher types:
-  title: 'Administer cipher types'
-  description: 'Maintain the types of cipher entity.'
-  restrict access: true
-delete cipher:
-  title: Delete cipher
-create cipher:
-  title: Create cipher
-view cipher:
-  title: View cipher
-edit cipher:
-  title: Edit cipher
+administer proc_type:
+  title: 'Administer proc type'

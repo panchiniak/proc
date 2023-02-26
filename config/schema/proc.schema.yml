@@ -22,3 +22,18 @@ field.value.field_proc_example:
     value_3:
       type: string
       label: Value 3
+
+proc.proc_type.*:
+  type: config_entity
+  label: Proc Type
+  mapping:
+    id:
+      type: string
+      label: ID
+    label:
+      type: label
+      label: Label
+    uuid:
+      type: string
+    description:
+      type: string

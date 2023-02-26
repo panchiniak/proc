@@ -10,9 +10,9 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a list controller for the cipher entity type.
+ * Provides a list controller for the proc entity type.
  */
-class CipherListBuilder extends EntityListBuilder {
+class ProcListBuilder extends EntityListBuilder {
 
   /**
    * The date formatter service.
@@ -22,7 +22,7 @@ class CipherListBuilder extends EntityListBuilder {
   protected $dateFormatter;
 
   /**
-   * Constructs a new CipherListBuilder object.
+   * Constructs a new procListBuilder object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type definition.
@@ -59,7 +59,7 @@ class CipherListBuilder extends EntityListBuilder {
       ->count()
       ->execute();
 
-    $build['summary']['#markup'] = $this->t('Total ciphers: @total', ['@total' => $total]);
+    $build['summary']['#markup'] = $this->t('Total procs: @total', ['@total' => $total]);
     return $build;
   }
 
@@ -80,7 +80,7 @@ class CipherListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /** @var \Drupal\proc\CipherInterface $entity */
+    /** @var \Drupal\proc\procInterface $entity */
     $row['id'] = $entity->id();
     $row['label'] = $entity->toLink();
     $row['status'] = $entity->get('status')->value ? $this->t('Enabled') : $this->t('Disabled');

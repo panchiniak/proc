@@ -1,5 +1,5 @@
-id: entity.cipher
-plugin_id: 'entity:cipher'
+id: entity.proc
+plugin_id: 'entity:proc'
 granularity: method
 configuration:
   GET:

@@ -10,8 +10,17 @@
 function proc_install() {
   \Drupal::messenger()->addStatus(__FUNCTION__);
   
-  \Drupal::entityTypeManager()->clearCachedDefinitions();
   
+  
+  $bundle = \Drupal\proc\Entity\ProcType::create([
+    'id' => 'cipher',
+    'label' => 'Cipher Text',
+    'revision' => FALSE,
+  ]);
+  $bundle->save();
+  
+  \Drupal::entityTypeManager()->clearCachedDefinitions();
+
   // Get the entity type manager service.
   $entity_type_manager = \Drupal::entityTypeManager();
   // Load the custom entity type you want to add the field to.
@@ -56,7 +65,8 @@ function proc_install() {
   $entity_type_manager->getStorage('proc')->create([
     'field_name' => $field_name,
     'entity_type' => $custom_entity_type->id(),
-    'bundle' => 'proc', // Replace with the bundle name if your custom entity type has bundles.
+    // 'bundle' => 'proc', // Replace with the bundle name if your custom entity type has bundles.
+    'bundle' => 'cipher', // Replace with the bundle name if your custom entity type has bundles.
     'label' => 'Proc Cipher Recipientes Set',
   ])->save();
   

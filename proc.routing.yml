@@ -42,30 +42,19 @@ proc.decrypt:
     _permission: 'access content'
     _access: 'TRUE'
 
-entity.cipher_type.collection:
-  path: '/cipher_type/list'
-  defaults:
-  # Calls the list controller, defined in the annotation of the contact entity.
-    _entity_list: 'cipher_type'
-    _title: 'Cipher type'
-  requirements:
-  # Checks for permission directly.
-    _permission: 'view contact entity'
-
-
 # # Route name can be used in several places; e.g. links, redirects, and local
 # # actions.
-# entity.content_entity_example_contact.canonical:
-#   path: '/content_entity_example_contact/{content_entity_example_contact}'
-#   defaults:
-#     # Calls the view controller, defined in the annotation of the contact
-#     # entity. This marks this route as belonging to this entity type.
-#     _entity_view: 'content_entity_example_contact'
-#     _title: 'Contact content'
-#   requirements:
-#     # Calls the access controller of the entity, passing in the suffix ('view')
-#     # as the $operation parameter to checkAccess().
-#     _entity_access: 'content_entity_example_contact.view'
+entity.proc.canonical:
+  path: '/content_entity_example_contact/{proc}/details'
+  defaults:
+    # Calls the view controller, defined in the annotation of the contact
+    # entity. This marks this route as belonging to this entity type.
+    _entity_view: 'proc'
+    _title: 'Protected content details'
+  requirements:
+    # Calls the access controller of the entity, passing in the suffix ('view')
+    # as the $operation parameter to checkAccess().
+    _entity_access: 'proc.view'
 
 # entity.content_entity_example_contact.collection:
 #   path: '/content_entity_example_contact/list'
@@ -118,3 +107,35 @@ entity.cipher_type.collection:
 #     _title: 'Contact settings'
 #   requirements:
 #     _permission: 'administer contact entity'
+
+entity.proc_type.collection:
+  path: '/admin/structure/proc-type'
+  defaults:
+    _entity_list: 'proc_type'
+    _title: 'Proc Type configuration'
+  requirements:
+    _permission: 'administer proc_type'
+
+entity.proc_type.add_form:
+  path: '/admin/structure/proc_type/add'
+  defaults:
+    _entity_form: 'proc_type.add'
+    _title: 'Add a proc type'
+  requirements:
+    _permission: 'administer proc_type'
+
+entity.proc_type.edit_form:
+  path: '/admin/structure/proc-type/{proc_type}'
+  defaults:
+    _entity_form: 'proc_type.edit'
+    _title: 'Edit a proc type'
+  requirements:
+    _permission: 'administer proc_type'
+
+entity.proc_type.delete_form:
+  path: '/admin/structure/proc-type/{proc_type}/delete'
+  defaults:
+    _entity_form: 'proc_type.delete'
+    _title: 'Delete a proc type'
+  requirements:
+    _permission: 'administer proc_type'

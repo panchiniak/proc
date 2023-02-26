@@ -6,14 +6,16 @@
 
 namespace Drupal\proc\Entity;
 
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\ContentEntityBase;
-use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\proc\ProcInterface;
+use Drupal\user\EntityOwnerTrait;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\user\UserInterface;
-use Drupal\Core\Entity\EntityChangedTrait;
-use Drupal\proc\ProcInterface;
+
 
 
 /**
@@ -23,34 +25,49 @@ use Drupal\proc\ProcInterface;
  * 
  * @ContentEntityType(
  *   id = "proc",
- *   label = @Translation("Protected Content"),
- *   base_table = "proc",
- *   revision_table = "proc_revision",
- *   revision_data_table = "proc_field_revision",
+ *   label = @Translation("Protected content"),
+ *   label_collection = @Translation("Protected contents"),
+ *   label_singular = @Translation("protected content"),
+ *   label_plural = @Translation("protected contents"),
+ *   label_count = @PluralTranslation(
+ *     singular = "@count protected content",
+ *     plural = "@count protected contents",
+ *   ),
+ *   bundle_label = @Translation("Protected content type"),
  *   handlers = {
+ *     "list_builder" = "Drupal\proc\Entity\Controller\ProcListBuilder",
+ *     "views_data" = "Drupal\views\EntityViewsData",
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "list_builder" = "Drupal\proc\Entity\Controller\ContactListBuilder",
+ *     "access" = "Drupal\proc\ProcAccessControlHandler",
  *     "form" = {
  *       "default" = "Drupal\proc\Form\ProcForm",
  *       "delete" = "Drupal\proc\Form\ProcDeleteForm",
+ *       "generate-keys" = "Drupal\proc\Form\ProcKeysGenerationForm",
+ *       "encrypt" = "Drupal\proc\Form\ProcEncryptForm",
+ *       "decrypt" = "Drupal\proc\Form\ProcDecryptForm"
  *     },
- *     "access" = "Drupal\proc\ProcAccessControlHandler",
- *     "views_data" = "Drupal\proc\ProcViewsData"
+ *     "route_provider" = {
+ *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
+ *     }
  *   },
- *   list_cache_contexts = { "user" },
- *   admin_permission = "administer proc entity",
+ *   base_table = "proc",
+ *   admin_permission = "administer proc configuration",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "name",
  *     "uuid" = "uuid"
  *   },
+ *   revision_table = "proc_revision",
+ *   revision_data_table = "proc_revision",
+ *   list_cache_contexts = { "user" },
  *   links = {
  *     "canonical" = "/proc/{proc}",
  *     "edit-form" = "/proc/{proc}/edit",
  *     "delete-form" = "/proc/{proc}/delete",
  *     "collection" = "/proc/list"
  *   },
- *   field_ui_base_route = "entity.proc.edit_form"
+ *   field_ui_base_route = "entity.proc.edit_form",
+ *   bundle_entity_type = "proc_type"
  * )
  * 
  */

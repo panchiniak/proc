@@ -11,8 +11,8 @@ entity.proc_type.collection:
   parent: system.admin_structure
   route_name: entity.proc_type.collection
 
-entity.cipher_type.collection:
-  title: 'Cipher types'
-  description: 'Manage and CRUD actions on Cipher type.'
+entity.proc_type.overview:
+  title: Proc Types
   parent: system.admin_structure
-  route_name: entity.cipher_type.collection
+  description: 'List of proc types to extend site functionality.'
+  route_name: entity.proc_type.collection

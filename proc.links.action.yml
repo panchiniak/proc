@@ -10,14 +10,8 @@ proc.add_page:
   appears_on:
     - entity.proc.collection
 
-cipher.type_add:
-  title: 'Add cipher type'
-  route_name: entity.cipher_type.add_form
+entity.proc_type.add_form:
+  route_name: 'entity.proc_type.add_form'
+  title: 'Add proc type'
   appears_on:
-    - entity.cipher_type.collection
-
-cipher.add_page:
-  title: 'Add cipher'
-  route_name: entity.cipher.add_page
-  appears_on:
-    - entity.cipher.collection
+    - entity.proc_type.collection
