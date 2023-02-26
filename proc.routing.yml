@@ -42,6 +42,16 @@ proc.decrypt:
     _permission: 'access content'
     _access: 'TRUE'
 
+entity.cipher_type.collection:
+  path: '/cipher_type/list'
+  defaults:
+  # Calls the list controller, defined in the annotation of the contact entity.
+    _entity_list: 'cipher_type'
+    _title: 'Cipher type'
+  requirements:
+  # Checks for permission directly.
+    _permission: 'view contact entity'
+
 
 # # Route name can be used in several places; e.g. links, redirects, and local
 # # actions.

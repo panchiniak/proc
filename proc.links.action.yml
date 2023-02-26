@@ -1,0 +1,23 @@
+proc.type_add:
+  title: 'Add protected content type'
+  route_name: entity.proc_type.add_form
+  appears_on:
+    - entity.proc_type.collection
+
+proc.add_page:
+  title: 'Add protected content'
+  route_name: entity.proc.add_page
+  appears_on:
+    - entity.proc.collection
+
+cipher.type_add:
+  title: 'Add cipher type'
+  route_name: entity.cipher_type.add_form
+  appears_on:
+    - entity.cipher_type.collection
+
+cipher.add_page:
+  title: 'Add cipher'
+  route_name: entity.cipher.add_page
+  appears_on:
+    - entity.cipher.collection

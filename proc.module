@@ -90,3 +90,90 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   ];
   $form['#action'] = base_path() . $current_path;
 }
+
+use Drupal\Core\Render\Element;
+use Drupal\proc\Entity\Cipher;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function proc_theme() {
+  return [
+    'cipher' => [
+      'render element' => 'elements',
+    ],
+  ];
+}
+
+/**
+ * Prepares variables for cipher templates.
+ *
+ * Default template: cipher.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the cipher information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_cipher(array &$variables) {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function proc_user_cancel($edit, UserInterface $account, $method) {
+  switch ($method) {
+    case 'user_cancel_block_unpublish':
+      // Unpublish ciphers.
+      $storage = \Drupal::entityTypeManager()->getStorage('cipher');
+      $cipher_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->condition('status', 1)
+        ->execute();
+      foreach ($storage->loadMultiple($cipher_ids) as $cipher) {
+        $cipher->set('status', FALSE);
+        $cipher->save();
+      }
+      break;
+
+    case 'user_cancel_reassign':
+      // Anonymize ciphers.
+      $storage = \Drupal::entityTypeManager()->getStorage('cipher');
+      $cipher_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->execute();
+      foreach ($storage->loadMultiple($cipher_ids) as $cipher) {
+        $cipher->setOwnerId(0);
+        $cipher->save();
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for user entities.
+ */
+function proc_user_predelete(UserInterface $account) {
+  // Delete ciphers.
+  $storage = \Drupal::entityTypeManager()->getStorage('cipher');
+  $cipher_ids = $storage->getQuery()
+    ->condition('uid', $account->id())
+    ->execute();
+  $ciphers = $storage->loadMultiple($cipher_ids);
+  $storage->delete($ciphers);
+}
+
+/**
+ * Implements hook_entity_bundle_info_alter().
+ */
+function proc_entity_bundle_info_alter(array &$bundles): void {
+  if (isset($bundles['proc']['proc'])) {
+    $bundles['proc']['proc']['class'] = \Drupal\proc\Entity\Bundle\ProcCipherTextBundle::class;
+  }
+}

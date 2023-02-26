@@ -13,3 +13,28 @@ edit proc entity:
 administer proc entity:
   title: 'Administer settings'
   
+administer protected content types:
+  title: 'Administer protected content types'
+  description: 'Maintain the types of protected content entity.'
+  restrict access: true
+delete protected content:
+  title: Delete protected content
+create protected content:
+  title: Create protected content
+view protected content:
+  title: View protected content
+edit protected content:
+  title: Edit protected content
+
+administer cipher types:
+  title: 'Administer cipher types'
+  description: 'Maintain the types of cipher entity.'
+  restrict access: true
+delete cipher:
+  title: Delete cipher
+create cipher:
+  title: Create cipher
+view cipher:
+  title: View cipher
+edit cipher:
+  title: Edit cipher

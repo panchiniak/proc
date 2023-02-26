@@ -8,23 +8,23 @@
  * Implements hook_install().
  */
 function proc_install() {
-  // use Drupal\Core\Field\FieldStorageDefinitionInterface;
   \Drupal::messenger()->addStatus(__FUNCTION__);
   
-  // use Drupal\Core\Field\BaseFieldDefinition;
+  \Drupal::entityTypeManager()->clearCachedDefinitions();
   
   // Get the entity type manager service.
   $entity_type_manager = \Drupal::entityTypeManager();
-  
   // Load the custom entity type you want to add the field to.
   $custom_entity_type = $entity_type_manager->getDefinition('proc');
-  
   // Create the new entity reference field.
   $field_storage_definition = \Drupal\Core\Field\BaseFieldDefinition::create('entity_reference')
     ->setLabel(t('Cipher recipients set'))
     ->setDescription(t('Recipients set for a cipher text.'))
     ->setSetting('target_type', 'user') // Replace with the entity type you want to reference.
     ->setCardinality(-1) // Set the number of allowed values.
+    ->setTranslatable(FALSE)
+    ->setRevisionable(FALSE)
+    ->setCardinality(\Drupal\Core\Field\FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
     ->setDisplayOptions('view', [
       'label' => 'above',
       'type' => 'entity_reference_label',
@@ -44,7 +44,7 @@ function proc_install() {
     ->setDisplayConfigurable('view', true);
   
   // Add the field to the custom entity type.
-  $field_name = 'proc_recipients';
+  $field_name = 'field_proc_recipients';
   $entity_type_manager->getStorage('field_storage_config')->create([
     'field_name' => $field_name,
     'entity_type' => 'proc',
@@ -56,57 +56,35 @@ function proc_install() {
   $entity_type_manager->getStorage('proc')->create([
     'field_name' => $field_name,
     'entity_type' => $custom_entity_type->id(),
-  //   'bundle' => $custom_entity_type->id(), // Replace with the bundle name if your custom entity type has bundles.
+    'bundle' => 'proc', // Replace with the bundle name if your custom entity type has bundles.
     'label' => 'Proc Cipher Recipientes Set',
   ])->save();
   
   
-  
-  
-  
-  // $proc = \Drupal\proc\Entity\Proc::load($proc_id);
-  // $fields['cipher_recipient'] = Drupal\Core\Field\FieldStorageDefinitionInterface::create([
-  //   'entity_type' => 'proc',
-  //   'field_name' => 'cipher_recipient',
-  //   'type' => 'entity_reference',
-  //   'cardinality' => -1,
-  //   'settings' => [
-  //     'target_type' => 'user',
-  //   ],
-  // ]);
-  // \Drupal::service('field_storage_definition.listener')->onFieldStorageDefinitionCreate($fields['cipher_recipient']);
+  $module_name = 'proc';
+  $entity_type = 'proc';
+  $fields = [
+    $field_name,
+  ];
 
-  // use Drupal\field\Entity\FieldStorageConfig;
-  // use Drupal\field\Entity\FieldConfig;
-
-  // $field_storage = \Drupal\field\Entity\FieldStorageConfig::create([
-  //   'entity_type' => 'proc',
-  //   'field_name' => 'field_proc_recipients',
-  //   'type' => 'entity_reference',
-  //   'settings' => [
-  //     'target_type' => 'user',
-  //   ],
-  // ]);
-  // $field_storage->save();
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $field_definitions = \Drupal::service('entity_field.manager')
+    ->getFieldDefinitions($entity_type, $entity_type);
+  foreach ($fields as $field_name) {
+    if (!empty($field_definitions[$field_name])) {
+      $entity_definition_update_manager
+        ->installFieldStorageDefinition(
+          $field_name,
+          $entity_type,
+          $module_name,
+          $field_definitions[$field_name]);
+    }
+  } 
   
-  // $field = \Drupal\field\Entity\FieldConfig::create([
-  //   'entity_type' => 'proc',
-  //   'field_name' => 'field_proc_recipients',
-  //   // 'bundle' => 'ciphertext',
-  //   'label' => 'Recipients of a cipher text',
-  //   'settings' => [
-  //     'handler' => 'default',
-  //     'handler_settings' => [
-  //       'target_bundles' => [],
-  //       'sort' => [
-  //         'field' => '_none',
-  //       ],
-  //       'auto_create' => false,
-  //     ],
-  //   ],
-  // ]);
-  // $field->save();
-
+  
+  
+  
+  
 }
 
 /**

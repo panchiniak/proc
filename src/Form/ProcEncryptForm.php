@@ -8,6 +8,9 @@ use Drupal\proc;
 use \Drupal\Core\Link;
 use \Drupal\Core\Url;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityFieldManager;
+
 
 
 /**
@@ -108,7 +111,7 @@ class ProcEncryptForm extends FormBase {
     
     $current_url = \Drupal::request()->headers->get('referer');
     $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
-    if (isset($parse_result)) {
+    if (isset($parse_result['query']['destination'])) {
       $destination = $parse_result['query']['destination'];
     }
 
@@ -126,18 +129,32 @@ class ProcEncryptForm extends FormBase {
 
     $proc = \Drupal\proc\Entity\Proc::create();
     
-    // $recipients = json_encode([1,2]);
-    $recipients[0] = ['target_id' => 1];
-    $recipients[1] = ['target_id' => 2];
-   
+    $entity_type_manager = \Drupal::service('entity_field.manager');
+    $entity_type_manager->clearCachedFieldDefinitions();
+    
+    // Add users 1 and 2 to the entity reference field.
+    $recipient_users_field[] = ['target_id' => 1];
+    // $recipient_users_field[] = ['target_id' => 2];
+    
+    // $proc->set('proc_recipients', $recipient_users_field);
     
     $proc->set('armored', $cipher)
       ->set('meta', $meta)
+      ->set('langcode', 'en')
       ->set('label', $meta['source_file_name'])
       ->set('type', 'cipher')
-      ->set('recipient_id', $recipients[0])
-      ->set('recipient_id', $recipients[1])
+      // ->set('proc_recipients', $recipient_users_field)
       ->save();
+
+    // Get the entity reference field value object.
+    // $recipient_users_field = $proc->get('proc_recipients');
+    // ksm($recipient_users_field);
+    
+    // Checks whether an entity has a certain field.
+    ksm($proc->hasField('proc_recipients'));
+
+
+      
     $proc_id = $proc->id();
     if (is_numeric($proc_id)) {
       $this->messenger()->addMessage(

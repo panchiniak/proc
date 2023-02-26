@@ -4,3 +4,15 @@ proc.settings_form:
   parent: system.admin_config_system
   route_name: proc.settings_form
   weight: 10
+
+entity.proc_type.collection:
+  title: 'Protected Content types'
+  description: 'Manage and CRUD actions on Protected Content type.'
+  parent: system.admin_structure
+  route_name: entity.proc_type.collection
+
+entity.cipher_type.collection:
+  title: 'Cipher types'
+  description: 'Manage and CRUD actions on Cipher type.'
+  parent: system.admin_structure
+  route_name: entity.cipher_type.collection

@@ -6,3 +6,19 @@ proc.settings:
     example:
       type: string
       label: 'Example'
+
+
+# Default value.
+field.value.field_proc_example:
+  type: mapping
+  label: Default value
+  mapping:
+    value_1:
+      type: string
+      label: Value 1
+    value_2:
+      type: string
+      label: Value 2
+    value_3:
+      type: string
+      label: Value 3

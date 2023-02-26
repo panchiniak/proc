@@ -78,3 +78,8 @@ proc-encrypt:
 #     js/proc.js: {}
 #   dependencies:
 #     - core/drupal
+
+field_proc_example:
+  css:
+    component:
+      css/field-proc-example-widget.css: {}

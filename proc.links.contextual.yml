@@ -1,0 +1,21 @@
+entity.proc.edit_form:
+  route_name: entity.proc.edit_form
+  group: proc
+  title: Edit
+
+entity.proc.delete_form:
+  route_name: entity.proc.delete_form
+  group: proc
+  title: Delete
+  weight: 10
+
+entity.cipher.edit_form:
+  route_name: entity.cipher.edit_form
+  group: cipher
+  title: Edit
+
+entity.cipher.delete_form:
+  route_name: entity.cipher.delete_form
+  group: cipher
+  title: Delete
+  weight: 10

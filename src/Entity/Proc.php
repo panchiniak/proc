@@ -25,6 +25,8 @@ use Drupal\proc\ProcInterface;
  *   id = "proc",
  *   label = @Translation("Protected Content"),
  *   base_table = "proc",
+ *   revision_table = "proc_revision",
+ *   revision_data_table = "proc_field_revision",
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\proc\Entity\Controller\ContactListBuilder",
@@ -48,7 +50,7 @@ use Drupal\proc\ProcInterface;
  *     "delete-form" = "/proc/{proc}/delete",
  *     "collection" = "/proc/list"
  *   },
- *   field_ui_base_route = "proc.settings",
+ *   field_ui_base_route = "entity.proc.edit_form"
  * )
  * 
  */
