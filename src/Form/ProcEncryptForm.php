@@ -11,8 +11,6 @@ use Drupal\Core\Render\Markup;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 
-
-
 /**
  * Generate PGP asymmetric keys.
  */
@@ -66,8 +64,6 @@ class ProcEncryptForm extends FormBase {
       '#type' => 'submit',
       '#value' => $this->t('Submit'),
     ];
-    
-
     return $form;
   }
 
