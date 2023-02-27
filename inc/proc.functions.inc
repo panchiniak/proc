@@ -127,30 +127,37 @@ function _proc_get_csv_argument($csv_data) {
  *   Array containing cihpers, encrypted priv key and pass form element.
  */
 function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
-  global $user;
+  $user = \Drupal::currentUser();
+  $user_id = $user->id();
+  $keyring = _proc_get_keys($user_id, 'uid');
+  
+  // ksm($user->id());
+  
+  return 'bla';
+  // global $user;
 
-  $keyring = _proc_get_keys($user->uid, 'uid');
+  // $keyring = _proc_get_keys($user->uid, 'uid');
 
-  $privkey = $keyring['encrypted_private_key'];
-  $pubkey  = $keyring['public_key'];
+  // $privkey = $keyring['encrypted_private_key'];
+  // $pubkey  = $keyring['public_key'];
 
-  $cid_cipher = [];
-  foreach ($cids as $cid) {
-    $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
-  }
-  $form_pass = [
-    '#type'        => 'password',
-    '#title'       => t('Protected Content Password'),
-    '#description' => t('You must type in the password you have used when registering your Protected Content Key.'),
-    '#required'    => TRUE,
-  ];
-  return [
-    'privkey'     => $privkey,
-    'keyring_cid' => $keyring['keyring_cid'],
-    'ciphers'     => $cid_cipher,
-    'form_pass'   => $form_pass,
-    'pubkey'      => $pubkey,
-  ];
+  // $cid_cipher = [];
+  // foreach ($cids as $cid) {
+  //   $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
+  // }
+  // $form_pass = [
+  //   '#type'        => 'password',
+  //   '#title'       => t('Protected Content Password'),
+  //   '#description' => t('You must type in the password you have used when registering your Protected Content Key.'),
+  //   '#required'    => TRUE,
+  // ];
+  // return [
+  //   'privkey'     => $privkey,
+  //   'keyring_cid' => $keyring['keyring_cid'],
+  //   'ciphers'     => $cid_cipher,
+  //   'form_pass'   => $form_pass,
+  //   'pubkey'      => $pubkey,
+  // ];
 }
 
 /**
@@ -168,27 +175,64 @@ function _proc_get_keys(string $item_id, string $type = NULL) {
   if (!isset($type)) {
     $type = 'uid';
   }
-
-  $query = new EntityFieldQuery();
-  $query
-    ->entityCondition('entity_type', 'proc')
-    ->entityCondition('bundle', 'proc_keyring')
-    ->propertyCondition($type, $item_id)
-    ->propertyOrderBy('pid', 'DESC')
+  
+  ksm($item_id);
+  
+  $query = \Drupal::entityQuery('proc');
+  
+  $query = \Drupal::entityQuery('proc')
+    ->condition('type', 'keyring')
+    ->condition('status', 1)
+    ->condition('user_id', $item_id)
+    ->sort('id' , 'DESC')
     ->range(0, 1);
-  $result = $query->execute();
+    
+  $key_id = $query->execute();
+  $key_id = array_values($key_id)[0];
+  $entity = \Drupal::entityTypeManager()->getStorage('proc')->load($key_id);
+  // Private key:
+  $keyring_keys['encrypted_private_key'] = $entity->get('armored')->getValue()[0]['privkey'];
+  $keyring_keys['public_key']            = $entity->get('armored')->getValue()[0]['pubkey'];
+  $keyring_keys['created']               = $entity->get('created')->getValue()[0]['value'];
+  $keyring_keys['changed']               = $entity->get('changed')->getValue()[0]['value'];
+  $keyring_keys['keyring_cid']           = $key_id;
 
-  if (isset($result['proc'])) {
-    $keyring = entity_load('proc', array_keys($result['proc']));
-    $keyring_created = $keyring[key($keyring)]->created;
-    $keyring_changed = $keyring[key($keyring)]->changed;
-    $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
-    $keyring_keys = [];
-    $keyring_keys['encrypted_private_key'] = $keyring['encrypted_private_key'];
-    $keyring_keys['public_key'] = $keyring['public_key'];
-    $keyring_keys['created'] = $keyring_created;
-    $keyring_keys['changed'] = $keyring_changed;
-    $keyring_keys['keyring_cid'] = array_keys($result['proc'])[0];
-    return $keyring_keys;
-  }
+  ksm($keyring_keys);
+  // $keyring_keys['encrypted_private_key'] = $keyring['encrypted_private_key'];
+  // $keyring_keys['public_key'] = $keyring['public_key'];
+  // $keyring_keys['created'] = $keyring_created;
+  // $keyring_keys['changed'] = $keyring_changed;
+  // $keyring_keys['keyring_cid'] = array_keys($result['proc'])[0];  
+
+  
+  // ksm($key_id[])
+  
+  // $proc_storage = \Drupal::entityManager()->getStorage('proc');
+  // $node_storage->load($id);
+  
+  
+  
+  // $query = new EntityFieldQuery();
+  // $query
+  //   ->entityCondition('entity_type', 'proc')
+  //   ->entityCondition('bundle', 'proc_keyring')
+  //   ->propertyCondition($type, $item_id)
+  //   ->propertyOrderBy('pid', 'DESC')
+  //   ->range(0, 1);
+  // $result = $query->execute();
+  
+
+  // if (isset($result['proc'])) {
+  //   $keyring = entity_load('proc', array_keys($result['proc']));
+  //   $keyring_created = $keyring[key($keyring)]->created;
+  //   $keyring_changed = $keyring[key($keyring)]->changed;
+  //   $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
+  //   $keyring_keys = [];
+  //   $keyring_keys['encrypted_private_key'] = $keyring['encrypted_private_key'];
+  //   $keyring_keys['public_key'] = $keyring['public_key'];
+  //   $keyring_keys['created'] = $keyring_created;
+  //   $keyring_keys['changed'] = $keyring_changed;
+  //   $keyring_keys['keyring_cid'] = array_keys($result['proc'])[0];
+  //   return $keyring_keys;
+  // }
 }

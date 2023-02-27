@@ -138,7 +138,11 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   $cipher_ids_csv = $path_array[2];
   $cids = _proc_get_csv_argument($cipher_ids_csv);
   ksm($cids);
+  // Get 
+  $ciphers_data = _proc_common_get_ciphers($cids, TRUE);
   
+  ksm($ciphers_data);
+  // _proc_common_get_ciphers(array $cids, $metadata_only = NULL)
 
   
   $form['#attached'] = [
