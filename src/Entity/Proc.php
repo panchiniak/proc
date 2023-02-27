@@ -298,6 +298,9 @@ class Proc extends ContentEntityBase implements ProcInterface {
       ->setDescription(t('The Name of the recipient user.'))
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
+      ->setTranslatable(FALSE)
+      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
+      // ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
       ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'author',

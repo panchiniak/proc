@@ -151,7 +151,9 @@ class ProcEncryptForm extends FormBase {
     // ksm($recipient_users_field);
     
     // Checks whether an entity has a certain field.
-    ksm($proc->hasField('proc_recipients'));
+    ksm($proc);
+    ksm($proc->getFields());
+    ksm($proc->hasField('field_proc_recipients'));
 
 
       
