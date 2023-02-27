@@ -61,3 +61,134 @@ function _proc_common_get_decryption_form_data($privkey = NULL) {
   ];
 
 }
+
+/**
+ * Helper function to get multiple unique CSV arguments.
+ *
+ * @param array $csvs
+ *   List of csvs.
+ *
+ * @return array
+ *   Array containing sanitized CSVs strings and arrays
+ */
+// function _proc_get_csv_arguments(array $csvs) {
+//   $csvs_strings = [];
+//   foreach ($csvs as $csvs_key => $csv_data) {
+//     $csv_data = _proc_get_csv_argument($csv_data);
+//     if (is_array($csv_data)) {
+//       $csvs_strings[$csvs_key]['array'] = $csv_data;
+//       $csvs_strings[$csvs_key]['string'] = implode(',', $csv_data);
+//     }
+//   }
+//   if (!empty($csvs_strings)) {
+//     return $csvs_strings;
+//   }
+//   return NULL;
+
+// }
+
+
+/**
+ * Helper function to get unique CSV arguments.
+ *
+ * @param string $csv_data
+ *   CVS data sent as URL argument.
+ *
+ * @return array
+ *   An array containing the unique entries of the CSV
+ */
+function _proc_get_csv_argument($csv_data) {
+  if (isset($csv_data)) {
+    // Remove query string from the path if any.
+    $csv_data = preg_replace('/\?.+/', '', $csv_data);
+    $csv_data = \Drupal\Component\Utility\Html::escape($csv_data);
+    // ksm($csv_data);
+    $csv_values = str_getcsv($csv_data);
+    $csv_data = [];
+    foreach ($csv_values as $csv_value) {
+      if (is_numeric($csv_value) && $csv_value = (int) $csv_value) {
+        $csv_data[] = $csv_value;
+      }
+    }
+    if (!empty($csv_data[0])) {
+      return array_unique($csv_data);
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Helper common function to get ciphers for decryption, signature.
+ *
+ * @param array $cids
+ *   List of cids.
+ *
+ * @return array
+ *   Array containing cihpers, encrypted priv key and pass form element.
+ */
+function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
+  global $user;
+
+  $keyring = _proc_get_keys($user->uid, 'uid');
+
+  $privkey = $keyring['encrypted_private_key'];
+  $pubkey  = $keyring['public_key'];
+
+  $cid_cipher = [];
+  foreach ($cids as $cid) {
+    $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
+  }
+  $form_pass = [
+    '#type'        => 'password',
+    '#title'       => t('Protected Content Password'),
+    '#description' => t('You must type in the password you have used when registering your Protected Content Key.'),
+    '#required'    => TRUE,
+  ];
+  return [
+    'privkey'     => $privkey,
+    'keyring_cid' => $keyring['keyring_cid'],
+    'ciphers'     => $cid_cipher,
+    'form_pass'   => $form_pass,
+    'pubkey'      => $pubkey,
+  ];
+}
+
+/**
+ * Helper function to get keyring data.
+ *
+ * @param string $item_id
+ *   User ID | Proc ID.
+ * @param string $type
+ *   Uid (default) | pid.
+ *
+ * @return array
+ *   Array containing pubkey and encrypted privkey.
+ */
+function _proc_get_keys(string $item_id, string $type = NULL) {
+  if (!isset($type)) {
+    $type = 'uid';
+  }
+
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'proc')
+    ->entityCondition('bundle', 'proc_keyring')
+    ->propertyCondition($type, $item_id)
+    ->propertyOrderBy('pid', 'DESC')
+    ->range(0, 1);
+  $result = $query->execute();
+
+  if (isset($result['proc'])) {
+    $keyring = entity_load('proc', array_keys($result['proc']));
+    $keyring_created = $keyring[key($keyring)]->created;
+    $keyring_changed = $keyring[key($keyring)]->changed;
+    $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
+    $keyring_keys = [];
+    $keyring_keys['encrypted_private_key'] = $keyring['encrypted_private_key'];
+    $keyring_keys['public_key'] = $keyring['public_key'];
+    $keyring_keys['created'] = $keyring_created;
+    $keyring_keys['changed'] = $keyring_changed;
+    $keyring_keys['keyring_cid'] = array_keys($result['proc'])[0];
+    return $keyring_keys;
+  }
+}
