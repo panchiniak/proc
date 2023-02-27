@@ -144,28 +144,19 @@ class ProcEncryptForm extends FormBase {
       ->set('type', 'cipher')
       ->set('field_recipients_set', $recipient_users)
       ->save();
-
-    // Get the entity reference field value object.
-    // $recipient_users_field = $proc->get('proc_recipients');
-    // ksm($recipient_users_field);
-    
-      
+ 
     $proc_id = $proc->id();
     if (is_numeric($proc_id)) {
-      $this->messenger()->addMessage(
-        $this->t(
-          'Encryption is completed. Decryption link:'
-        )
-      );
       $link_text = $base_url . '/proc/' . $proc_id;
       $url = Url::fromUri('internal:/proc/' . $proc_id);
-      
       $link = Link::fromTextAndUrl($base_url . '/proc/' . $proc_id, $url)
         ->toString()
         ->getGeneratedLink();
-      
+
       $this->messenger()->addMessage(
-        Markup::create($link)
+        $this->t(
+          'Encryption is completed. Decryption link: %link', ['%link' => Markup::create($link)]
+        )
       );
     }
     else {
