@@ -293,14 +293,13 @@ class Proc extends ContentEntityBase implements ProcInterface {
     // Entity reference field, holds the reference to the user object.
     // The view shows the user name field of the user.
     // The form presents a auto complete field for the user name.
-    $fields['recipient_id'] = BaseFieldDefinition::create('entity_reference')
+    $fields['field_recipients_set'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Recipient Name'))
-      ->setDescription(t('The Name of the recipient user.'))
+      ->setDescription(t('The set of recipients.'))
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
       ->setTranslatable(FALSE)
       ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
-      // ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
       ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'author',

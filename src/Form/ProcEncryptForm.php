@@ -105,12 +105,15 @@ class ProcEncryptForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     global $base_url;
     
+    $recipients_set_ids = $form_state->get('storage');
+
     $request = \Drupal::request();
 
     $destination = FALSE;
     
     $current_url = \Drupal::request()->headers->get('referer');
     $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
+    
     if (isset($parse_result['query']['destination'])) {
       $destination = $parse_result['query']['destination'];
     }
@@ -129,33 +132,23 @@ class ProcEncryptForm extends FormBase {
 
     $proc = \Drupal\proc\Entity\Proc::create();
     
-    $entity_type_manager = \Drupal::service('entity_field.manager');
-    $entity_type_manager->clearCachedFieldDefinitions();
-    
-    // Add users 1 and 2 to the entity reference field.
-    $recipient_users_field[] = ['target_id' => 1];
-    // $recipient_users_field[] = ['target_id' => 2];
-    
-    // $proc->set('proc_recipients', $recipient_users_field);
-    
+    $recipient_users = [];
+    foreach ($recipients_set_ids as $recipient_id) {
+      $recipient_users[] = ['target_id' => $recipient_id];  
+    }    
+
     $proc->set('armored', $cipher)
       ->set('meta', $meta)
       ->set('langcode', 'en')
       ->set('label', $meta['source_file_name'])
       ->set('type', 'cipher')
-      // ->set('proc_recipients', $recipient_users_field)
+      ->set('field_recipients_set', $recipient_users)
       ->save();
 
     // Get the entity reference field value object.
     // $recipient_users_field = $proc->get('proc_recipients');
     // ksm($recipient_users_field);
     
-    // Checks whether an entity has a certain field.
-    ksm($proc);
-    ksm($proc->getFields());
-    ksm($proc->hasField('field_proc_recipients'));
-
-
       
     $proc_id = $proc->id();
     if (is_numeric($proc_id)) {

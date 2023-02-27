@@ -88,6 +88,8 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
       ]
     ],
   ];
+  $current_path = substr($current_path, 1);
+  $form_state->set('storage', $selected_user_ids); 
   $form['#action'] = base_path() . $current_path;
 }
 
