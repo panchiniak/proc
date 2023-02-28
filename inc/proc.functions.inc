@@ -237,6 +237,7 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
   if (in_array($user_id, $recipient_id) || $metadata_only == TRUE) {
     $cipher_text_data['source_file_name']   = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_file_name']);
     $cipher_text_data['source_input_mode']  = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_input_mode']);
+    $cipher_text_data['source_file_size']   = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_file_size']);
     $cipher_text_data['cipher_cid']         = $cid;
     $cipher_text_data['proc_owner_uid']     = $entity->get('user_id')->getValue()[0]['target_id'];
     $cipher_text_data['proc_recipients']    = $recipient_id;

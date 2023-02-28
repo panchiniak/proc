@@ -80,47 +80,14 @@ class JsonApiProcController {
       $cipher_data[$proc_index]['source_input_mode']  = $proc->get('meta')->getValue()[0]['source_input_mode']; 
       $cipher_data[$proc_index]['cipher_cid']         = $proc_id;
       $cipher_data[$proc_index]['proc_owner_uid']     = $proc->get('user_id')->getValue()[0]['target_id'];
-      
-      
+      $cipher_data[$proc_index]['proc_recipients']    = $proc->get('field_recipients_set')->getValue();    
+      $cipher_data[$proc_index]['changed']            = $proc->get('changed')->getValue()[0]['value'];
+      // @todo: add signed field
     }
     
-  // $cipher_text_data['proc_recipients']   = $proc_wrapper->proc_recipient->value();
-  // $cipher_text_data['changed']           = $proc_wrapper->changed->value();
-  // if (check_plain(unserialize($proc_wrapper->meta->value())['signed'])) {
-  //   $cipher_text_data['signed'] = check_plain(unserialize($proc_wrapper->meta->value())['signed']);
-  // }
-  // else {
-  //   $cipher_text_data['signed'] = 0;
-  // }    
-    
-    
-    
-    
-    
-    
+
     return $cipher_data;
     
-    // $proc_ids = [];
-    // foreach ($user_ids as $user_id) {
-    //   $query = \Drupal::entityQuery('proc')
-    //     ->condition($search_by, $user_id)
-    //     ->condition('type', 'keyring')
-    //     ->sort('id', 'DESC')
-    //     ->range(0, 1);
-    //     $proc_ids[] = key($query->execute());
-    // }
-
-    // $result = [];
-
-    // foreach ($proc_ids as $proc_id) {
-    //   $proc = \Drupal\proc\Entity\Proc::load($proc_id);
-    //   $result[] = [
-    //     'key' => $proc->get('armored')->getValue()[0]['pubkey'],
-    //     'changed' => $proc->get('created')->getValue()[0]['value']
-    //   ];
-    // }
-
-    return $result;
   }  
   
   

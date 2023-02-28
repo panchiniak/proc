@@ -139,10 +139,28 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   $cids = _proc_get_csv_argument($cipher_ids_csv);
   // Get 
   $ciphers_data = _proc_common_get_ciphers($cids, FALSE);
+  
   // Decryption requires a keyring:
   if (empty($ciphers_data['pubkey'])) {
     \Drupal\proc\Form\ProcDecryptForm::denyAccess();
   }
+  
+  $common_data = _proc_common_get_decryption_form_data($ciphers_data['privkey']);
+  
+  $ciphers_changed = [];
+  $files_names = [];
+  $files_sizes = [];
+  foreach($ciphers_data['ciphers'] as $cipher_id_data) {
+    $ciphers_changed[] = $cipher_id_data['changed'];
+    $files_names[] = $cipher_id_data['source_file_name'];
+    $files_sizes[] = $cipher_id_data['source_file_size'];
+    // For diferenciating files from text areas:
+    $sources_input_mode[] = $cipher_id_data['source_input_mode'];
+    $sources_signed[] = $cipher_id_data['signed'];
+    
+  }
+  
+  
   $form['#attached'] = [
     'library' => [
       0 => 'proc/openpgpjs',
@@ -150,8 +168,19 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
     ],
     'drupalSettings' => [
       'proc' => [
-        'proc_labels' => _proc_js_labels(),
-        'proc_data'   => 'test', 
+        'proc_labels'              => _proc_js_labels(),
+        'proc_pass'                => $common_data['proc_pass'],
+        // 'proc_data'                => $ciphers_data, 
+        'proc_privkey'             => $ciphers_data['privkey'],
+        'proc_ids'                 => array_keys($ciphers_data['ciphers']),
+        'procs_changed'            => $ciphers_changed,
+        // Also used for labels on text area encryption:
+        'proc_sources_file_names'  => $files_names,
+        'proc_sources_file_sizes'  => $files_sizes,
+        'proc_sources_input_modes' => $sources_input_mode,
+        'proc_sources_signed'      => $sources_signed,
+        // @TODO: get this from configuration:
+        'proc_skip_size_mismatch'  => 'TRUE',
       ]
     ],
   ];
