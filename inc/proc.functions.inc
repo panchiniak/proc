@@ -131,12 +131,25 @@ function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
   $user_id = $user->id();
   $keyring = _proc_get_keys($user_id, 'uid');
   
+  // ksm($keyring);
+  $ciphers = [];
+  foreach($cids as $cid) {
+    $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
+  }
+  
   // ksm($user->id());
   
-  return 'bla';
+  return [
+    'privkey'     => $keyring['encrypted_private_key'],
+    'keyring_cid' => $keyring['keyring_cid'],
+    'ciphers'     => $cid_cipher,
+    // 'form_pass'   => $form_pass,
+    'pubkey'      => $keyring['public_key'],
+  ];
+  
+  
+  // return 'bla';
   // global $user;
-
-  // $keyring = _proc_get_keys($user->uid, 'uid');
 
   // $privkey = $keyring['encrypted_private_key'];
   // $pubkey  = $keyring['public_key'];
@@ -176,10 +189,6 @@ function _proc_get_keys(string $item_id, string $type = NULL) {
     $type = 'uid';
   }
   
-  ksm($item_id);
-  
-  $query = \Drupal::entityQuery('proc');
-  
   $query = \Drupal::entityQuery('proc')
     ->condition('type', 'keyring')
     ->condition('status', 1)
@@ -197,42 +206,41 @@ function _proc_get_keys(string $item_id, string $type = NULL) {
   $keyring_keys['changed']               = $entity->get('changed')->getValue()[0]['value'];
   $keyring_keys['keyring_cid']           = $key_id;
 
-  ksm($keyring_keys);
-  // $keyring_keys['encrypted_private_key'] = $keyring['encrypted_private_key'];
-  // $keyring_keys['public_key'] = $keyring['public_key'];
-  // $keyring_keys['created'] = $keyring_created;
-  // $keyring_keys['changed'] = $keyring_changed;
-  // $keyring_keys['keyring_cid'] = array_keys($result['proc'])[0];  
+  return $keyring_keys;
+}
 
-  
-  // ksm($key_id[])
-  
-  // $proc_storage = \Drupal::entityManager()->getStorage('proc');
-  // $node_storage->load($id);
-  
-  
-  
-  // $query = new EntityFieldQuery();
-  // $query
-  //   ->entityCondition('entity_type', 'proc')
-  //   ->entityCondition('bundle', 'proc_keyring')
-  //   ->propertyCondition($type, $item_id)
-  //   ->propertyOrderBy('pid', 'DESC')
-  //   ->range(0, 1);
-  // $result = $query->execute();
-  
+/**
+ * Helper function to get given ciphertext decryptable by the current user.
+ *
+ * @param string $cid
+ *   Ciphertext ID (proc entity).
+ *
+ * @return array
+ *   Array containing ciphertext data.
+ */
+function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only = NULL) {
+  $entity = \Drupal::entityTypeManager()->getStorage('proc')->load($cid);
 
-  // if (isset($result['proc'])) {
-  //   $keyring = entity_load('proc', array_keys($result['proc']));
-  //   $keyring_created = $keyring[key($keyring)]->created;
-  //   $keyring_changed = $keyring[key($keyring)]->changed;
-  //   $keyring = unserialize($keyring[key($keyring)]->proc_armored[LANGUAGE_NONE][0]['value']);
-  //   $keyring_keys = [];
-  //   $keyring_keys['encrypted_private_key'] = $keyring['encrypted_private_key'];
-  //   $keyring_keys['public_key'] = $keyring['public_key'];
-  //   $keyring_keys['created'] = $keyring_created;
-  //   $keyring_keys['changed'] = $keyring_changed;
-  //   $keyring_keys['keyring_cid'] = array_keys($result['proc'])[0];
-  //   return $keyring_keys;
-  // }
+  $recipients = $entity->get('field_recipients_set')->getValue();
+  $recipient_id = [];
+  foreach ($recipients as $recipient) {
+    $recipient_id[] = $recipient['target_id'];
+  }
+  $user = \Drupal::currentUser();
+  $user_id = $user->id();
+
+  if ($metadata_only != TRUE) {
+    $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue();
+  };
+
+  $cipher_text_data = FALSE;
+  if (in_array($user_id, $recipient_id) || $metadata_only == TRUE) {
+    $cipher_text_data['source_file_name']   = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_file_name']);
+    $cipher_text_data['source_input_mode']  = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_input_mode']);
+    $cipher_text_data['cipher_cid']         = $cid;
+    $cipher_text_data['proc_owner_uid']     = $entity->get('user_id')->getValue()[0]['target_id'];
+    $cipher_text_data['proc_recipients']    = $recipient_id;
+    $cipher_text_data['changed']            = $entity->get('changed')->getValue()[0]['value'];
+  }
+  return $cipher_text_data;
 }

@@ -6,7 +6,10 @@
   'use strict';
   Drupal.behaviors.ProcBehavior = {
     attach: function (context, settings) {
-      once('procGenerateKeys', 'html', context).forEach(function (element) {
+      once('proc-generate-keys', 'html', context).forEach(function (element) {
+        
+        console.log('here');
+        
         let 
           procJsLabels = drupalSettings.proc.proc_labels,
           procData = drupalSettings.proc.proc_data;

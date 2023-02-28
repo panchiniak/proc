@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\proc;
 use \Drupal\Core\Link;
 use \Drupal\Core\Url;
-
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Generate PGP asymmetric keys.
@@ -58,8 +58,8 @@ class ProcDecryptForm extends FormBase {
 
     $form['password'] = [
       '#type' => 'password',
-      '#title' => $this->t('Password'),
-      // '#description' => 'Password, #type = password',
+      '#title' => $this->t('Protected Content Password'),
+      '#description' => $this->t('You must type in the password used on registering your Protected Content Key.'),
     ];
 
     $form['actions']['submit'] = [
@@ -67,7 +67,6 @@ class ProcDecryptForm extends FormBase {
       '#value' => $this->t('Decrypt'),
     ];
     
-
     return $form;
   }
 
@@ -172,5 +171,11 @@ class ProcDecryptForm extends FormBase {
     //   $response = new \Symfony\Component\HttpFoundation\RedirectResponse($url->toString());
     //   $response->send();
     // }
+    
+    
   }
+  public function denyAccess() {
+      throw new AccessDeniedHttpException();
+  }
+
 }

@@ -6,10 +6,10 @@
   'use strict';
   Drupal.behaviors.ProcBehavior = {
     attach: function (context, settings) {
-      once('procGenerateKeys', 'html', context).forEach(function (element) {
-
+      once('proc-encrypt', 'html', context).forEach(function (element) {
+        
         if (!(window.FileReader)) {
-          alert(procJsLabels.proc_fileapi_err_msg);
+          alert(drupalSettings.proc.proc_labels.proc_fileapi_err_msg);
         }
 
         if (document.getElementById('edit-submit')) {

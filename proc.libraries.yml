@@ -25,6 +25,14 @@ proc-encrypt:
     - core/jquery
     - core/once
 
+proc-decrypt:
+  js:
+    js/proc-decrypt.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/once
+
 
 # proc:
 #   js:
