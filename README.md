@@ -1,87 +1,75 @@
-# Protected Content
+CONTENTS OF THIS FILE
+---------------------
+ * Introduction
 
-Client-side encryption with OpenPGPjs
+ * Requirements
 
-## Getting Started
+ * Installation
 
-Place the proc folder in you modules directory and enable it.
+ * Future roadmap
 
-### Prerequisites
+ * Learn more about Protected Content
 
-You will need to have OpenPGPjs
+ * Similar project
 
-```
-wget https://openpgp.js
-```
+ * Maintainers
 
-### Installing
+INTRODUCTION
+------------
+The Protected Content (proc) module adds to your Drupal installation end-to-end/client side encryption and
+decryption of content (texts or files).
+It is very simple to use. Once it is installed (see Installation below):
 
-A step by step series of examples that tell you how to get a development env running
+ * Access proc/keyring/add to generate keys for the current user.
 
-Say what the step will be
+ * Access proc/add/&lt;uids_csv&gt; to encrypt a file for the users identified
+   in &lt;uids_csv&gt; (a comma separated values list of user IDs). Use proc/sign/&lt;uids_csv&gt; for encrypting with the author's signature. Protect Content will provide an Exclusive Access Link for the recipients to decrypt
+   the file.
 
-```
-Give the example
-```
+ * Access proc/add/&lt;uids_csv&gt;/armored to encrypt a text area content for the users identified
+   in &lt;uids_csv&gt;.
 
-And repeat
+ * As recipient, access proc/update/&lt;pids_csv&gt;/&lt;uids_csv&gt; to
+   re-encrypt the contents identified in &lt;pids_csv&gt; for the users identified
+   in &lt;uids_csv&gt;.
 
-```
-until finished
-```
 
-End with an example of getting some data out of the system or using it for a little demo
+REQUIREMENTS
+------------
+OpenPGP.js v5.0.1
 
-## Running the tests
+INSTALLATION
+------------
+Install as usual and make sure to have openpgpjs/openpgp.min.js inside
+your libraries folder.
 
-Explain how to run the automated tests for this system
+FUTURE ROADMAP
+--------------
+Multiple signatures per content with recursive encryption.
 
-### Break down into end to end tests
+LEARN MORE ABOUT PROTECTED CONTENT
+----------------------------------
 
-Explain what these tests test and why
+[Protected Content, Secure open source day - Haarlem (2019)](https://youtu.be/rVWrkZPGj3s "Protected Content, Secure open source day - Haarlem (2019)")  
+  
+[Protected Content: end-to-end PGP encryption for Drupal, Drupal Camp - Kyiv (2019)](https://youtu.be/Gx8uxEpi4Po " end-to-end PGP encryption for Drupal, Drupal Camp - Kyiv (2019)")  
+  
+[Client side encryption with OpenPGPjs, Secure open source days - Sofia (2019)](https://twitter.com/SecOSday/status/1185518649555197953/photo/1 "Client side encryption with OpenPGPjs, Secure open source days - Sofia (2019)")  
+  
+[Protected Content, Drupal Dev Days - Cluj-Napoca (2019)](https://cluj2019.drupaldays.org/protected-content "Protected Content, Drupal Dev Days - Cluj-Napoca (2019)")  
+  
+[Protected Content by Asymmetrical Client Side Encryption, Drupal Dev Days - Ghent (2022)](https://drupalcamp.be/en/drupal-dev-days-2020/session/protected-content-asymmetrical-client-side-encryption "Protected Content by Asymmetrical Client Side Encryption, Drupal Dev Days - Ghent (2022)")  
+  
+[A pretty good content protection (Workshop), Drupal Con - Prague (2022)](https://events.drupal.org/prague2022/sessions/pretty-good-content-protection-workshop "A pretty good content protection (Workshop), Drupal Con - Prague (2022)")
 
-```
-Give an example
-```
+SIMILAR PROJECT
+---------------
 
-### And coding style tests
+[Client-Side File Crypto](https://www.drupal.org/project/client_side_file_crypto "Client-Side File Crypto")  
 
-Explain what these tests test and why
 
-```
-Give an example
-```
+MAINTAINERS
+-----------
+Rodrigo Panchiniak Fernandes - https://www.drupal.org/user/411448
 
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
-## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+Duarte Briz (duartebriz) - https://www.drupal.org/u/duartebriz

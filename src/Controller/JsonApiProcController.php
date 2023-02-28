@@ -17,6 +17,15 @@ class JsonApiProcController {
   }
 
   /**
+   * @return JsonResponse
+   */
+  public function cipher() {
+    return new JsonResponse([ 'pubkey' => $this->getCihper()]);
+  }
+  
+  
+
+  /**
    * @return array
    */
   public function getData() {
@@ -50,4 +59,69 @@ class JsonApiProcController {
 
     return $result;
   }
+  
+  /**
+   * @return array
+   */
+  public function getCihper() {
+
+    $current_path = \Drupal::service('path.current')->getPath();
+    $path_array = explode('/', $current_path);
+    
+    $cipher_ids_string = $path_array[4];
+    $proc_ids = explode(',', $cipher_ids_string);
+    
+    $cipher_data = [];
+    foreach ($proc_ids as $proc_index => $proc_id) {
+      $proc = \Drupal\proc\Entity\Proc::load($proc_id);
+      $cipher_data[$proc_index]['armored']            = $proc->get('armored')->getValue()[0]['cipher'];
+      $cipher_data[$proc_index]['source_file_name']   = $proc->get('meta')->getValue()[0]['source_file_name'];
+      $cipher_data[$proc_index]['source_file_size']   = $proc->get('meta')->getValue()[0]['source_file_size'];
+      $cipher_data[$proc_index]['source_input_mode']  = $proc->get('meta')->getValue()[0]['source_input_mode']; 
+      $cipher_data[$proc_index]['cipher_cid']         = $proc_id;
+      $cipher_data[$proc_index]['proc_owner_uid']     = $proc->get('user_id')->getValue()[0]['target_id'];
+      
+      
+    }
+    
+  // $cipher_text_data['proc_recipients']   = $proc_wrapper->proc_recipient->value();
+  // $cipher_text_data['changed']           = $proc_wrapper->changed->value();
+  // if (check_plain(unserialize($proc_wrapper->meta->value())['signed'])) {
+  //   $cipher_text_data['signed'] = check_plain(unserialize($proc_wrapper->meta->value())['signed']);
+  // }
+  // else {
+  //   $cipher_text_data['signed'] = 0;
+  // }    
+    
+    
+    
+    
+    
+    
+    return $cipher_data;
+    
+    // $proc_ids = [];
+    // foreach ($user_ids as $user_id) {
+    //   $query = \Drupal::entityQuery('proc')
+    //     ->condition($search_by, $user_id)
+    //     ->condition('type', 'keyring')
+    //     ->sort('id', 'DESC')
+    //     ->range(0, 1);
+    //     $proc_ids[] = key($query->execute());
+    // }
+
+    // $result = [];
+
+    // foreach ($proc_ids as $proc_id) {
+    //   $proc = \Drupal\proc\Entity\Proc::load($proc_id);
+    //   $result[] = [
+    //     'key' => $proc->get('armored')->getValue()[0]['pubkey'],
+    //     'changed' => $proc->get('created')->getValue()[0]['value']
+    //   ];
+    // }
+
+    return $result;
+  }  
+  
+  
 }

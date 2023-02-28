@@ -33,6 +33,17 @@ proc.json_api_proc:
   requirements:
     _access: 'TRUE'
 
+proc.json_api_proc_cipher:
+  path: '/api/proc/getcipher/{cipher_id}'
+  defaults:
+    _controller: 'Drupal\proc\Controller\JsonApiProcController::cipher'
+    _title: 'Proc JSON api'
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+
+
 proc.decrypt:
   path: '/proc/{proc}'
   defaults:
