@@ -8,17 +8,17 @@
     attach: function(context, settings) {
       once('proc-decrypt', 'html', context).forEach(function(element) {
 
-        let procJsLabels = drupalSettings.proc.proc_labels,
-          passDrupal = drupalSettings.proc.proc_pass,
-          privkey = drupalSettings.proc.proc_privkey,
-          cipherIds = drupalSettings.proc.proc_ids,
-          ciphersChanged = drupalSettings.proc.procs_changed,
-          sourcesFileNames = drupalSettings.proc.proc_sources_file_names,
+        let procJsLabels    = drupalSettings.proc.proc_labels,
+          passDrupal        = drupalSettings.proc.proc_pass,
+          privkey           = drupalSettings.proc.proc_privkey,
+          cipherIds         = drupalSettings.proc.proc_ids,
+          ciphersChanged    = drupalSettings.proc.procs_changed,
+          sourcesFileNames  = drupalSettings.proc.proc_sources_file_names,
           sourcesFilesSizes = drupalSettings.proc.proc_sources_file_sizes,
           sourcesInputModes = drupalSettings.proc.proc_sources_input_modes,
-          ciphersSigned = drupalSettings.proc.proc_signed,
-          skipSizeMismatch = drupalSettings.proc.proc_skip_size_mismatch,
-          basePath = drupalSettings.proc.base_path;
+          ciphersSigned     = drupalSettings.proc.proc_signed,
+          skipSizeMismatch  = drupalSettings.proc.proc_skip_size_mismatch,
+          basePath          = drupalSettings.proc.base_path;
 
         const messages = new Drupal.Message();
 
@@ -65,8 +65,6 @@
           }
         );
 
-        console.log(procURLs);
-
         let cipherResponse,
           cipher;
 
@@ -110,8 +108,6 @@
             function(cipherId, cipherIdIndex) {
               let cachedCiphers = [];
 
-              console.log(cipherId);
-
               cachedCiphers[cipherIdIndex] = cache.then(async function(cache) {
                 let response = await cache.match(procURLs[cipherIdIndex]);
                 if (response) {
@@ -146,9 +142,14 @@
             let secretPassString = $('input[name=password]')[0].value,
               passphrase = passDrupal.concat(secretPassString);
 
+            // console.log(privkey);
+
             const privateKey = await openpgp.readPrivateKey({
               armoredKey: privkey
             });
+            
+            // console.log(privateKey);
+            
             const decryptedPrivateKey = await openpgp.decryptKey({
               privateKey,
               passphrase
@@ -173,11 +174,13 @@
 
             cipherIds.forEach(
               async function(cipherId, cipherIndex) {
+                
                 let cache = caches.match(procURLs[cipherIndex]);
                 cache.then(
                   async function(response) {
                     response.json().then(async function(data) {
-                      let cipherText = data.ciphers[0],
+                      
+                      let cipherText = data.pubkey[0].armored,
                         decrypted,
                         expectedSignedValue = false,
                         response,
@@ -205,11 +208,10 @@
                         };
                         decrypted = await openpgp.verify(optionsVerify);
 
-
                         decrypted.signatures[0].verified.then(
                           (val) => {
                             if (val) {
-                              console.log('signed by key id ' + decrypted.signatures[0].keyid.toHex());
+                              console.info('signed by key id ' + decrypted.signatures[0].keyid.toHex());
                             } else {
                               $('form#-proc-sign-file').prepend(`<div class="messages error">${Drupal.t('Signature could not be verified')}</div>`);
                               throw new Error('Signature could not be verified');
@@ -228,13 +230,17 @@
                         if (sourcesInputModes[cipherIndex]) {
                           procFormat = sourcesInputModes[cipherIndex];
                         }
-
+                        
                         decrypted = await openpgp.decrypt({
                           decryptionKeys: decryptedPrivateKey,
                           // verificationKeys: publicKeys,
                           message,
                           format: procFormat
-                        });
+                        }).catch(
+                          function (err) {
+                            alert(err);
+                          }
+                        );
 
                         if (decrypted) {
                           if ($('textarea').length != 0 && (typeof decrypted.data === 'string' || decrypted.data instanceof String)) {
