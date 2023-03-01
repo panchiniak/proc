@@ -16,6 +16,7 @@ proc-generate-keys:
     - core/drupal
     - core/jquery
     - core/once
+    - core/drupal.message
 
 proc-encrypt:
   js:
@@ -24,6 +25,7 @@ proc-encrypt:
     - core/drupal
     - core/jquery
     - core/once
+    - core/drupal.message
 
 proc-decrypt:
   js:
@@ -32,7 +34,8 @@ proc-decrypt:
     - core/drupal
     - core/jquery
     - core/once
-
+    - core/drupal.message
+    - core/drupalSettings    
 
 # proc:
 #   js:

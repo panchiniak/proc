@@ -8,6 +8,9 @@ use Drupal\proc;
 use \Drupal\Core\Link;
 use \Drupal\Core\Url;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+// use Drupal/Component/Utility/Crypt
+use \Drupal\Component\Utility\Crypt;
+
 
 /**
  * Generate PGP asymmetric keys.
@@ -62,9 +65,28 @@ class ProcDecryptForm extends FormBase {
       '#description' => $this->t('You must type in the password used on registering your Protected Content Key.'),
     ];
 
-    $form['actions']['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Decrypt'),
+    // $form['actions']['submit'] = [
+    //   '#type' => 'submit',
+    //   '#value' => $this->t('Decrypt'),
+    // ];
+    $decryption_link_classes = [
+      'button--primary',
+      'button',
+    ];
+    // \Drupal::moduleHandler()->alter('decryption_link_classes', [&$decryption_link_classes]);
+    \Drupal::moduleHandler()->alter('decryption_link_classes', $decryption_link_classes);
+    // \Drupal::moduleHandler()->alter('test', $decryption_link_classes);
+    
+    $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
+    $form['decrypt'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Decrypt'),
+      '#url' => Url::fromUserInput('#' . $fragment),
+      '#attributes' => [
+        'id' => 'decryption-link',
+        // 'class' => ['ecl-button', 'ecl-button--primary'],
+        'class' => ['button--primary', 'button'],        
+      ],
     ];
     
     return $form;

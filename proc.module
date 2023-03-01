@@ -181,6 +181,7 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
         'proc_sources_signed'      => $sources_signed,
         // @TODO: get this from configuration:
         'proc_skip_size_mismatch'  => 'TRUE',
+        'base_path'                => base_path(),
       ]
     ],
   ];

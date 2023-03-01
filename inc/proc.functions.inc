@@ -31,6 +31,7 @@ function _proc_js_labels() {
     'proc_button_update_label'        => t('Update'),
     'proc_introducing_signature'      => t('Indroducing key passphrase for signature...'),
     'proc_pass_weak'                  => t('Your password must be stronger.'),
+    'proc_caches_unsupported'         => t('Error: this browser does not suport cache API. Please use an updated browser.'),
   ];
 }
 
