@@ -16,6 +16,15 @@ proc.encrypt:
     _permission: 'access content'
     _access: 'TRUE'
 
+proc.update:
+  path: '/proc/update/{proc}/{user}'
+  defaults:
+    _title: 'Update'
+    _form: '\Drupal\proc\Form\ProcUpdateForm'
+  requirements:
+    _permission: 'access content'
+    _access: 'TRUE'
+
 proc.settings_form:
   path: '/admin/config/system/proc'
   defaults:

@@ -40,25 +40,6 @@ class ProcDecryptForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-//     $proc_hidden_fields_key_generation = [
-// 			'cipher_text',
-// 			'source_file_name',
-// 			'source_file_size',
-// 			'source_file_type',
-// 			'source_file_last_change',
-// 			'browser_fingerprint',
-// 			'generation_timestamp',
-// 			'generation_timespan',
-// 			'signed',
-//     ];
-//     foreach ($proc_hidden_fields_key_generation as $hidden_field) {
-//       $form[$hidden_field] = ['#type' => 'hidden'];
-//     }
-//     $form['file'] = [
-// 			'#type' => 'file',
-// 			'#description' => $this->t('Select a file for encryption.'),
-//     ];
-
     $form['password'] = [
       '#type' => 'password',
       '#title' => $this->t('Protected Content Password'),

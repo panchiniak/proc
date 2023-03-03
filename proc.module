@@ -190,3 +190,88 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   
   
 }
+
+/**
+* Implements hook_form_alter().
+*/
+function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // $proc_data = _proc_common_get_decryption_form_data(NULL);
+
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_array = explode('/', $current_path);
+  // $selected_proc_ids = _proc_get_csv_argument($path_array[3]);
+  // $selected_user_ids = _proc_get_csv_argument($path_array[4]);
+
+  // Sanitize and preprocess arguments:
+  $csvs     = _proc_get_csv_arguments([
+    'cids_csv' => $path_array[3],
+    'uids_csv' => $path_array[4],
+  ]);
+  $uids     = $csvs['uids_csv']['array'];
+  $uids_csv = $csvs['uids_csv']['string'];
+  $cids     = $csvs['cids_csv']['array'];
+  $cids_csv = $csvs['cids_csv']['string'];
+
+  $ciphers_data = _proc_common_get_ciphers($cids);
+  
+  // ksm($ciphers_data);
+
+  // Updating requires a keyring:
+  if (!$ciphers_data['pubkey']) {
+    \Drupal\proc\Form\ProcDecryptForm::denyAccess();
+  }
+  
+  // ksm($ciphers_data);
+
+  $privkey      = $ciphers_data['privkey'];
+  $cid_cipher   = $ciphers_data['ciphers'];
+  $form['pass'] = _proc_common_get_decryption_form_data(NULL)['proc_pass'];
+
+  // If some recipient is being removed of some content, allow update to proceed
+  // only if current user is also the author of the content:
+  $recipients = [];
+  
+  foreach ($ciphers_data['ciphers'] as $cipher_data) {
+    if ($cipher_data['proc_owner_uid'] != $user->uid) {
+      // Current recipients:
+      foreach ($cipher_data['proc_recipients'] as $recipient) {
+        $recipients[] = $recipient;
+      }
+    }
+  }
+  if (!empty($recipients)) {
+    $all_current_recipients = array_unique($recipients);
+    // $context = [
+    //   'unalterable_recipient_uids' => $uids,
+    // ];
+    // drupal_alter('cipher_update_owner_check', $all_current_recipients, $context);
+
+    if (array_diff($all_current_recipients, $uids)) {
+      \Drupal\proc\Form\ProcDecryptForm::denyAccess();
+    }
+  }
+
+  $pubkeys_data        = _proc_common_get_pubkeys($uids);
+  $recipients_pubkeys  = $pubkeys_data['recipients_pubkeys'];
+  $post_max_size_bytes = $pubkeys_data['post_max_size_bytes'];
+
+  ksm($pubkeys_data);
+
+
+
+
+  // foreach ($ciphers_data['ciphers'] as $cipher_data) {
+  //   // Current recipients:
+  //   foreach ($cipher_data['proc_recipients'] as $recipient) {
+  //     $recipients[] = $recipient;
+  //   }
+  // }
+  
+  ksm($recipients);
+  
+  
+
+
+  
+
+}

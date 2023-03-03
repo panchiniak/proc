@@ -130,48 +130,24 @@ function _proc_get_csv_argument($csv_data) {
 function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
   $user = \Drupal::currentUser();
   $user_id = $user->id();
+
   $keyring = _proc_get_keys($user_id, 'uid');
+
+  $privkey = $keyring['encrypted_private_key'];
+  $pubkey  = $keyring['public_key'];  
   
-  // ksm($keyring);
-  $ciphers = [];
+  $cid_cipher = [];
   foreach($cids as $cid) {
     $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
   }
   
-  // ksm($user->id());
-  
   return [
-    'privkey'     => $keyring['encrypted_private_key'],
+    'privkey'     => $privkey,
     'keyring_cid' => $keyring['keyring_cid'],
     'ciphers'     => $cid_cipher,
     // 'form_pass'   => $form_pass,
-    'pubkey'      => $keyring['public_key'],
+    'pubkey'      => $pubkey,
   ];
-  
-  
-  // return 'bla';
-  // global $user;
-
-  // $privkey = $keyring['encrypted_private_key'];
-  // $pubkey  = $keyring['public_key'];
-
-  // $cid_cipher = [];
-  // foreach ($cids as $cid) {
-  //   $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
-  // }
-  // $form_pass = [
-  //   '#type'        => 'password',
-  //   '#title'       => t('Protected Content Password'),
-  //   '#description' => t('You must type in the password you have used when registering your Protected Content Key.'),
-  //   '#required'    => TRUE,
-  // ];
-  // return [
-  //   'privkey'     => $privkey,
-  //   'keyring_cid' => $keyring['keyring_cid'],
-  //   'ciphers'     => $cid_cipher,
-  //   'form_pass'   => $form_pass,
-  //   'pubkey'      => $pubkey,
-  // ];
 }
 
 /**
@@ -245,4 +221,54 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
     $cipher_text_data['changed']            = $entity->get('changed')->getValue()[0]['value'];
   }
   return $cipher_text_data;
+}
+
+/**
+ * Helper function to get multiple unique CSV arguments.
+ *
+ * @param array $csvs
+ *   List of csvs.
+ *
+ * @return array
+ *   Array containing sanitized CSVs strings and arrays
+ */
+function _proc_get_csv_arguments(array $csvs) {
+  $csvs_strings = [];
+  foreach ($csvs as $csvs_key => $csv_data) {
+    $csv_data = _proc_get_csv_argument($csv_data);
+    if (is_array($csv_data)) {
+      $csvs_strings[$csvs_key]['array'] = $csv_data;
+      $csvs_strings[$csvs_key]['string'] = implode(',', $csv_data);
+    }
+  }
+  if (!empty($csvs_strings)) {
+    return $csvs_strings;
+  }
+  return NULL;
+
+}
+/**
+ * Helper function for retrieval of pubkeys.
+ *
+ * @param array $items
+ *   UIDs | PIDs.
+ * @param string $type
+ *   Uid (default) | pid.
+ *
+ * @return array
+ *   Array containing pubkeys.
+ */
+function _proc_get_pubkeys(array $items, string $type = NULL) {
+  if (!isset($type)) {
+    $type = 'uid';
+  }
+  $pubkeys = [];
+  foreach ($items as $item) {
+    $key_data = _proc_get_keys($item, $type);
+    $pubkeys[] = [
+      'key' => $key_data['public_key'],
+      'changed' => $key_data['changed'],
+    ];
+  }
+  return $pubkeys;
 }
