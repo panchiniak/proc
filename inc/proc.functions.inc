@@ -206,11 +206,12 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
   $user = \Drupal::currentUser();
   $user_id = $user->id();
 
+
   if ($metadata_only != TRUE) {
-    $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue();
+    $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
   };
 
-  $cipher_text_data = FALSE;
+  // $cipher_text_data = FALSE;
   if (in_array($user_id, $recipient_id) || $metadata_only == TRUE) {
     $cipher_text_data['source_file_name']   = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_file_name']);
     $cipher_text_data['source_input_mode']  = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_input_mode']);

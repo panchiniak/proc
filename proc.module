@@ -261,12 +261,23 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
     $pubkeys[] = ['key' => $recipient_pubkey['key'], 'changed' => "0"]; 
   }
   
+  
+  $armored_ciphers = [];
+  foreach ($cids as $cid) {
+    $armored_ciphers[$cid] = _proc_get_cipher($cid, NULL, NULL, FALSE);
+  }
+  
+  
+  
   $encryption_form_elements = [
     'proc_ciphers'             => $cid_cipher,
     'proc_ciphers_index'       => $cids,
     'proc_recipients_pubkeys'  => \Drupal\Component\Serialization\Json::encode($pubkeys),
     'proc_post_max_size_bytes' => $post_max_size_bytes,
   ];
+  
+  
+  // _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only = NULL)
   
   // ksm($encryption_form_elements);
   

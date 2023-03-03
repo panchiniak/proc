@@ -15,8 +15,9 @@
           let passDrupal       = drupalSettings.proc.proc_data.proc_pass,
               privkey          = drupalSettings.proc.proc_data.proc_privkey,
               cipherTexts      = drupalSettings.proc.proc_data.proc_ciphers,
-              cipherTextsIndex = drupalSettings.proc.proc_ciphers_index,
+              cipherTextsIndex = drupalSettings.proc.proc_data.proc_ciphers_index,
               procJsLabels     = drupalSettings.proc.proc_labels;
+              
 
           const introducingKeyDecryptionMsgElement = procJsLabels.proc_introducing_decryption;
 
@@ -103,94 +104,102 @@
           for (let i = 0; i < recipientsPubkeys.length; i++) {
             recipientsPubkeysArmored.push(recipientsPubkeys[i].key);
           }
+
+          const recipientsKeys = await Promise.all(recipientsPubkeysArmored.map(armoredKey => openpgp.readKey({
+            armoredKey
+          })));
           
-          console.log(recipientsPubkeysArmored);
+          var procID = [];
+          const BROWSER_FINGERPRINT = `${navigator.userAgent}, (${screen.width} x ${screen.height})`;
 
-          // const recipientsKeys = await Promise.all(recipientsPubkeysArmored.map(armoredKey => openpgp.readKey({
-          //   armoredKey
-          // })));
+          // False for production.
+          openpgp.config.showComment = false;
+          openpgp.config.showVersion = false;
 
-          // var procID = [];
-          // const BROWSER_FINGERPRINT = `${navigator.userAgent}, (${screen.width} x ${screen.height})`;
+          cipherTextsIndex.forEach(
+            async function(item, i) {
+              document.querySelector('#edit-submit').innerText = procJsLabels.proc_button_state_processing;
+              procID.push(cipherTextsIndex[i]);
 
-          // // False for production.
-          // openpgp.config.showComment = false;
-          // openpgp.config.showVersion = false;
+              const message = await openpgp.readMessage({
+                armoredMessage: cipherTexts[cipherTextsIndex[i]].cipher_text
+              }).catch(
+                function(err) {
+                  messages.add(String(err), {type: 'error'});
+                }
+              );
+              
+              const decrypted = await openpgp.decrypt({
+                decryptionKeys: decryptedPrivateKey,
+                message,
+                // @todo make format dynamic for allowing the update of texts (ie. armored format instead of binary)
+                format: 'binary'
+              });
+              
+              if (decrypted) {
+                const plaintext = decrypted.data;
+                const blob = new Blob([plaintext], {
+                  type: 'application/octet-binary',
+                  endings: 'native'
+                });
 
-          // cipherTextsIndex.forEach(
-          //   async function(item, i) {
-          //     document.querySelector('.proc-update-submit').innerText = procJsLabels.proc_button_state_processing;
-          //     procID.push(cipherTextsIndex[i]);
+                let reader = new FileReader();
+                reader.readAsArrayBuffer(blob);
 
-          //     const message = await openpgp.readMessage({
-          //       armoredMessage: cipherTexts[cipherTextsIndex[i]].cipher_text
-          //     }).catch(
-          //       function(err) {
-          //         let messageError = `<div class="messages error">${Drupal.t(err)}</div>`;
-          //         $('form#-proc-update').prepend(messageError);
-          //       }
-          //     );
-          //     const decrypted = await openpgp.decrypt({
-          //       decryptionKeys: decryptedPrivateKey,
-          //       message,
-          //       // @todo make format dynamic for allowing the update of texts (ie. armored format instead of binary)
-          //       format: 'binary'
-          //     });
+                reader.onloadend = async function(evt) {
+                  if (evt.target.readyState == FileReader.DONE) {
 
-          //     if (decrypted) {
-          //       const plaintext = decrypted.data;
-          //       const blob = new Blob([plaintext], {
-          //         type: 'application/octet-binary',
-          //         endings: 'native'
-          //       });
+                    let array = new Uint8Array(evt.target.result);
+                    const startSeconds = new Date().getTime() / 1000;
 
-          //       let reader = new FileReader();
-          //       reader.readAsArrayBuffer(blob);
+                    const message = await openpgp.createMessage({
+                      binary: array
+                    });
+                    const encrypted = await openpgp.encrypt({
+                      encryptionKeys: recipientsKeys,
+                      message,
+                      format: 'armored',
+                      config: {
+                        preferredCompressionAlgorithm: openpgp.enums.compression.zip
+                      }
+                    });
+                    let endSeconds = new Date().getTime() / 1000,
+                      total = endSeconds - startSeconds;
 
-          //       reader.onloadend = async function(evt) {
-          //         if (evt.target.readyState == FileReader.DONE) {
+                    const ciphertext = encrypted;
 
-          //           let array = new Uint8Array(evt.target.result);
-          //           const startSeconds = new Date().getTime() / 1000;
+                    var procIDString = procID.pop().toString();
+                    await (document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = ciphertext);
+                    document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total;
+                    document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT;
+                    document.querySelector('[name=generation_timestamp_cid_' + procIDString + ']').value = startSeconds;
 
-          //           const message = await openpgp.createMessage({
-          //             binary: array
-          //           });
-          //           const encrypted = await openpgp.encrypt({
-          //             encryptionKeys: recipientsKeys,
-          //             message,
-          //             format: 'armored',
-          //             config: {
-          //               preferredCompressionAlgorithm: openpgp.enums.compression.zip
-          //             }
-          //           });
-          //           let endSeconds = new Date().getTime() / 1000,
-          //             total = endSeconds - startSeconds;
-
-          //           const ciphertext = encrypted;
-
-          //           var procIDString = procID.pop().toString();
-          //           await (document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = ciphertext);
-          //           document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total;
-          //           document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT;
-          //           document.querySelector('[name=generation_timestamp_cid_' + procIDString + ']').value = startSeconds;
-
-          //           if (procID.length == 0) {
-          //             ready = 1;
-          //             document.querySelector('.proc-update-submit').innerText = procJsLabels.proc_submit_saving_state;
-          //             // Do not submit the password:
-          //             var passPlaceHolder = new Array($('input[name=pass]')[0].value.length + 1).join(Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 1));
-          //             $('input[name=pass]')[0].value = passPlaceHolder;
-          //             // Make sure password is not submited:
-          //             if ($('input[name=pass]')[0].value != secretPass) {
-          //               $('#-proc-update').submit();
-          //             }
-          //           }
-          //         }
-          //       };
-          //     }
-          //   }
-          // );
+                    if (procID.length == 0) {
+                      
+                      console.info('ready');
+                      
+                      // ready = 1;
+                      // document.querySelector('.proc-update-submit').innerText = procJsLabels.proc_submit_saving_state;
+                      // // Do not submit the password:
+                      // var passPlaceHolder = new Array($('input[name=pass]')[0].value.length + 1).join(Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 1));
+                      // $('input[name=pass]')[0].value = passPlaceHolder;
+                      // // Make sure password is not submited:
+                      // if ($('input[name=pass]')[0].value != secretPass) {
+                      //   $('#-proc-update').submit();
+                      // }
+                      
+                      
+                      
+                    }
+                  }
+                };
+              }
+              
+              
+              
+              
+            }
+          );
           
           
           
