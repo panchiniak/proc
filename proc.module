@@ -316,6 +316,8 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
       $form[$update_field_form_elemement_prefix . $cid] = ['#type' => 'hidden'];
     }
   }
+  
+  // $form['#action'] = base_path() . $current_path;
 
 
 

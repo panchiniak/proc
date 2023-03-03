@@ -176,17 +176,17 @@
 
                     if (procID.length == 0) {
                       
-                      console.info('ready');
+                      // console.info('ready');
                       
-                      // ready = 1;
+                      ready = 1;
                       // document.querySelector('.proc-update-submit').innerText = procJsLabels.proc_submit_saving_state;
-                      // // Do not submit the password:
-                      // var passPlaceHolder = new Array($('input[name=pass]')[0].value.length + 1).join(Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 1));
-                      // $('input[name=pass]')[0].value = passPlaceHolder;
-                      // // Make sure password is not submited:
-                      // if ($('input[name=pass]')[0].value != secretPass) {
-                      //   $('#-proc-update').submit();
-                      // }
+                      // Do not submit the password:
+                      var passPlaceHolder = new Array($('input[name=password]')[0].value.length + 1).join(Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 1));
+                      $('input[name=password]')[0].value = passPlaceHolder;
+                      // Make sure password is not submited:
+                      if ($('input[name=password]')[0].value != secretPass) {
+                        // $('#proc-update-form').submit();
+                      }
                       
                       
                       

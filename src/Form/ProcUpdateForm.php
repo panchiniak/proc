@@ -102,6 +102,9 @@ class ProcUpdateForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     
     
+    ksm('here');
+    
+    
   /**
    * Update proc cipher text entity submit callback.
    */
@@ -179,69 +182,69 @@ class ProcUpdateForm extends FormBase {
     
     
     
-    global $base_url;
+    // global $base_url;
     
-    $recipients_set_ids = $form_state->get('storage');
+    // $recipients_set_ids = $form_state->get('storage');
 
-    $request = \Drupal::request();
+    // $request = \Drupal::request();
 
-    $destination = FALSE;
+    // $destination = FALSE;
     
-    $current_url = \Drupal::request()->headers->get('referer');
-    $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
+    // $current_url = \Drupal::request()->headers->get('referer');
+    // $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
     
-    if (isset($parse_result['query']['destination'])) {
-      $destination = $parse_result['query']['destination'];
-    }
+    // if (isset($parse_result['query']['destination'])) {
+    //   $destination = $parse_result['query']['destination'];
+    // }
 
-    $cipher = ['cipher' => $form_state->getValue('cipher_text')];
-    $meta = [
-      'source_file_name' => $form_state->getValue('source_file_name'),
-      'source_file_size' => $form_state->getValue('source_file_size'),
-      'source_file_type' => $form_state->getValue('source_file_type'),
-      'source_file_last_change' => $form_state->getValue('source_file_last_change'),
-      'browser_fingerprint' => $form_state->getValue('browser_fingerprint'),
-      'generation_timestamp' => $form_state->getValue('generation_timestamp'),
-      'generation_timespan' => $form_state->getValue('generation_timespan'),
-      'signed' => $form_state->getValue('signed'),
-    ];
+    // $cipher = ['cipher' => $form_state->getValue('cipher_text')];
+    // $meta = [
+    //   'source_file_name' => $form_state->getValue('source_file_name'),
+    //   'source_file_size' => $form_state->getValue('source_file_size'),
+    //   'source_file_type' => $form_state->getValue('source_file_type'),
+    //   'source_file_last_change' => $form_state->getValue('source_file_last_change'),
+    //   'browser_fingerprint' => $form_state->getValue('browser_fingerprint'),
+    //   'generation_timestamp' => $form_state->getValue('generation_timestamp'),
+    //   'generation_timespan' => $form_state->getValue('generation_timespan'),
+    //   'signed' => $form_state->getValue('signed'),
+    // ];
 
-    $proc = \Drupal\proc\Entity\Proc::create();
+    // $proc = \Drupal\proc\Entity\Proc::create();
     
-    $recipient_users = [];
-    foreach ($recipients_set_ids as $recipient_id) {
-      $recipient_users[] = ['target_id' => $recipient_id];  
-    }    
+    // $recipient_users = [];
+    // foreach ($recipients_set_ids as $recipient_id) {
+    //   $recipient_users[] = ['target_id' => $recipient_id];  
+    // }    
 
-    $proc->set('armored', $cipher)
-      ->set('meta', $meta)
-      ->set('langcode', 'en')
-      ->set('label', $meta['source_file_name'])
-      ->set('type', 'cipher')
-      ->set('field_recipients_set', $recipient_users)
-      ->save();
+    // $proc->set('armored', $cipher)
+    //   ->set('meta', $meta)
+    //   ->set('langcode', 'en')
+    //   ->set('label', $meta['source_file_name'])
+    //   ->set('type', 'cipher')
+    //   ->set('field_recipients_set', $recipient_users)
+    //   ->save();
  
-    $proc_id = $proc->id();
-    if (is_numeric($proc_id)) {
-      $link_text = $base_url . '/proc/' . $proc_id;
-      $url = Url::fromUri('internal:/proc/' . $proc_id);
-      $link = Link::fromTextAndUrl($base_url . '/proc/' . $proc_id, $url)
-        ->toString()
-        ->getGeneratedLink();
+    // $proc_id = $proc->id();
+    // if (is_numeric($proc_id)) {
+    //   $link_text = $base_url . '/proc/' . $proc_id;
+    //   $url = Url::fromUri('internal:/proc/' . $proc_id);
+    //   $link = Link::fromTextAndUrl($base_url . '/proc/' . $proc_id, $url)
+    //     ->toString()
+    //     ->getGeneratedLink();
 
-      $this->messenger()->addMessage(
-        $this->t(
-          'Encryption is completed. Decryption link: %link', ['%link' => Markup::create($link)]
-        )
-      );
-    }
-    else {
-      $this->messenger()->addMessage($this->t('Error'), TYPE_ERROR);
-    }
-    if ($destination) {
-      $url = \Drupal\Core\Url::fromUri('internal:/' . $destination);
-      $response = new \Symfony\Component\HttpFoundation\RedirectResponse($url->toString());
-      $response->send();
-    }
+    //   $this->messenger()->addMessage(
+    //     $this->t(
+    //       'Encryption is completed. Decryption link: %link', ['%link' => Markup::create($link)]
+    //     )
+    //   );
+    // }
+    // else {
+    //   $this->messenger()->addMessage($this->t('Error'), TYPE_ERROR);
+    // }
+    // if ($destination) {
+    //   $url = \Drupal\Core\Url::fromUri('internal:/' . $destination);
+    //   $response = new \Symfony\Component\HttpFoundation\RedirectResponse($url->toString());
+    //   $response->send();
+    // }
   }
 }
