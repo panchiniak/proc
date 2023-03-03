@@ -258,7 +258,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
   // ksm($recipients_pubkeys);
   $pubkeys = [];
   foreach ($recipients_pubkeys as $recipient_pubkey) {
-    $pubkeys[] = $recipient_pubkey['key']; 
+    $pubkeys[] = ['key' => $recipient_pubkey['key'], 'changed' => "0"]; 
   }
   
   $encryption_form_elements = [
