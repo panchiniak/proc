@@ -65,7 +65,7 @@ proc.decrypt:
 # # Route name can be used in several places; e.g. links, redirects, and local
 # # actions.
 entity.proc.canonical:
-  path: '/content_entity_example_contact/{proc}/details'
+  path: '/proc/{proc}/details'
   defaults:
     # Calls the view controller, defined in the annotation of the contact
     # entity. This marks this route as belonging to this entity type.
@@ -128,34 +128,34 @@ entity.proc.canonical:
 #   requirements:
 #     _permission: 'administer contact entity'
 
-entity.proc_type.collection:
-  path: '/admin/structure/proc-type'
-  defaults:
-    _entity_list: 'proc_type'
-    _title: 'Proc Type configuration'
-  requirements:
-    _permission: 'administer proc_type'
+# entity.proc_type.collection:
+#   path: '/admin/structure/proc-type'
+#   defaults:
+#     _entity_list: 'proc_type'
+#     _title: 'Proc Type configuration'
+#   requirements:
+#     _permission: 'administer proc_type'
 
-entity.proc_type.add_form:
-  path: '/admin/structure/proc_type/add'
-  defaults:
-    _entity_form: 'proc_type.add'
-    _title: 'Add a proc type'
-  requirements:
-    _permission: 'administer proc_type'
+# entity.proc_type.add_form:
+#   path: '/admin/structure/proc_type/add'
+#   defaults:
+#     _entity_form: 'proc_type.add'
+#     _title: 'Add a proc type'
+#   requirements:
+#     _permission: 'administer proc_type'
 
-entity.proc_type.edit_form:
-  path: '/admin/structure/proc-type/{proc_type}'
-  defaults:
-    _entity_form: 'proc_type.edit'
-    _title: 'Edit a proc type'
-  requirements:
-    _permission: 'administer proc_type'
+# entity.proc_type.edit_form:
+#   path: '/admin/structure/proc-type/{proc_type}'
+#   defaults:
+#     _entity_form: 'proc_type.edit'
+#     _title: 'Edit a proc type'
+#   requirements:
+#     _permission: 'administer proc_type'
 
-entity.proc_type.delete_form:
-  path: '/admin/structure/proc-type/{proc_type}/delete'
-  defaults:
-    _entity_form: 'proc_type.delete'
-    _title: 'Delete a proc type'
-  requirements:
-    _permission: 'administer proc_type'
+# entity.proc_type.delete_form:
+#   path: '/admin/structure/proc-type/{proc_type}/delete'
+#   defaults:
+#     _entity_form: 'proc_type.delete'
+#     _title: 'Delete a proc type'
+#   requirements:
+#     _permission: 'administer proc_type'

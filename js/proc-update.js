@@ -173,6 +173,8 @@
                     document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total;
                     document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT;
                     document.querySelector('[name=generation_timestamp_cid_' + procIDString + ']').value = startSeconds;
+                    
+                    console.info(ciphertext);
 
                     if (procID.length == 0) {
                       
@@ -186,6 +188,7 @@
                       // Make sure password is not submited:
                       if ($('input[name=password]')[0].value != secretPass) {
                         // $('#proc-update-form').submit();
+                        // console.info()
                       }
                       
                       
