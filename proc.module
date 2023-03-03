@@ -255,9 +255,68 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
   $recipients_pubkeys  = $pubkeys_data['recipients_pubkeys'];
   $post_max_size_bytes = $pubkeys_data['post_max_size_bytes'];
 
-  ksm($pubkeys_data);
+  // ksm($recipients_pubkeys);
+  $pubkeys = [];
+  foreach ($recipients_pubkeys as $recipient_pubkey) {
+    $pubkeys[] = $recipient_pubkey['key']; 
+  }
+  
+  $encryption_form_elements = [
+    'proc_ciphers'             => $cid_cipher,
+    'proc_ciphers_index'       => $cids,
+    'proc_recipients_pubkeys'  => \Drupal\Component\Serialization\Json::encode($pubkeys),
+    'proc_post_max_size_bytes' => $post_max_size_bytes,
+  ];
+  
+  // ksm($encryption_form_elements);
+  
+  
+  $proc_data = _proc_common_get_decryption_form_data($privkey);
+  
+  $proc_data = $proc_data + $encryption_form_elements;
+  
+  $form['#attached'] = [
+    'library' => [
+      0 => 'proc/openpgpjs',
+      1 => 'proc/proc-update',
+    ],
+    'drupalSettings' => [
+      'proc' => [
+        'proc_labels' => _proc_js_labels(),
+        'proc_data'   => $proc_data, 
+      ]
+    ],
+  ];
+  
+  $update_field_form_elemement_prefixes = [
+    'cipher_text_cid_',
+    'generation_timestamp_cid_',
+    'generation_timespan_cid_',
+    'browser_fingerprint_cid_',
+    'source_file_name_cid_',
+    'source_file_size_cid_',
+    'source_file_type_cid_',
+    'source_file_last_change_cid_',
+  ];
 
 
+  foreach ($cids as $cid) {
+    foreach ($update_field_form_elemement_prefixes as $update_field_form_elemement_prefix) {
+      $form[$update_field_form_elemement_prefix . $cid] = ['#type' => 'hidden'];
+    }
+  }
+
+
+
+  
+
+
+
+
+
+  // ksm($pubkeys_data);
+  // ksm($recipients_pubkeys);
+  // ksm($post_max_size_bytes);
 
 
   // foreach ($ciphers_data['ciphers'] as $cipher_data) {
@@ -267,7 +326,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
   //   }
   // }
   
-  ksm($recipients);
+  // ksm($recipients);
   
   
 

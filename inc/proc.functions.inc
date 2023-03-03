@@ -272,3 +272,38 @@ function _proc_get_pubkeys(array $items, string $type = NULL) {
   }
   return $pubkeys;
 }
+/**
+ * Helper common function to get pubkeys for encryption.
+ *
+ * @param array $uids
+ *   List of uids.
+ *
+ * @return array
+ *   Array containing pubkeys and max file size.
+ */
+function _proc_common_get_pubkeys(array $uids) {
+  $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids, 'uid'));
+  // If some UID does not return keys:
+  if (empty($recipients_pubkeys) || (count($uids) != count($recipients_pubkeys))) {
+    \Drupal\proc\Form\ProcDecryptForm::denyAccess();
+  }
+  $post_max_size_bytes = _proc_get_post_max_size_bytes();
+
+  return [
+    'recipients_pubkeys'  => $recipients_pubkeys,
+    'post_max_size_bytes' => $post_max_size_bytes,
+  ];
+}
+/**
+ * Helper function to get max file size for encryption in bytes.
+ *
+ * @return string
+ *   Dimicaly deined max file size.
+ */
+function _proc_get_post_max_size_bytes() {
+  $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
+  $post_max_size_bytes = $post_max_size * 1000000;
+  return $post_max_size_bytes;
+}
+
+

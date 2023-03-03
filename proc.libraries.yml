@@ -35,7 +35,17 @@ proc-decrypt:
     - core/jquery
     - core/once
     - core/drupal.message
-    - core/drupalSettings    
+    - core/drupalSettings
+
+proc-update:
+  js:
+    js/proc-update.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/once
+    - core/drupal.message
+    - core/drupalSettings
 
 # proc:
 #   js:
