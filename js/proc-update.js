@@ -66,18 +66,10 @@
           
       $('#edit-submit').on(
         'click', async function() {
-          
-
-
           let secretPass      = $('input[name=password]')[0].value,
             secretPassString  = secretPass,
             passphrase        = passDrupal.concat(secretPassString),
             recipientsPubkeys = drupalSettings.proc.proc_data.proc_recipients_pubkeys;
-          
-          // console.log(secretPass);
-          // console.log(secretPassString);
-          // console.log(passphrase);
-          // console.log(recipientsPubkeys);
 
           const privateKey = await openpgp.readPrivateKey({
             armoredKey: privkey
@@ -170,16 +162,13 @@
 
                     var procIDString = procID.pop().toString();
                     await (document.querySelector('[name=cipher_text_cid_' + procIDString + ']').value = ciphertext);
-                    document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total;
-                    document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT;
-                    document.querySelector('[name=generation_timestamp_cid_' + procIDString + ']').value = startSeconds;
+                    await (document.querySelector('[name=generation_timespan_cid_' + procIDString + ']').value = total);
+                    await (document.querySelector('[name=browser_fingerprint_cid_' + procIDString + ']').value = BROWSER_FINGERPRINT);
+                    await (document.querySelector('[name=generation_timestamp_cid_' + procIDString + ']').value = startSeconds);
                     
-                    console.info(ciphertext);
+                    console.info('Content encrypted. Local ID: ' + procIDString);
 
                     if (procID.length == 0) {
-                      
-                      // console.info('ready');
-                      
                       ready = 1;
                       // document.querySelector('.proc-update-submit').innerText = procJsLabels.proc_submit_saving_state;
                       // Do not submit the password:
@@ -187,40 +176,19 @@
                       $('input[name=password]')[0].value = passPlaceHolder;
                       // Make sure password is not submited:
                       if ($('input[name=password]')[0].value != secretPass) {
-                        // $('#proc-update-form').submit();
+                        $('#proc-update-form').submit();
                         // console.info()
                       }
-                      
-                      
-                      
                     }
                   }
                 };
               }
-              
-              
-              
-              
             }
           );
-          
-          
-          
-          
-          
-          
-          
-          
         }
       );
-          
-          
-          
-
-          // console.log(cipherTextsIndex);
-          // console.log(fileApiErrMsg);
-          
-
+      // console.log(cipherTextsIndex);
+      // console.log(fileApiErrMsg);
         });
     }
   };

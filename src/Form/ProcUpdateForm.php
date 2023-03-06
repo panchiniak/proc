@@ -100,10 +100,54 @@ class ProcUpdateForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    
-    
     ksm('here');
     
+    ksm($form_state);
+    
+    
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_array = explode('/', $current_path);
+  // $selected_proc_ids = _proc_get_csv_argument($path_array[3]);
+  // $selected_user_ids = _proc_get_csv_argument($path_array[4]);
+
+  // Sanitize and preprocess arguments:
+  $csvs     = _proc_get_csv_arguments([
+    'cids_csv' => $path_array[3],
+    'uids_csv' => $path_array[4],
+  ]);
+  
+  // If there is at least one selected uid:
+  if (is_numeric($csvs['uids_csv']['array'][0])) {
+    // Get the data of cihpers for updating their proc entities:
+    $procs_data = [];
+    $proc_ids = $csvs['cids_csv']['array'];
+    foreach ($proc_ids as $proc_id) {
+      $procs_data[] = [
+        'cipher_text'             => $form_state->getValue('cipher_text_cid_' . $proc_id, $default = null),
+        // 'source_file_name'        => $form_state->getValue('source_file_name_cid_' . $proc_id, $default = null),
+        // 'source_file_size'        => $form_state->getValue('source_file_size_cid' . $proc_id, $default = null),
+        // 'source_file_type'        => $form_state->getValue('source_file_type_cid' . $proc_id, $default = null),
+        // 'source_file_last_change' => $form_state->getValue('source_file_last_change_cid' . $proc_id, $default = null),
+        'browser_fingerprint'     => $form_state->getValue('browser_fingerprint_cid_' . $proc_id, $default = null),
+        'generation_timestamp'    => $form_state->getValue('generation_timestamp_cid_' . $proc_id, $default = null),
+        'generation_timespan'     => $form_state->getValue('generation_timespan_cid_' . $proc_id, $default = null),
+        // 'signed'                  => $form_state->getValue('signed_cid_' . $proc_id, $default = null),
+        'proc_id'                 => $proc_id,
+      ];
+    }
+    foreach ($procs_data as $proc_data) {
+      ksm($proc_data['proc_id']);
+      $proc = $proc = \Drupal\proc\Entity\Proc::load($proc_data['proc_id']);
+      // $proc->set('armored', $proc_data['cipher_text']);
+      $proc->set('armored', 'test');
+      $proc->save();
+    }
+    // foreach ($proc_data)
+    
+    // Update the entities:
+    
+    
+  }
     
   /**
    * Update proc cipher text entity submit callback.
