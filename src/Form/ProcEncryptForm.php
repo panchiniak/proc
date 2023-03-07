@@ -130,7 +130,7 @@ class ProcEncryptForm extends FormBase {
     
     $recipient_users = [];
     foreach ($recipients_set_ids as $recipient_id) {
-      $recipient_users[] = ['target_id' => $recipient_id];  
+      $recipient_users[] = ['target_id' => $recipient_id];
     }    
 
     $proc->set('armored', $cipher)

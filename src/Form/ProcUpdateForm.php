@@ -100,11 +100,6 @@ class ProcUpdateForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    ksm('here');
-    
-    ksm($form_state);
-    
-    
   $current_path = \Drupal::service('path.current')->getPath();
   $path_array = explode('/', $current_path);
   // $selected_proc_ids = _proc_get_csv_argument($path_array[3]);
@@ -118,6 +113,9 @@ class ProcUpdateForm extends FormBase {
   
   // If there is at least one selected uid:
   if (is_numeric($csvs['uids_csv']['array'][0])) {
+    
+    $time_value = \Drupal::time()->getCurrentTime();
+    
     // Get the data of cihpers for updating their proc entities:
     $procs_data = [];
     $proc_ids = $csvs['cids_csv']['array'];
@@ -135,18 +133,28 @@ class ProcUpdateForm extends FormBase {
         'proc_id'                 => $proc_id,
       ];
     }
+    $recipient_users = [];
+    foreach ($csvs['uids_csv']['array'] as $recipient_id) {
+      $recipient_users[] = ['target_id' => $recipient_id];
+    }
     foreach ($procs_data as $proc_data) {
-      ksm($proc_data['proc_id']);
       $proc = $proc = \Drupal\proc\Entity\Proc::load($proc_data['proc_id']);
-      // $proc->set('armored', $proc_data['cipher_text']);
-      $proc->set('armored', 'test');
+      $meta = $proc->get('meta')->getValue()[0];
+      $meta['browser_fingerprint'] = $proc_data['browser_fingerprint'];
+      $meta['generation_timestamp'] = $proc_data['generation_timestamp'];
+      $meta['generation_timespan'] = $proc_data['generation_timespan'];
+      
+      $proc->set('meta', $meta);
+      $proc->set('armored', ['cipher' => $proc_data['cipher_text']]);
+      $proc->set('field_recipients_set', $recipient_users);
+      $proc->set('changed', $time_value);
       $proc->save();
     }
-    // foreach ($proc_data)
-    
-    // Update the entities:
-    
-    
+    $this->messenger()->addMessage(
+      $this->t(
+        'Update is completed'
+      )
+    );
   }
     
   /**
