@@ -10,6 +10,8 @@ use \Drupal\Core\Url;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManager;
+use Drupal\Core\File\FileSystemInterface;
+use \Drupal\Component\Utility\Crypt;
 
 /**
  * Generate PGP asymmetric keys.
@@ -131,7 +133,27 @@ class ProcEncryptForm extends FormBase {
     $recipient_users = [];
     foreach ($recipients_set_ids as $recipient_id) {
       $recipient_users[] = ['target_id' => $recipient_id];
-    }    
+    }
+    
+    $json_content = $cipher['cipher'];
+    $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
+    $json_filename = $fragment . '.json';
+    
+    $json_dest = 'public://proc';
+    if (!is_dir($json_dest)) {
+      \Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
+    }
+    
+    if ($json_content) {
+      // D9.x
+      $jsonFid = \Drupal::service('file.repository')
+        ->writeData(
+          $json_content,
+          "$json_dest/$json_filename",
+          FileSystemInterface::EXISTS_REPLACE
+        );
+    }
+    
 
     $proc->set('armored', $cipher)
       ->set('meta', $meta)
@@ -140,6 +162,8 @@ class ProcEncryptForm extends FormBase {
       ->set('type', 'cipher')
       ->set('field_recipients_set', $recipient_users)
       ->save();
+      
+    
  
     $proc_id = $proc->id();
     if (is_numeric($proc_id)) {
@@ -148,6 +172,9 @@ class ProcEncryptForm extends FormBase {
       $link = Link::fromTextAndUrl($base_url . '/proc/' . $proc_id, $url)
         ->toString()
         ->getGeneratedLink();
+        
+        
+      
 
       $this->messenger()->addMessage(
         $this->t(
