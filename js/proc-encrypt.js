@@ -2,7 +2,7 @@
  * @file
  * Protected Content key generation.
  */
-(function ($, Drupal, once) {
+(async function ($, Drupal, once) {
   'use strict';
   Drupal.behaviors.ProcBehavior = {
     attach: function (context, settings) {
@@ -26,8 +26,7 @@
               // Assuming ciphertexts are at least 4 times bigger than
               // their plaintexts:
               dynamicMaximumSize = postMaxSizeBytesInt / 4;
-            // document.getElementById('edit-encrypt').value = procJsLabels.proc_button_state_processing;
-            // document.getElementById('edit-submit').value = procJsLabels.proc_button_state_processing;
+
             $('#edit-file--description')[0].innerText = `${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit}
           ${procJsLabels.proc_type} ${files[0].type}
           ${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
@@ -40,12 +39,14 @@
                 .prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
               return;
             }
+
             let file = evt.target.files[0];
             let reader = new FileReader();
             reader.readAsArrayBuffer(file);
             reader.onloadend = async function (evt) {
               if (evt.target.readyState == FileReader.DONE) {
                 const recipientsPubkeys = [];
+
                 // At this moment we only know about validated recipient UIDs
                 // and the time stamps of their keys:
                 let recipientsUidsKeysChanged = JSON.parse(drupalSettings.proc.proc_recipients_pubkeys_changed),
@@ -54,6 +55,7 @@
                 // False for production.
                 openpgp.config.showComment = false;
                 openpgp.config.showVersion = false;
+
                 for (userIdIterator in recipientsUidsKeysChanged) {
                   let localKey = localStorage.getItem(`proc.key_user_id.${userIdIterator}.${recipientsUidsKeysChanged[userIdIterator]}`);
                   if (localKey) {
@@ -71,8 +73,10 @@
                   }
                 }
                 let pubkeysJson;
+                
                 if (remoteKey.length > 0) {
                   let remoteKeyCsv = remoteKey.join(",");
+                  
                   const pubKeyAjax = async (remoteKeyCsv) => {
                     let response = await fetch(`${window.location.origin + drupalSettings.proc.basePath}api/proc/getpubkey/${remoteKeyCsv}/user_id`);
                     pubkeysJson = await response.json();
@@ -120,6 +124,7 @@
                 $('input[name=signed]')[0].value = 0;
                 document.getElementById('edit-submit')
                   .removeAttribute("disabled");
+                // document.getElementById('edit-submit').value = 'Test'
               }
             };
           }

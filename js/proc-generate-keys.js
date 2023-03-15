@@ -9,7 +9,8 @@
       once('proc-generate-keys', 'html', context)
         .forEach(function (element) {
           let procJsLabels = drupalSettings.proc.proc_labels,
-            procData = drupalSettings.proc.proc_data;
+            procData = drupalSettings.proc.proc_data,
+            procKeySize = drupalSettings.proc.proc_key_size;
 
           function resetPassword() {
             $('#edit-password-confirm-pass1')
@@ -94,9 +95,7 @@
                     }],
                     type: 'rsa',
                     passphrase: cryptoPass,
-                    // @todo: made this configurable:
-                    // rsaBits: 2048,
-                    rsaBits: 4096,
+                    rsaBits: procKeySize,
                     format: 'armored',
                   })
                   .catch(

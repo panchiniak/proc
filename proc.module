@@ -11,6 +11,9 @@ require_once 'inc/proc.functions.inc';
  */
 function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   $proc_data = _proc_common_get_decryption_form_data(NULL);
+  
+  $config = \Drupal::config('proc.settings');
+  $key_size = $config->get('proc-rsa-key-size');
 
   $form['#attached'] = [
     'library' => [
@@ -19,17 +22,14 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
     ],
     'drupalSettings' => [
       'proc' => [
-        'proc_labels' => _proc_js_labels(),
-        'proc_data'   => $proc_data, 
+        'proc_labels'   => _proc_js_labels(),
+        'proc_data'     => $proc_data,
+        'proc_key_size' => $key_size,
       ]
     ],
   ];
 
   $form['#action'] = 'generate-keys';
-  // $path_service = \Drupal::service('redirect.destination')->getAsArray()['destination'];
-  // if ($path_service) {
-  //   $form['#action'] = $path_service;  
-  // }
 }
 
 /**
@@ -283,12 +283,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
       'proc_post_max_size_bytes' => $post_max_size_bytes,
     ];
     
-    
-    // _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only = NULL)
-    
-    // ksm($encryption_form_elements);
-    
-    
+
     $proc_data = _proc_common_get_decryption_form_data($privkey);
     
     $proc_data = $proc_data + $encryption_form_elements;
