@@ -65,7 +65,7 @@ class ProcDecryptForm extends FormBase {
       '#attributes' => [
         'id' => 'decryption-link',
         // 'class' => ['ecl-button', 'ecl-button--primary'],
-        'class' => ['button--primary', 'button'],        
+        'class' => ['button--primary', 'button'],
       ],
     ];
     

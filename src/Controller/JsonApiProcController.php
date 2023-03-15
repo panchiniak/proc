@@ -2,6 +2,7 @@
 
 namespace Drupal\proc\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
+// use Drupal\file\Entity
 
 /**
  * Class JsonApiProcController
@@ -74,7 +75,25 @@ class JsonApiProcController {
     $cipher_data = [];
     foreach ($proc_ids as $proc_index => $proc_id) {
       $proc = \Drupal\proc\Entity\Proc::load($proc_id);
-      $cipher_data[$proc_index]['armored']            = $proc->get('armored')->getValue()[0]['cipher'];
+      
+      
+      if ($proc->get('armored')->getValue()[0]['cipher_fid']) {
+        // File system storage:
+        // $file = File::load($proc->get('armored')->getValue()[0]['cipher_fid']);
+        // $storage = \Drupal::entityTypeManager()->getStorage('file');
+        // $file = $storage->load($proc->get('armored')->getValue()[0]['cipher_fid']);
+
+        // $file = \Drupal\file\Entity\File::load(reset($entity_ids));
+        $storage = \Drupal::entityTypeManager()->getStorage('file');
+        $file = $storage->load($proc->get('armored')->getValue()[0]['cipher_fid']);
+        $armored = file_get_contents($file->getFileUri());
+      }
+      else {
+        // Database storage:
+        $armored = $proc->get('armored')->getValue()[0]['cipher'];
+      }
+
+      $cipher_data[$proc_index]['armored']            = $armored;
       $cipher_data[$proc_index]['source_file_name']   = $proc->get('meta')->getValue()[0]['source_file_name'];
       $cipher_data[$proc_index]['source_file_size']   = $proc->get('meta')->getValue()[0]['source_file_size'];
       $cipher_data[$proc_index]['source_input_mode']  = $proc->get('meta')->getValue()[0]['source_input_mode']; 

@@ -4,6 +4,7 @@
  * Contains \Drupal\proc\Entity\Proc.
  */
 
+
 namespace Drupal\proc\Entity;
 
 use Drupal\Core\Entity\ContentEntityBase;
@@ -317,6 +318,25 @@ class Proc extends ContentEntityBase implements ProcInterface {
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
+      
+    // $fields['proc_json'] = BaseFieldDefinition::create('file')
+    //   ->setLabel('Cipher JSON')
+    //   ->setSettings([
+    //     'uri_scheme' => 'public',
+    //     'file_directory' => 'credentialing_providers',
+    //     'file_extensions' => 'json',
+    //   ])
+    //   ->setDisplayOptions('view', array(
+    //     'label' => 'above',
+    //     'type' => 'file',
+    //     'weight' => -3,
+    //   ))
+    //   ->setDisplayOptions('form', array(
+    //     'type' => 'file',
+    //     'weight' => -1,
+    //   ))
+    //   ->setDisplayConfigurable('form', TRUE)
+    //   ->setDisplayConfigurable('view', TRUE);
 
     $fields['langcode'] = BaseFieldDefinition::create('language')
       ->setLabel(t('Language code'))
