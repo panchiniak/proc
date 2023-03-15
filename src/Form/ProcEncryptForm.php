@@ -160,11 +160,6 @@ class ProcEncryptForm extends FormBase {
 
         if ($jsonFid->id()) {
           $file_id = $jsonFid->id();
-          // $file = \Drupal\file\Entity\File::load(reset($entity_ids));
-          // $storage = \Drupal::entityTypeManager()->getStorage('file');
-          // $file = $storage->load($file_id);
-          // $data = file_get_contents($file->getFileUri());
-          // ksm($data);
         }
       }
     }

@@ -208,7 +208,25 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
 
 
   if ($metadata_only != TRUE) {
+    
     $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
+    
+    
+    if ($entity->get('armored')->getValue()[0]['cipher_fid']) {
+      // File system storage:
+      // $file = File::load($proc->get('armored')->getValue()[0]['cipher_fid']);
+      // $storage = \Drupal::entityTypeManager()->getStorage('file');
+      // $file = $storage->load($proc->get('armored')->getValue()[0]['cipher_fid']);
+
+      // $file = \Drupal\file\Entity\File::load(reset($entity_ids));
+      $storage = \Drupal::entityTypeManager()->getStorage('file');
+      $file = $storage->load($entity->get('armored')->getValue()[0]['cipher_fid']);
+      $cipher_text_data['cipher_text'] = file_get_contents($file->getFileUri());
+    }
+    else {
+      // Database storage:
+      $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
+    }
   };
 
   // $cipher_text_data = FALSE;

@@ -10,6 +10,7 @@ use \Drupal\Core\Url;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManager;
+use Drupal\Core\File\FileSystemInterface;
 
 /**
  * Generate PGP asymmetric keys.
@@ -145,6 +146,44 @@ class ProcUpdateForm extends FormBase {
       $meta['generation_timespan'] = $proc_data['generation_timespan'];
       
       $proc->set('meta', $meta);
+      
+      // If file storage is set:
+      $config = \Drupal::config('proc.settings');
+      $enable_stream_wrapper = $config->get('proc-enable-stream-wrapper');
+      $stream_wrapper = $config->get('proc-stream-wrapper');
+      $file_id = FALSE;
+      if ($enable_stream_wrapper === 1 && !empty($stream_wrapper)) {
+  
+        $json_dest = $stream_wrapper;
+        if (!is_dir($json_dest)) {
+          \Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
+        }
+        
+        if ($proc_data['cipher_text']) {
+          $jsonFid = \Drupal::service('file.repository')
+            ->writeData(
+              $proc_data['cipher_text'],
+              "$json_dest/$json_filename",
+              FileSystemInterface::EXISTS_REPLACE
+            );
+  
+          if ($jsonFid->id()) {
+            $file_id = $jsonFid->id();
+          }
+        }
+      }
+      
+      if ($file_id) {
+        // $cipher = ['cipher_fid' => $file_id];
+        $proc->set('armored', ['cipher_fid' => $file_id]);
+      }
+      else {
+        $proc->set('armored', ['cipher' => $proc_data['cipher_text']]);
+      }
+      
+      
+      
+      
       $proc->set('armored', ['cipher' => $proc_data['cipher_text']]);
       $proc->set('field_recipients_set', $recipient_users);
       $proc->set('changed', $time_value);
