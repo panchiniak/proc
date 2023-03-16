@@ -5,11 +5,14 @@
 (async function ($, Drupal, once) {
   'use strict';
   Drupal.behaviors.ProcBehavior = {
-    attach: function (context, settings) {
+    attach: async function (context, settings) {
       once('proc-encrypt', 'html', context)
-        .forEach(function (element) {
+        .forEach(async function (element) {
+          const messages = new Drupal.Message();
           if (!(window.FileReader)) {
-            alert(drupalSettings.proc.proc_labels.proc_fileapi_err_msg);
+            messages.add(drupalSettings.proc.proc_labels.proc_fileapi_err_msg, {
+              type: 'error'
+            });
           }
           if (document.getElementById('edit-submit')) {
             document.getElementById('edit-submit')
@@ -35,8 +38,9 @@
               if (fileEntityMaxSize < dynamicMaximumSize) {
                 realMaxSize = fileEntityMaxSize;
               }
-              $("form#-proc-encrypt-file")
-                .prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
+              messages.add(`${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}`, {
+                type: 'error'
+              });
               return;
             }
 
@@ -102,6 +106,9 @@
                 const message = await openpgp.createMessage({
                   binary: array
                 });
+                
+                document.getElementById('edit-submit').value = procJsLabels.proc_button_state_processing;
+                
                 const encrypted = await openpgp.encrypt({
                   encryptionKeys: publicKeys,
                   message,
@@ -124,7 +131,7 @@
                 $('input[name=signed]')[0].value = 0;
                 document.getElementById('edit-submit')
                   .removeAttribute("disabled");
-                // document.getElementById('edit-submit').value = 'Test'
+                document.getElementById('edit-submit').value = procJsLabels.proc_save_button_label;
               }
             };
           }

@@ -38,6 +38,13 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
 function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   $proc_data = _proc_common_get_decryption_form_data(NULL);
 
+  $config = \Drupal::config('proc.settings');
+  $max_file_size = $config->get('proc-file-entity-max-filesize');
+  if (empty($max_file_size)) {
+    // Use 10M if not value is set.
+    $max_file_size = 10000000;
+  }
+
   $current_path = \Drupal::service('path.current')->getPath();
   $path_array = explode('/', $current_path);
 
@@ -79,8 +86,8 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
         'proc_labels' => _proc_js_labels(),
         'proc_data'   => $proc_data,
         // @todo: turn this into a configuration:
-        'proc_file_entity_max_filesize' => 999999,
-        'proc_post_max_size_bytes' => 999999,
+        'proc_file_entity_max_filesize' => $max_file_size,
+        'proc_post_max_size_bytes' => _proc_get_post_max_size_bytes(),
         'proc_recipients_pubkeys_changed' => json_encode($created),
         'basePath' => base_path(),
       ]

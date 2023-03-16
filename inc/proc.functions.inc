@@ -324,5 +324,3 @@ function _proc_get_post_max_size_bytes() {
   $post_max_size_bytes = $post_max_size * 1000000;
   return $post_max_size_bytes;
 }
-
-

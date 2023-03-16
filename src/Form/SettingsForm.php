@@ -51,6 +51,13 @@ class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('Set the RSA key size.'),
       '#default_value' => $this->config('proc.settings')->get('proc-rsa-key-size'),
     ];
+    $form['proc-file-entity-max-filesize'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Maximum size for encryption in bytes'),
+      '#description' => $this->t('Set the maximum size in bytes allowed for encryption. Default if left empty: 10000000 bytes (10 megabytes).'),
+      '#default_value' => $this->config('proc.settings')->get('proc-file-entity-max-filesize'),
+    ];
+    
     return parent::buildForm($form, $form_state);
   }
 
@@ -72,6 +79,7 @@ class SettingsForm extends ConfigFormBase {
       ->set('proc-stream-wrapper', $form_state->getValue('proc-stream-wrapper'))
       ->set('proc-enable-stream-wrapper', $form_state->getValue('proc-enable-stream-wrapper'))
       ->set('proc-rsa-key-size', $form_state->getValue('proc-rsa-key-size'))
+      ->set('proc-file-entity-max-filesize', $form_state->getValue('proc-file-entity-max-filesize'))
       ->save();
     parent::submitForm($form, $form_state);
   }
