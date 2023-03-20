@@ -58,6 +58,20 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $this->config('proc.settings')->get('proc-file-entity-max-filesize'),
     ];
     
+    $form['proc-file-block-size'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Block size (lines of armored cipher text)'),
+      '#description' => $this->t('Set the size in number of armored cipher text lines for storage blocks. Leve it empty for unlimited.'),
+      '#default_value' => $this->config('proc.settings')->get('proc-file-block-size'),
+    ];
+    
+    $form['proc-enable-block-size'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable block size limit'),
+      '#description' => $this->t('Enable block size limit. Cihper texts will be split by block. This setting only has effect with stream wrapper storage on.'),
+      '#default_value' => $this->config('proc.settings')->get('proc-enable-block-size'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -80,6 +94,8 @@ class SettingsForm extends ConfigFormBase {
       ->set('proc-enable-stream-wrapper', $form_state->getValue('proc-enable-stream-wrapper'))
       ->set('proc-rsa-key-size', $form_state->getValue('proc-rsa-key-size'))
       ->set('proc-file-entity-max-filesize', $form_state->getValue('proc-file-entity-max-filesize'))
+      ->set('proc-file-block-size', $form_state->getValue('proc-file-block-size'))
+      ->set('proc-enable-block-size', $form_state->getValue('proc-enable-block-size'))
       ->save();
     parent::submitForm($form, $form_state);
   }

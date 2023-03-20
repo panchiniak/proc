@@ -142,6 +142,12 @@ class ProcEncryptForm extends FormBase {
     $config = \Drupal::config('proc.settings');
     $enable_stream_wrapper = $config->get('proc-enable-stream-wrapper');
     $stream_wrapper = $config->get('proc-stream-wrapper');
+    $block_size = $config->get('proc-file-block-size');
+    $blocks_split_enabled = $config->get('proc-enable-block-size');
+
+
+
+
     $file_id = FALSE;
     if ($enable_stream_wrapper === 1 && !empty($stream_wrapper)) {
 
@@ -151,21 +157,81 @@ class ProcEncryptForm extends FormBase {
       }
       
       if ($json_content) {
-        $jsonFid = \Drupal::service('file.repository')
-          ->writeData(
-            $json_content,
-            "$json_dest/$json_filename",
-            FileSystemInterface::EXISTS_REPLACE
-          );
 
-        if ($jsonFid->id()) {
-          $file_id = $jsonFid->id();
+        if ($blocks_split_enabled && !empty($block_size)) {
+
+          // $content_lines_number = substr_count($json_content, "\n");
+          $lines = explode("\n", $json_content);
+          $content_lines_number = count($lines);
+
+          $lines_size_ratio = $content_lines_number / $block_size;
+          $blocks = intval($lines_size_ratio);
+          
+          $remaining = $content_lines_number % $block_size;
+          if ($remaining > 0) {
+            $blocks++;
+          }
+          $blocks_index = 0;
+          
+          $blocks_lines = [];
+          $content_line_index = 0;
+          while ($blocks_index < $blocks) {
+            $line_in_block_index = 0;
+            while ($line_in_block_index < $block_size) {
+              $blocks_lines[$blocks_index][] = $lines[$content_line_index];
+              $content_line_index++;
+              $line_in_block_index++;
+            }
+            $blocks_index++;
+          }
+          
+          $blocks_texts = [];
+          foreach ($blocks_lines as $block_index => $block_lines) {
+            foreach ($block_lines as $block_line) {
+              $blocks_texts[$block_index] = $blocks_texts[$block_index] . "\n" . $block_line;
+            }
+          }
+    
+          $json_fids = [];
+          foreach ($blocks_texts as $block_text) {
+            
+            $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
+            $json_filename = $fragment . '.json';
+            
+            $jsonFid = \Drupal::service('file.repository')
+              ->writeData(
+                $block_text,
+                "$json_dest/$json_filename",
+                FileSystemInterface::EXISTS_REPLACE
+              );
+    
+            if ($jsonFid->id()) {
+              $json_fids[] = $jsonFid->id();
+            }
+            // unset($jsonFid);
+          }
+
+        }
+        else {
+          $jsonFid = \Drupal::service('file.repository')
+            ->writeData(
+              $json_content,
+              "$json_dest/$json_filename",
+              FileSystemInterface::EXISTS_REPLACE
+            );
+  
+          if ($jsonFid->id()) {
+            $file_id = $jsonFid->id();
+          }
         }
       }
     }
     
     if ($file_id) {
       $cipher = ['cipher_fid' => $file_id];
+    }
+    if (!empty($json_fids)) {
+      $cipher = ['cipher_fid' => $json_fids];
     }
 
     $proc->set('armored', $cipher)

@@ -64,7 +64,7 @@ class JsonApiProcController {
   /**
    * @return array
    */
-  public function getCihper() {
+public function getCihper() {
 
     $current_path = \Drupal::service('path.current')->getPath();
     $path_array = explode('/', $current_path);
@@ -75,22 +75,34 @@ class JsonApiProcController {
     $cipher_data = [];
     foreach ($proc_ids as $proc_index => $proc_id) {
       $proc = \Drupal\proc\Entity\Proc::load($proc_id);
-      
-      
-      if ($proc->get('armored')->getValue()[0]['cipher_fid']) {
-        // File system storage:
-        // $file = File::load($proc->get('armored')->getValue()[0]['cipher_fid']);
-        // $storage = \Drupal::entityTypeManager()->getStorage('file');
-        // $file = $storage->load($proc->get('armored')->getValue()[0]['cipher_fid']);
 
-        // $file = \Drupal\file\Entity\File::load(reset($entity_ids));
+      if (
+        // If cipher_fid is key in armored field, proc is using stream 
+        $proc->get('armored')->getValue()[0]['cipher_fid'] && 
+        // If cipher_fid is not an array, there is one single file:
+        !is_array($proc->get('armored')->getValue()[0]['cipher_fid'])
+      ) {
         $storage = \Drupal::entityTypeManager()->getStorage('file');
         $file = $storage->load($proc->get('armored')->getValue()[0]['cipher_fid']);
         $armored = file_get_contents($file->getFileUri());
       }
-      else {
+      // If 'cipher' is key at armored field:
+      if ($proc->get('armored')->getValue()[0]['cipher']) {
         // Database storage:
         $armored = $proc->get('armored')->getValue()[0]['cipher'];
+      }
+      
+      // If cipher_fid key is an array, there are multiple files for the 
+      // storage of the cipher:
+      if (is_array($proc->get('armored')->getValue()[0]['cipher_fid'])) {
+        // Concatenate the pieces of the cipher in a single variable:
+        $armored = '';
+        foreach ($proc->get('armored')->getValue()[0]['cipher_fid'] as $fid) {
+          // $armored = $armored . $fid;
+          $storage = \Drupal::entityTypeManager()->getStorage('file');
+          $file = $storage->load($fid);
+          $armored = $armored . file_get_contents($file->getFileUri());
+        }
       }
 
       $cipher_data[$proc_index]['armored']            = $armored;
@@ -99,15 +111,10 @@ class JsonApiProcController {
       $cipher_data[$proc_index]['source_input_mode']  = $proc->get('meta')->getValue()[0]['source_input_mode']; 
       $cipher_data[$proc_index]['cipher_cid']         = $proc_id;
       $cipher_data[$proc_index]['proc_owner_uid']     = $proc->get('user_id')->getValue()[0]['target_id'];
-      $cipher_data[$proc_index]['proc_recipients']    = $proc->get('field_recipients_set')->getValue();    
+      $cipher_data[$proc_index]['proc_recipients']    = $proc->get('field_recipients_set')->getValue();
       $cipher_data[$proc_index]['changed']            = $proc->get('changed')->getValue()[0]['value'];
       // @todo: add signed field
     }
-    
-
     return $cipher_data;
-    
-  }  
-  
-  
+  }
 }
