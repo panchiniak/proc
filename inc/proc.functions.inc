@@ -210,10 +210,8 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
   if ($metadata_only != TRUE) {
     
     $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
-    
-    
     if ($entity->get('armored')->getValue()[0]['cipher_fid'] && !is_array($entity->get('armored')->getValue()[0]['cipher_fid'])) {
-      // Stream wrapper storage on blocks:
+      // Stream wrapper storage in a single file:
       $storage = \Drupal::entityTypeManager()->getStorage('file');
       $file = $storage->load($entity->get('armored')->getValue()[0]['cipher_fid']);
       $cipher_text_data['cipher_text'] = file_get_contents($file->getFileUri());

@@ -61,7 +61,7 @@ class SettingsForm extends ConfigFormBase {
     $form['proc-file-block-size'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Block size (lines of armored cipher text)'),
-      '#description' => $this->t('Set the size in number of armored cipher text lines for storage blocks. Leve it empty for unlimited.'),
+      '#description' => $this->t('Set the size in number of armored cipher text lines for storage blocks. Leve it empty for unlimited. Warnning: if there are too few lines and a too big file, there is a risk of time out.'),
       '#default_value' => $this->config('proc.settings')->get('proc-file-block-size'),
     ];
     
