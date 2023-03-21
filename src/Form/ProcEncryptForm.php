@@ -204,13 +204,10 @@ class ProcEncryptForm extends FormBase {
                 "$json_dest/$json_filename",
                 FileSystemInterface::EXISTS_REPLACE
               );
-    
             if ($jsonFid->id()) {
               $json_fids[] = $jsonFid->id();
             }
-            // unset($jsonFid);
           }
-
         }
         else {
           $jsonFid = \Drupal::service('file.repository')

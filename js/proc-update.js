@@ -21,12 +21,6 @@
 
           const introducingKeyDecryptionMsgElement = procJsLabels.proc_introducing_decryption;
 
-          // console.log(passDrupal);
-          // console.log(privkey);
-          // console.log(cipherTexts);
-          // console.log(procJsLabels);
-          
-          
           if (!(window.Blob) || !(window.FileReader)) {
             alert(procJsLabels.proc_fileapi_err_msg);
           }
@@ -187,9 +181,7 @@
           );
         }
       );
-      // console.log(cipherTextsIndex);
-      // console.log(fileApiErrMsg);
-        });
+    });
     }
   };
 })(jQuery, Drupal, once);

@@ -216,9 +216,25 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
       $file = $storage->load($entity->get('armored')->getValue()[0]['cipher_fid']);
       $cipher_text_data['cipher_text'] = file_get_contents($file->getFileUri());
     }
-    else {
-      // Database storage:
+    
+    // Database storage:
+    if ($entity->get('armored')->getValue()[0]['cipher']) {
       $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
+    }
+
+    // @todo: adopt cache first policy also for the update operation
+    // If cipher_fid key is an array, there are multiple files for the 
+    // storage of the cipher:
+    if (is_array($entity->get('armored')->getValue()[0]['cipher_fid'])) {
+      // Concatenate the pieces of the cipher in a single variable:
+      $armored = '';
+      foreach ($entity->get('armored')->getValue()[0]['cipher_fid'] as $fid) {
+        // $armored = $armored . $fid;
+        $storage = \Drupal::entityTypeManager()->getStorage('file');
+        $file = $storage->load($fid);
+        $armored = $armored . file_get_contents($file->getFileUri());
+      }
+      $cipher_text_data['cipher_text'] = $armored;
     }
   };
 

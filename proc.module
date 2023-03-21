@@ -194,32 +194,25 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
       ]
     ],
   ];
-  
-  
 }
 
 /**
 * Implements hook_form_alter().
 */
 function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  // $proc_data = _proc_common_get_decryption_form_data(NULL);
 
   $current_path = \Drupal::service('path.current')->getPath();
   $path_array = explode('/', $current_path);
-  // $selected_proc_ids = _proc_get_csv_argument($path_array[3]);
-  // $selected_user_ids = _proc_get_csv_argument($path_array[4]);
 
   // Sanitize and preprocess arguments:
-  $csvs     = _proc_get_csv_arguments([
+  $csvs = _proc_get_csv_arguments([
     'cids_csv' => $path_array[3],
     'uids_csv' => $path_array[4],
   ]);
-  
+
   if (is_numeric($csvs['uids_csv']['array'][0])) {
-    // ksm(base_path() . substr($current_path, 1));
     $action_path = base_path() . substr($current_path, 1);
     $form['#action'] = $action_path;
-    
     // There is at least one user ID and therefore updated did not happen yet:
     $uids     = $csvs['uids_csv']['array'];
     $uids_csv = $csvs['uids_csv']['string'];
@@ -228,15 +221,13 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
   
     $ciphers_data = _proc_common_get_ciphers($cids);
     
-    // ksm($ciphers_data);
-  
+    ksm($ciphers_data);
+
     // Updating requires a keyring:
     if (!$ciphers_data['pubkey']) {
       \Drupal\proc\Form\ProcDecryptForm::denyAccess();
     }
-    
-    // ksm($ciphers_data);
-  
+
     $privkey      = $ciphers_data['privkey'];
     $cid_cipher   = $ciphers_data['ciphers'];
     $form['pass'] = _proc_common_get_decryption_form_data(NULL)['proc_pass'];
@@ -279,8 +270,8 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
     $armored_ciphers = [];
     foreach ($cids as $cid) {
       $armored_ciphers[$cid] = _proc_get_cipher($cid, NULL, NULL, FALSE);
+      
     }
-    
     
     
     $encryption_form_elements = [
@@ -293,7 +284,11 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
 
     $proc_data = _proc_common_get_decryption_form_data($privkey);
     
+    
+    
     $proc_data = $proc_data + $encryption_form_elements;
+    
+    // ksm($encryption_form_elements);
     
     $form['#attached'] = [
       'library' => [
@@ -307,7 +302,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
         ]
       ],
     ];
-    
+
     $update_field_form_elemement_prefixes = [
       'cipher_text_cid_',
       'generation_timestamp_cid_',
