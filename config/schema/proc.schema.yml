@@ -37,3 +37,27 @@ proc.proc_type.*:
       type: string
     description:
       type: string
+
+field.field_settings.proc_proc_entity_reference_field:
+  type: mapping
+  label: Proc Entity Reference Field field settings
+  mapping:
+    bar:
+      type: string
+      label: Bar
+
+field.value.proc_proc_entity_reference_field:
+  type: mapping
+  label: Default value
+  mapping:
+    value:
+      type: label
+      label: Value
+
+field.widget.settings.proc_proc_entity_reference_field_widget:
+  type: mapping
+  label: Proc Entity Reference Field Widget widget settings
+  mapping:
+    foo:
+      type: string
+      label: Foo

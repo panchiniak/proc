@@ -220,8 +220,6 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
     $cids_csv = $csvs['cids_csv']['string'];
   
     $ciphers_data = _proc_common_get_ciphers($cids);
-    
-    ksm($ciphers_data);
 
     // Updating requires a keyring:
     if (!$ciphers_data['pubkey']) {
@@ -328,3 +326,44 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
   // $form['#action'] = base_path() . $current_path;
 
 }
+
+/**
+ * Implements hook_field_info().
+ */
+// function proc_field_info_alter(&$info) {
+//   return [
+//     'proc_entity_reference_field' => [
+//       'label' => t('Proc Entity Reference Field'),
+//       'description' => t('A custom entity reference field.'),
+//       'settings' => [
+//         'target_type' => 'proc',
+//         'handler' => 'default',
+//       ],
+//       'instance_settings' => [
+//         'target_bundles' => [],
+//       ],
+//       'default_widget' => 'options_select',
+//       'default_formatter' => 'entity_reference_label',
+//     ],
+//   ];
+// }
+
+// /**
+// * Implements hook_field_schema().
+// */
+// function proc_field_schema_alter($field) {
+//   $schema = array(
+//     'columns' => array(
+//       'target_id' => array(
+//         'type' => 'int',
+//         'unsigned' => TRUE,
+//         'not null' => FALSE,
+//       ),
+//     ),
+//     'indexes' => array(
+//       'target_id' => array('target_id'),
+//     ),
+//   );
+
+//   return $schema;
+// }
