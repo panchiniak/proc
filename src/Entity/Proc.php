@@ -55,7 +55,7 @@ use Drupal\user\UserInterface;
  *   admin_permission = "administer proc configuration",
  *   entity_keys = {
  *     "id" = "id",
- *     "label" = "name",
+ *     "label" = "label",
  *     "uuid" = "uuid"
  *   },
  *   revision_table = "proc_revision",
@@ -124,7 +124,6 @@ class Proc extends ContentEntityBase implements ProcInterface {
   public function getPubkey() {
     return $this->get('armored')->target_id;
   }
-
 
   
   /**
