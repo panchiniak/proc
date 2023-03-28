@@ -33,6 +33,19 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
  */
 class ProcEntityReferenceFieldItem extends EntityReferenceItem {
 
+// * @FieldType(
+// *   id = "proc_proc_entity_reference_field",
+// *   label = @Translation("Proc Entity Reference Field"),
+// *   description = @Translation("An entity field containing an proc enabled entity reference."),
+// *   category = @Translation("Reference"),
+// *   default_widget = "proc_proc_entity_reference_field_widget",
+// *   default_formatter = "entity_reference_label",
+// *   list_class = "\Drupal\Core\Field\EntityReferenceFieldItemList",
+// * )
+
+
+
+
   /**
    * {@inheritdoc}
    */

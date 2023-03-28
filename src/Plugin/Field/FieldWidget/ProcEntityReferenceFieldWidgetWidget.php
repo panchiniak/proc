@@ -17,6 +17,81 @@ use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget
  * )
  */
 class ProcEntityReferenceFieldWidgetWidget extends EntityReferenceAutocompleteWidget {
+  
+  // protected function formMultipleElements(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
+  //   return 'test';
+  // }
+  
+  // public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+  //   $entity = $items->getEntity();
+  //   $referenced_entities = $items->referencedEntities();
+
+  //   // Append the match operation to the selection settings.
+  //   $selection_settings = $this->getFieldSetting('handler_settings') + [
+  //     'match_operator' => $this->getSetting('match_operator'),
+  //     'match_limit' => $this->getSetting('match_limit'),
+  //   ];
+    
+
+  //   $element += [
+  //     '#type' => 'proc_element',
+  //     '#title' => t('My Custom Field'),
+  //     // '#target_type' => $this->getFieldSetting('target_type'),
+  //     // '#selection_handler' => $this->getFieldSetting('handler'),
+  //     // '#selection_settings' => $selection_settings,
+  //     // // Entity reference field items are handling validation themselves via
+  //     // // the 'ValidReference' constraint.
+  //     // '#validate_reference' => FALSE,
+  //     // '#maxlength' => 1024,
+  //     // '#default_value' => $referenced_entities[$delta] ?? NULL,
+  //     // '#size' => $this->getSetting('size'),
+  //     // '#placeholder' => $this->getSetting('placeholder'),
+  //   ];
+
+
+    
+
+  //   // $element += [
+  //   //   '#type' => 'entity_autocomplete',
+  //   //   '#target_type' => $this->getFieldSetting('target_type'),
+  //   //   '#selection_handler' => $this->getFieldSetting('handler'),
+  //   //   '#selection_settings' => $selection_settings,
+  //   //   // Entity reference field items are handling validation themselves via
+  //   //   // the 'ValidReference' constraint.
+  //   //   '#validate_reference' => FALSE,
+  //   //   '#maxlength' => 1024,
+  //   //   '#default_value' => $referenced_entities[$delta] ?? NULL,
+  //   //   '#size' => $this->getSetting('size'),
+  //   //   '#placeholder' => $this->getSetting('placeholder'),
+  //   // ];
+
+  //   // $element += [
+  //   //   '#type' => 'button',
+  //   //   '#value' => $this->t('Encrypt'),
+  //   //   // '#target_type' => $this->getFieldSetting('target_type'),
+  //   //   // '#selection_handler' => $this->getFieldSetting('handler'),
+  //   //   // '#selection_settings' => $selection_settings,
+  //   //   // // Entity reference field items are handling validation themselves via
+  //   //   // // the 'ValidReference' constraint.
+  //   //   // '#validate_reference' => FALSE,
+  //   //   // '#maxlength' => 1024,
+  //   //   // '#default_value' => $referenced_entities[$delta] ?? NULL,
+  //   //   // '#size' => $this->getSetting('size'),
+  //   //   // '#placeholder' => $this->getSetting('placeholder'),
+  //   // ];
+
+
+
+  //   // if ($bundle = $this->getAutocreateBundle()) {
+  //   //   $element['#autocreate'] = [
+  //   //     'bundle' => $bundle,
+  //   //     'uid' => ($entity instanceof EntityOwnerInterface) ? $entity->getOwnerId() : \Drupal::currentUser()->id(),
+  //   //   ];
+  //   // }
+
+  //   return ['target_id' => $element];
+
+  // }
 
   /**
    * {@inheritdoc}

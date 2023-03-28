@@ -9,3 +9,6 @@ dependencies:
   - drupal:options
   - drupal:user
 configure: entity.proc_type.collection
+element:
+  proc_element:
+    class: Drupal\my_module\Plugin\Element\ProcElementPlugin
