@@ -9,6 +9,7 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
+use Drupal\proc\Plugin\Field\FieldWidget;
 // use Drupal\Core\Field\FieldType\EntityReferenceItem;
 
 
@@ -20,7 +21,7 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
  *   label = @Translation("Proc Entity Reference Field"),
  *   description = @Translation("An entity field containing an proc enabled entity reference."),
  *   category = @Translation("Reference"),
- *   default_widget = "entity_reference_autocomplete",
+ *   default_widget = "proc_proc_entity_reference_field_widget",
  *   default_formatter = "entity_reference_label",
  *   list_class = "\Drupal\Core\Field\EntityReferenceFieldItemList",
  * )

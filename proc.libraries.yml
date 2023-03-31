@@ -47,6 +47,17 @@ proc-update:
     - core/drupal.message
     - core/drupalSettings
 
+proc-field:
+  js:
+    js/proc-field.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/once
+    - core/drupal.message
+    - core/drupalSettings
+
+
 # proc:
 #   js:
 #     js/proc-generate-keys.js: {}
