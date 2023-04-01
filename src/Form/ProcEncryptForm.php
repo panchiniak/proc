@@ -14,7 +14,7 @@ use Drupal\Core\File\FileSystemInterface;
 use \Drupal\Component\Utility\Crypt;
 
 /**
- * Generate PGP asymmetric keys.
+ * Encrypt content.
  */
 class ProcEncryptForm extends FormBase {
 
@@ -26,10 +26,7 @@ class ProcEncryptForm extends FormBase {
   }
 
   /**
-   * Build the simple form.
-   *
-   * A build form method constructs an array that defines how markup and
-   * other form elements are included in an HTML form.
+   * Build the form.
    *
    * @param array $form
    *   Default form array structure.
@@ -81,13 +78,7 @@ class ProcEncryptForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    // Check if the generated keys look like as PGP keys
-    // ksm($form_state);
-    // $title = $form_state->getValue('title');
-    // if (strlen($title) < 5) {
-    //   // Set an error for the form element with a key of "title".
-    //   $form_state->setErrorByName('title', $this->t('The title must be at least 5 characters long.'));
-    // }
+    // @todo: Add validation for the syntax of armored cipher text.
   }
 
   /**
@@ -144,9 +135,6 @@ class ProcEncryptForm extends FormBase {
     $stream_wrapper = $config->get('proc-stream-wrapper');
     $block_size = $config->get('proc-file-block-size');
     $blocks_split_enabled = $config->get('proc-enable-block-size');
-
-
-
 
     $file_id = FALSE;
     if ($enable_stream_wrapper === 1 && !empty($stream_wrapper)) {

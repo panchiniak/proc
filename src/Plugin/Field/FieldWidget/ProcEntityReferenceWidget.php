@@ -15,7 +15,7 @@ use Drupal\proc\Entity\Element\ProcEntityAutocomplete;
  * @FieldWidget(
  *   id = "proc_entity_reference_widget",
  *   label = @Translation("Proc Entity Reference Field Widget"),
- *   field_types = {"proc_proc_entity_reference_field"},
+ *   field_types = {"proc_entity_reference_field"},
  * )
  */
 class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
@@ -84,11 +84,11 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
   /**
    * {@inheritdoc}
    */
-  public static function defaultSettings() {
-    return [
-      'foo' => 'bar',
-    ] + parent::defaultSettings();
-  }
+  // public static function defaultSettings() {
+  //   return [
+  //     'foo' => 'bar',
+  //   ] + parent::defaultSettings();
+  // }
 
   // /**
   // * {@inheritdoc}
@@ -98,28 +98,16 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
   //   return $summary;
   // }
 
-  // /**
-  // * {@inheritdoc}
-  // */
-  // public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-
-  //   $element['value'] = $element + [
-  //     '#type' => 'textfield',
-  //     '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
-  //   ];
-
-  //   return $element;
-  // }
-  
   
   // /**
   // * {@inheritdoc}
   // */
-  // public static function defaultSettings() {
-  //   $settings = parent::defaultSettings();
-  //   // Add any custom settings here.
-  //   return $settings;
-  // }
+  public static function defaultSettings() {
+    $settings = parent::defaultSettings();
+    $settings['foo'] = 'bar';
+
+    return $settings;
+  }
 
   /**
   * {@inheritdoc}

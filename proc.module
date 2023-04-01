@@ -391,7 +391,7 @@ function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Co
     
   // ksm($field_definition);
   
-  if ($field_definition->getType() == 'proc_proc_entity_reference_field') {
+  if ($field_definition->getType() == 'proc_entity_reference_field') {
     // ksm($field_definition);
     // ksm($element);
     
@@ -422,7 +422,7 @@ function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Co
   }
 }
 
-// function hook_field_widget_single_element_proc_proc_entity_reference_field_form_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
+// function hook_field_widget_single_element_proc_entity_reference_field_form_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
 
 //   // Code here will only act on widgets of type WIDGET_TYPE.  For example,
 //   // hook_field_widget_single_element_mymodule_autocomplete_form_alter() will

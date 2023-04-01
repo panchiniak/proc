@@ -29,10 +29,10 @@ use Drupal\Core\TypedData\OptionsProviderInterface;
 use Drupal\Core\Validation\Plugin\Validation\Constraint\AllowedValuesConstraint;
 
 /**
- * Defines the 'proc_proc_entity_reference_field' field type.
+ * Defines the 'proc_entity_reference_field' field type.
  * 
  * @FieldType(
- *   id = "proc_proc_entity_reference_field",
+ *   id = "proc_entity_reference_field",
  *   label = @Translation("Proc Entity Reference Field"),
  *   description = @Translation("An entity field containing an proc enabled entity reference."),
  *   category = @Translation("Reference"),

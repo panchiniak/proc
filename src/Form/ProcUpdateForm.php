@@ -101,155 +101,155 @@ class ProcUpdateForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-  $current_path = \Drupal::service('path.current')->getPath();
-  $path_array = explode('/', $current_path);
-
-  // Sanitize and preprocess arguments:
-  $csvs     = _proc_get_csv_arguments([
-    'cids_csv' => $path_array[3],
-    'uids_csv' => $path_array[4],
-  ]);
+    $current_path = \Drupal::service('path.current')->getPath();
+    $path_array = explode('/', $current_path);
   
-  // If there is at least one selected uid:
-  if (is_numeric($csvs['uids_csv']['array'][0])) {
+    // Sanitize and preprocess arguments:
+    $csvs     = _proc_get_csv_arguments([
+      'cids_csv' => $path_array[3],
+      'uids_csv' => $path_array[4],
+    ]);
     
-    $time_value = \Drupal::time()->getCurrentTime();
-    
-    // Get the data of cihpers for updating their proc entities:
-    $procs_data = [];
-    $proc_ids = $csvs['cids_csv']['array'];
-    foreach ($proc_ids as $proc_id) {
-      $procs_data[] = [
-        'cipher_text'             => $form_state->getValue('cipher_text_cid_' . $proc_id, $default = null),
-        'browser_fingerprint'     => $form_state->getValue('browser_fingerprint_cid_' . $proc_id, $default = null),
-        'generation_timestamp'    => $form_state->getValue('generation_timestamp_cid_' . $proc_id, $default = null),
-        'generation_timespan'     => $form_state->getValue('generation_timespan_cid_' . $proc_id, $default = null),
-        // 'signed'                  => $form_state->getValue('signed_cid_' . $proc_id, $default = null),
-        'proc_id'                 => $proc_id,
-      ];
-    }
-    $recipient_users = [];
-    foreach ($csvs['uids_csv']['array'] as $recipient_id) {
-      $recipient_users[] = ['target_id' => $recipient_id];
-    }
-    foreach ($procs_data as $proc_data) {
-      $proc = $proc = \Drupal\proc\Entity\Proc::load($proc_data['proc_id']);
-      $meta = $proc->get('meta')->getValue()[0];
-      $meta['browser_fingerprint'] = $proc_data['browser_fingerprint'];
-      $meta['generation_timestamp'] = $proc_data['generation_timestamp'];
-      $meta['generation_timespan'] = $proc_data['generation_timespan'];
+    // If there is at least one selected uid:
+    if (is_numeric($csvs['uids_csv']['array'][0])) {
       
-      $proc->set('meta', $meta);
+      $time_value = \Drupal::time()->getCurrentTime();
       
-      // If file storage is set:
-      $config = \Drupal::config('proc.settings');
-      $enable_stream_wrapper = $config->get('proc-enable-stream-wrapper');
-      $stream_wrapper = $config->get('proc-stream-wrapper');
-      $block_size = $config->get('proc-file-block-size');
-      $blocks_split_enabled = $config->get('proc-enable-block-size');
-
-      $file_id = FALSE;
-      if ($enable_stream_wrapper === 1 && !empty($stream_wrapper) && !($blocks_split_enabled)) {
-  
-        $json_dest = $stream_wrapper;
-        if (!is_dir($json_dest)) {
-          \Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
-        }
-
-        if ($proc_data['cipher_text']) {
-          $jsonFid = \Drupal::service('file.repository')
-            ->writeData(
-              $proc_data['cipher_text'],
-              "$json_dest/$json_filename",
-              FileSystemInterface::EXISTS_REPLACE
-            );
-  
-          if ($jsonFid->id()) {
-            $file_id = $jsonFid->id();
-          }
-        }
+      // Get the data of cihpers for updating their proc entities:
+      $procs_data = [];
+      $proc_ids = $csvs['cids_csv']['array'];
+      foreach ($proc_ids as $proc_id) {
+        $procs_data[] = [
+          'cipher_text'             => $form_state->getValue('cipher_text_cid_' . $proc_id, $default = null),
+          'browser_fingerprint'     => $form_state->getValue('browser_fingerprint_cid_' . $proc_id, $default = null),
+          'generation_timestamp'    => $form_state->getValue('generation_timestamp_cid_' . $proc_id, $default = null),
+          'generation_timespan'     => $form_state->getValue('generation_timespan_cid_' . $proc_id, $default = null),
+          // 'signed'                  => $form_state->getValue('signed_cid_' . $proc_id, $default = null),
+          'proc_id'                 => $proc_id,
+        ];
       }
-      
-      
-      if ($enable_stream_wrapper === 1 && !empty($stream_wrapper) && !($blocks_split_enabled) && !empty($block_size)) {
-        // @todo: add split storage mode for update.
-        // if ($blocks_split_enabled && !empty($block_size)) {
-          // $content_lines_number = substr_count($json_content, "\n");
-          $lines = explode("\n", $json_content);
-          $content_lines_number = count($lines);
-
-          $lines_size_ratio = $content_lines_number / $block_size;
-          $blocks = intval($lines_size_ratio);
-          
-          $remaining = $content_lines_number % $block_size;
-          if ($remaining > 0) {
-            $blocks++;
-          }
-          $blocks_index = 0;
-          
-          $blocks_lines = [];
-          $content_line_index = 0;
-          while ($blocks_index < $blocks) {
-            $line_in_block_index = 0;
-            while ($line_in_block_index < $block_size) {
-              $blocks_lines[$blocks_index][] = $lines[$content_line_index];
-              $content_line_index++;
-              $line_in_block_index++;
-            }
-            $blocks_index++;
-          }
-          
-          $blocks_texts = [];
-          foreach ($blocks_lines as $block_index => $block_lines) {
-            foreach ($block_lines as $block_line) {
-              $blocks_texts[$block_index] = $blocks_texts[$block_index] . "\n" . $block_line;
-            }
-          }
+      $recipient_users = [];
+      foreach ($csvs['uids_csv']['array'] as $recipient_id) {
+        $recipient_users[] = ['target_id' => $recipient_id];
+      }
+      foreach ($procs_data as $proc_data) {
+        $proc = $proc = \Drupal\proc\Entity\Proc::load($proc_data['proc_id']);
+        $meta = $proc->get('meta')->getValue()[0];
+        $meta['browser_fingerprint'] = $proc_data['browser_fingerprint'];
+        $meta['generation_timestamp'] = $proc_data['generation_timestamp'];
+        $meta['generation_timespan'] = $proc_data['generation_timespan'];
+        
+        $proc->set('meta', $meta);
+        
+        // If file storage is set:
+        $config = \Drupal::config('proc.settings');
+        $enable_stream_wrapper = $config->get('proc-enable-stream-wrapper');
+        $stream_wrapper = $config->get('proc-stream-wrapper');
+        $block_size = $config->get('proc-file-block-size');
+        $blocks_split_enabled = $config->get('proc-enable-block-size');
+  
+        $file_id = FALSE;
+        if ($enable_stream_wrapper === 1 && !empty($stream_wrapper) && !($blocks_split_enabled)) {
     
-          $json_fids = [];
-          foreach ($blocks_texts as $block_text) {
-            
-            $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
-            $json_filename = $fragment . '.json';
-            
+          $json_dest = $stream_wrapper;
+          if (!is_dir($json_dest)) {
+            \Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
+          }
+  
+          if ($proc_data['cipher_text']) {
             $jsonFid = \Drupal::service('file.repository')
               ->writeData(
-                $block_text,
+                $proc_data['cipher_text'],
                 "$json_dest/$json_filename",
                 FileSystemInterface::EXISTS_REPLACE
               );
+    
             if ($jsonFid->id()) {
-              $json_fids[] = $jsonFid->id();
+              $file_id = $jsonFid->id();
             }
           }
-
-      }
-
-      if ($file_id) {
-        // $cipher = ['cipher_fid' => $file_id];
-        $proc->set('armored', ['cipher_fid' => $file_id]);
-      }
-
-      if (!$file_id && !$json_fids) {
-        // Database storage:
+        }
+        
+        
+        if ($enable_stream_wrapper === 1 && !empty($stream_wrapper) && !($blocks_split_enabled) && !empty($block_size)) {
+          // @todo: add split storage mode for update.
+          // if ($blocks_split_enabled && !empty($block_size)) {
+            // $content_lines_number = substr_count($json_content, "\n");
+            $lines = explode("\n", $json_content);
+            $content_lines_number = count($lines);
+  
+            $lines_size_ratio = $content_lines_number / $block_size;
+            $blocks = intval($lines_size_ratio);
+            
+            $remaining = $content_lines_number % $block_size;
+            if ($remaining > 0) {
+              $blocks++;
+            }
+            $blocks_index = 0;
+  
+            $blocks_lines = [];
+            $content_line_index = 0;
+            while ($blocks_index < $blocks) {
+              $line_in_block_index = 0;
+              while ($line_in_block_index < $block_size) {
+                $blocks_lines[$blocks_index][] = $lines[$content_line_index];
+                $content_line_index++;
+                $line_in_block_index++;
+              }
+              $blocks_index++;
+            }
+            
+            $blocks_texts = [];
+            foreach ($blocks_lines as $block_index => $block_lines) {
+              foreach ($block_lines as $block_line) {
+                $blocks_texts[$block_index] = $blocks_texts[$block_index] . "\n" . $block_line;
+              }
+            }
+      
+            $json_fids = [];
+            foreach ($blocks_texts as $block_text) {
+              
+              $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
+              $json_filename = $fragment . '.json';
+              
+              $jsonFid = \Drupal::service('file.repository')
+                ->writeData(
+                  $block_text,
+                  "$json_dest/$json_filename",
+                  FileSystemInterface::EXISTS_REPLACE
+                );
+              if ($jsonFid->id()) {
+                $json_fids[] = $jsonFid->id();
+              }
+            }
+  
+        }
+  
+        if ($file_id) {
+          // $cipher = ['cipher_fid' => $file_id];
+          $proc->set('armored', ['cipher_fid' => $file_id]);
+        }
+  
+        if (!$file_id && !$json_fids) {
+          // Database storage:
+          $proc->set('armored', ['cipher' => $proc_data['cipher_text']]);
+        }
+  
+        if (!empty($json_fids)) {
+          // $cipher = ['cipher_fid' => $json_fids];
+          $proc->set('armored', ['cipher_fid' => $json_fids]);
+        }
+  
         $proc->set('armored', ['cipher' => $proc_data['cipher_text']]);
+        $proc->set('field_recipients_set', $recipient_users);
+        $proc->set('changed', $time_value);
+        $proc->save();
       }
-
-      if (!empty($json_fids)) {
-        // $cipher = ['cipher_fid' => $json_fids];
-        $proc->set('armored', ['cipher_fid' => $json_fids]);
-      }
-
-      $proc->set('armored', ['cipher' => $proc_data['cipher_text']]);
-      $proc->set('field_recipients_set', $recipient_users);
-      $proc->set('changed', $time_value);
-      $proc->save();
+      $this->messenger()->addMessage(
+        $this->t(
+          'Update is completed'
+        )
+      );
     }
-    $this->messenger()->addMessage(
-      $this->t(
-        'Update is completed'
-      )
-    );
-  }
   }
 }

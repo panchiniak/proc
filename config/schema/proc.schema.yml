@@ -7,7 +7,7 @@ proc.settings:
       type: string
       label: 'Example'
 
-field.field_settings.proc_proc_entity_reference_field:
+field.field_settings.proc_entity_reference_field:
   type: mapping
   label: Proc Entity Reference Field field settings
   mapping:
@@ -15,7 +15,7 @@ field.field_settings.proc_proc_entity_reference_field:
       type: string
       label: Bar
 
-field.value.proc_proc_entity_reference_field:
+field.value.proc_entity_reference_field:
   type: mapping
   label: Default value
   mapping:
