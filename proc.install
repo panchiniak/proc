@@ -9,28 +9,23 @@
  */
 function proc_install() {
   \Drupal::messenger()->addStatus(__FUNCTION__);
-  
-  
-  
-  $bundle = \Drupal\proc\Entity\ProcType::create([
-    'id' => 'cipher',
-    'label' => 'Cipher Text',
-    'revision' => FALSE,
-  ]);
-  $bundle->save();
+
+  // $bundle = \Drupal\proc\Entity\ProcType::create([
+  //   'id' => 'cipher',
+  //   'label' => 'Cipher Text',
+  //   'revision' => FALSE,
+  // ]);
+  // $bundle->save();
   
   \Drupal::entityTypeManager()->clearCachedDefinitions();
 
-  // Get the entity type manager service.
   $entity_type_manager = \Drupal::entityTypeManager();
-  // Load the custom entity type you want to add the field to.
   $custom_entity_type = $entity_type_manager->getDefinition('proc');
-  // Create the new entity reference field.
   $field_storage_definition = \Drupal\Core\Field\BaseFieldDefinition::create('entity_reference')
     ->setLabel(t('Cipher recipients set'))
     ->setDescription(t('Recipients set for a cipher text.'))
-    ->setSetting('target_type', 'user') // Replace with the entity type you want to reference.
-    ->setCardinality(-1) // Set the number of allowed values.
+    ->setSetting('target_type', 'user')
+    ->setCardinality(-1)
     ->setTranslatable(FALSE)
     ->setRevisionable(FALSE)
     ->setCardinality(\Drupal\Core\Field\FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
@@ -51,8 +46,7 @@ function proc_install() {
     ])
     ->setDisplayConfigurable('form', true)
     ->setDisplayConfigurable('view', true);
-  
-  // Add the field to the custom entity type.
+
   $field_name = 'field_proc_recipients';
   $entity_type_manager->getStorage('field_storage_config')->create([
     'field_name' => $field_name,
@@ -61,16 +55,13 @@ function proc_install() {
     'cardinality' => -1,
   ])->save();
   
-  // Attach the field to the custom entity type.
   $entity_type_manager->getStorage('proc')->create([
     'field_name' => $field_name,
     'entity_type' => $custom_entity_type->id(),
-    // 'bundle' => 'proc', // Replace with the bundle name if your custom entity type has bundles.
-    'bundle' => 'cipher', // Replace with the bundle name if your custom entity type has bundles.
+    'bundle' => 'cipher',
     'label' => 'Proc Cipher Recipientes Set',
   ])->save();
-  
-  
+
   $module_name = 'proc';
   $entity_type = 'proc';
   $fields = [
@@ -89,77 +80,15 @@ function proc_install() {
           $module_name,
           $field_definitions[$field_name]);
     }
-  } 
-  
-  
-  
-  
-  
+  }
 }
 
 /**
  * Implements hook_uninstall().
  */
 function proc_uninstall() {
+  // @TODO: remove leftovers from database
   \Drupal::messenger()->addStatus(__FUNCTION__);
-}
-
-/**
- * Implements hook_schema().
- */
-function proc_schema() {
-  $schema['proc_example'] = [
-    'description' => 'Table description.',
-    'fields' => [
-      'id' => [
-        'type' => 'serial',
-        'not null' => TRUE,
-        'description' => 'Primary Key: Unique record ID.',
-      ],
-      'uid' => [
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-        'description' => 'The {users}.uid of the user who created the record.',
-      ],
-      'status' => [
-        'description' => 'Boolean indicating whether this record is active.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 0,
-        'size' => 'tiny',
-      ],
-      'type' => [
-        'type' => 'varchar_ascii',
-        'length' => 64,
-        'not null' => TRUE,
-        'default' => '',
-        'description' => 'Type of the record.',
-      ],
-      'created' => [
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-        'description' => 'Timestamp when the record was created.',
-      ],
-      'data' => [
-        'type' => 'blob',
-        'not null' => TRUE,
-        'size' => 'big',
-        'description' => 'The arbitrary data for the item.',
-      ],
-    ],
-    'primary key' => ['id'],
-    'indexes' => [
-      'type' => ['type'],
-      'uid' => ['uid'],
-      'status' => ['status'],
-    ],
-  ];
-
-  return $schema;
 }
 
 /**

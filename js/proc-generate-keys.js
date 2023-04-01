@@ -95,6 +95,8 @@
                     }],
                     type: 'rsa',
                     passphrase: cryptoPass,
+                    // @todo: made this configurable:
+                    // rsaBits: 2048,
                     rsaBits: procKeySize,
                     format: 'armored',
                   })

@@ -12,19 +12,3 @@ edit proc entity:
   title: 'Edit entity content'
 administer proc entity:
   title: 'Administer settings'
-  
-administer protected content types:
-  title: 'Administer protected content types'
-  description: 'Maintain the types of protected content entity.'
-  restrict access: true
-delete protected content:
-  title: Delete protected content
-create protected content:
-  title: Create protected content
-view protected content:
-  title: View protected content
-edit protected content:
-  title: Edit protected content
-
-administer proc_type:
-  title: 'Administer proc type'

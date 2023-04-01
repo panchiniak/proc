@@ -16,5 +16,5 @@ declare(strict_types=1);
  *   Unalterable full cipher text object.
  */
 function hook_proc_alter_decryption_link_classes(array &$decryption_link_classes): void {
-// here others will make a module that will call this to alter "$data"
+  // This might be needed for adjusting to different themes.
 }

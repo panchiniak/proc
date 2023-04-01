@@ -2,11 +2,10 @@
 
 namespace Drupal\proc\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
-// use Drupal\file\Entity
 
 /**
  * Class JsonApiProcController
- * @package Drupal\mymodule\Controller
+ * @package Drupal\proc\Controller
  */
 class JsonApiProcController {
 
@@ -23,19 +22,16 @@ class JsonApiProcController {
   public function cipher() {
     return new JsonResponse([ 'pubkey' => $this->getCihper()]);
   }
-  
-  
 
   /**
    * @return array
    */
   public function getData() {
-
     $current_path = \Drupal::service('path.current')->getPath();
     $path_array = explode('/', $current_path);
     $user_ids_string = $path_array[4];
     $user_ids = explode(',', $user_ids_string);
-    
+
     $search_by = $path_array[5];
 
     $proc_ids = [];
@@ -64,7 +60,7 @@ class JsonApiProcController {
   /**
    * @return array
    */
-public function getCihper() {
+  public function getCihper() {
 
     $current_path = \Drupal::service('path.current')->getPath();
     $path_array = explode('/', $current_path);

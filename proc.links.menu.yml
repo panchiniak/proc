@@ -4,15 +4,3 @@ proc.settings_form:
   parent: system.admin_config_system
   route_name: proc.settings_form
   weight: 10
-
-entity.proc_type.collection:
-  title: 'Protected Content types'
-  description: 'Manage and CRUD actions on Protected Content type.'
-  parent: system.admin_structure
-  route_name: entity.proc_type.collection
-
-entity.proc_type.overview:
-  title: Proc Types
-  parent: system.admin_structure
-  description: 'List of proc types to extend site functionality.'
-  route_name: entity.proc_type.collection

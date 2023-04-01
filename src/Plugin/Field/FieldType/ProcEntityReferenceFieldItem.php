@@ -36,7 +36,7 @@ use Drupal\Core\Validation\Plugin\Validation\Constraint\AllowedValuesConstraint;
  *   label = @Translation("Proc Entity Reference Field"),
  *   description = @Translation("An entity field containing an proc enabled entity reference."),
  *   category = @Translation("Reference"),
- *   default_widget = "proc_proc_entity_reference_field_widget",
+ *   default_widget = "proc_entity_reference_widget",
  *   default_formatter = "entity_reference_label",
  *   list_class = "\Drupal\Core\Field\EntityReferenceFieldItemList",
  * )
@@ -97,12 +97,6 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
         1 => $this->t('Text area'),
         2 => $this->t('Text field'),
       ],
-    ];
-    
-    $form['bar'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Bar'),
-      '#default_value' => $this->getSetting('bar'),
     ];
 
     $form += parent::fieldSettingsForm($form, $form_state);

@@ -11,4 +11,6 @@ dependencies:
 configure: entity.proc_type.collection
 element:
   proc_element:
-    class: Drupal\my_module\Plugin\Element\ProcElementPlugin
+    class: Drupal\proc\Entity\Element\ProcProcEntityAutocomplete
+field_widget:
+  proc_entity_reference_widget: ProcEntityReferenceWidget

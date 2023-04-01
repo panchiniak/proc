@@ -51,8 +51,6 @@ proc.json_api_proc_cipher:
   requirements:
     _access: 'TRUE'
 
-
-
 proc.decrypt:
   path: '/proc/{proc}'
   defaults:
@@ -75,87 +73,3 @@ entity.proc.canonical:
     # Calls the access controller of the entity, passing in the suffix ('view')
     # as the $operation parameter to checkAccess().
     _entity_access: 'proc.view'
-
-# entity.content_entity_example_contact.collection:
-#   path: '/content_entity_example_contact/list'
-#   defaults:
-#   # Calls the list controller, defined in the annotation of the contact entity.
-#     _entity_list: 'content_entity_example_contact'
-#     _title: 'Contact list'
-#   requirements:
-#   # Checks for permission directly.
-#     _permission: 'view contact entity'
-
-# content_entity_example.contact_add:
-#   path: '/content_entity_example_contact/add'
-#   defaults:
-#     # Calls the form.add controller, defined in the contact entity.
-#     _entity_form: content_entity_example_contact.default
-#     _title: 'Add contact'
-#   requirements:
-#     # Use the entity's access controller. _entity_create_access tells the router
-#     # to use the access controller's checkCreateAccess() method instead of
-#     # checkAccess().
-#     _entity_create_access: 'content_entity_example_contact'
-
-# entity.content_entity_example_contact.edit_form:
-#   path: '/content_entity_example_contact/{content_entity_example_contact}/edit'
-#   defaults:
-#   # Calls the form.edit controller, defined in the contact entity.
-#     _entity_form: content_entity_example_contact.default
-#     _title: 'Edit contact'
-#   requirements:
-#     # Calls the access controller of the entity, passing in the suffix
-#     # ('update') as the $operation parameter to checkAccess().
-#     _entity_access: 'content_entity_example_contact.update'
-
-# entity.content_entity_example_contact.delete_form:
-#   path: '/contact/{content_entity_example_contact}/delete'
-#   defaults:
-#     # Calls the form.delete controller, defined in the contact entity.
-#     _entity_form: content_entity_example_contact.delete
-#     _title: 'Delete contact'
-#   requirements:
-#     # Calls the access controller of the entity, passing in the suffix
-#     # ('delete') as the $operation parameter to checkAccess().
-#     _entity_access: 'content_entity_example_contact.delete'
-
-# content_entity_example.contact_settings:
-#   path: '/admin/structure/content_entity_example_contact_settings'
-#   defaults:
-#     _form: '\Drupal\content_entity_example\Form\ContactSettingsForm'
-#     _title: 'Contact settings'
-#   requirements:
-#     _permission: 'administer contact entity'
-
-# entity.proc_type.collection:
-#   path: '/admin/structure/proc-type'
-#   defaults:
-#     _entity_list: 'proc_type'
-#     _title: 'Proc Type configuration'
-#   requirements:
-#     _permission: 'administer proc_type'
-
-# entity.proc_type.add_form:
-#   path: '/admin/structure/proc_type/add'
-#   defaults:
-#     _entity_form: 'proc_type.add'
-#     _title: 'Add a proc type'
-#   requirements:
-#     _permission: 'administer proc_type'
-
-# entity.proc_type.edit_form:
-#   path: '/admin/structure/proc-type/{proc_type}'
-#   defaults:
-#     _entity_form: 'proc_type.edit'
-#     _title: 'Edit a proc type'
-#   requirements:
-#     _permission: 'administer proc_type'
-
-# entity.proc_type.delete_form:
-#   path: '/admin/structure/proc-type/{proc_type}/delete'
-#   defaults:
-#     _entity_form: 'proc_type.delete'
-#     _title: 'Delete a proc type'
-#   requirements:
-#     _permission: 'administer proc_type'

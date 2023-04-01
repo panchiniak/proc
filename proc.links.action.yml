@@ -1,17 +1,5 @@
-proc.type_add:
-  title: 'Add protected content type'
-  route_name: entity.proc_type.add_form
-  appears_on:
-    - entity.proc_type.collection
-
-proc.add_page:
-  title: 'Add protected content'
-  route_name: entity.proc.add_page
-  appears_on:
-    - entity.proc.collection
-
-entity.proc_type.add_form:
-  route_name: 'entity.proc_type.add_form'
-  title: 'Add proc type'
-  appears_on:
-    - entity.proc_type.collection
+# proc.add_page:
+#   title: 'Add protected content'
+#   route_name: entity.proc.add_page
+#   appears_on:
+#     - entity.proc.collection

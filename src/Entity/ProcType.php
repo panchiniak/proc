@@ -67,33 +67,3 @@ class ProcType extends ConfigEntityBundleBase {
   protected $label;
 
 }
-// class ProcType extends ConfigEntityBase implements ProcTypeInterface {
-//   /**
-//   * The proc type ID.
-//   *
-//   * @var string
-//   */
-//   protected $id;
-
-//   /**
-//   * The proc type label.
-//   *
-//   * @var string
-//   */
-//   protected $label;
-
-//   /**
-//   * The proc type status.
-//   *
-//   * @var bool
-//   */
-//   protected $status;
-
-//   /**
-//   * The proc_type description.
-//   *
-//   * @var string
-//   */
-//   protected $description;
-
-// }

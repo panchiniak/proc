@@ -7,37 +7,6 @@ proc.settings:
       type: string
       label: 'Example'
 
-
-# Default value.
-field.value.field_proc_example:
-  type: mapping
-  label: Default value
-  mapping:
-    value_1:
-      type: string
-      label: Value 1
-    value_2:
-      type: string
-      label: Value 2
-    value_3:
-      type: string
-      label: Value 3
-
-proc.proc_type.*:
-  type: config_entity
-  label: Proc Type
-  mapping:
-    id:
-      type: string
-      label: ID
-    label:
-      type: label
-      label: Label
-    uuid:
-      type: string
-    description:
-      type: string
-
 field.field_settings.proc_proc_entity_reference_field:
   type: mapping
   label: Proc Entity Reference Field field settings
@@ -54,10 +23,13 @@ field.value.proc_proc_entity_reference_field:
       type: label
       label: Value
 
-field.widget.settings.proc_proc_entity_reference_field_widget:
+field.widget.settings.proc_entity_reference_widget:
   type: mapping
   label: Proc Entity Reference Field Widget widget settings
   mapping:
     foo:
       type: string
       label: Foo
+    size:
+      type: integer
+      label: 'Size'
