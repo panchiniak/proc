@@ -8,7 +8,6 @@ dependencies:
   - entity
   - drupal:options
   - drupal:user
-configure: entity.proc_type.collection
 element:
   proc_element:
     class: Drupal\proc\Entity\Element\ProcProcEntityAutocomplete

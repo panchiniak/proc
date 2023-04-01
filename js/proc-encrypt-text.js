@@ -15,7 +15,6 @@
           .length,
           postMaxSizeBytes = Drupal.settings.proc.proc_post_max_size_bytes,
           fileEntityMaxSize = parseInt(Drupal.settings.proc.proc_file_entity_max_filesize, 10),
-          // plainTextSize       = parseInt(files[0].size, 10),
           postMaxSizeBytesInt = parseInt(postMaxSizeBytes, 10),
           // Assuming ciphertexts are at least 4 times bigger than
           // their plaintexts:
@@ -81,11 +80,9 @@
           })));
           let startSeconds = new Date()
             .getTime() / 1000;
-          // let array = new Uint8Array(plaintext);
           const message = await openpgp.createMessage({
             text: plaintext
           });
-          // const message = await openpgp.createMessage({ binary: array });
           const encrypted = await openpgp.encrypt({
             encryptionKeys: publicKeys,
             message,

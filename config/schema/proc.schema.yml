@@ -9,7 +9,7 @@ proc.settings:
 
 field.field_settings.proc_entity_reference_field:
   type: mapping
-  label: Proc Entity Reference Field field settings
+  label: Proc Entity Reference Field settings
   mapping:
     bar:
       type: string

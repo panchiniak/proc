@@ -55,6 +55,7 @@ class ProcDecryptForm extends FormBase {
       '#url' => Url::fromUserInput('#' . $fragment),
       '#attributes' => [
         'id' => 'decryption-link',
+        // 'class' => ['ecl-button', 'ecl-button--primary'],
         'class' => ['button--primary', 'button'],
       ],
     ];
@@ -62,6 +63,17 @@ class ProcDecryptForm extends FormBase {
     return $form;
   }
 
+  /**
+   * Implements form validation.
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+  }
+
+  /**
+   * Implements a form submit handler.
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+  }
   /**
    * Deny access.
    */

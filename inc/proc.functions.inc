@@ -57,37 +57,9 @@ function _proc_common_get_decryption_form_data($privkey = NULL) {
     'proc_email'   => $user->getEmail(),
     'proc_name'    => $user->getAccountName(),
     'proc_privkey' => $privkey,
-    // 'proc_labels' => _proc_js_labels(),
-    // 'proc_skip_size_mismatch' => \Drupal::config('proc.settings')->get('proc_skip_size_mismatch'),
   ];
 
 }
-
-/**
- * Helper function to get multiple unique CSV arguments.
- *
- * @param array $csvs
- *   List of csvs.
- *
- * @return array
- *   Array containing sanitized CSVs strings and arrays
- */
-// function _proc_get_csv_arguments(array $csvs) {
-//   $csvs_strings = [];
-//   foreach ($csvs as $csvs_key => $csv_data) {
-//     $csv_data = _proc_get_csv_argument($csv_data);
-//     if (is_array($csv_data)) {
-//       $csvs_strings[$csvs_key]['array'] = $csv_data;
-//       $csvs_strings[$csvs_key]['string'] = implode(',', $csv_data);
-//     }
-//   }
-//   if (!empty($csvs_strings)) {
-//     return $csvs_strings;
-//   }
-//   return NULL;
-
-// }
-
 
 /**
  * Helper function to get unique CSV arguments.
@@ -103,7 +75,6 @@ function _proc_get_csv_argument($csv_data) {
     // Remove query string from the path if any.
     $csv_data = preg_replace('/\?.+/', '', $csv_data);
     $csv_data = \Drupal\Component\Utility\Html::escape($csv_data);
-    // ksm($csv_data);
     $csv_values = str_getcsv($csv_data);
     $csv_data = [];
     foreach ($csv_values as $csv_value) {
@@ -222,14 +193,13 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
       $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
     }
 
-    // @todo: adopt cache first policy also for the update operation
+    // @todo: use cache first policy also for the update operation
     // If cipher_fid key is an array, there are multiple files for the 
     // storage of the cipher:
     if (is_array($entity->get('armored')->getValue()[0]['cipher_fid'])) {
       // Concatenate the pieces of the cipher in a single variable:
       $armored = '';
       foreach ($entity->get('armored')->getValue()[0]['cipher_fid'] as $fid) {
-        // $armored = $armored . $fid;
         $storage = \Drupal::entityTypeManager()->getStorage('file');
         $file = $storage->load($fid);
         $armored = $armored . file_get_contents($file->getFileUri());
@@ -238,7 +208,6 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
     }
   };
 
-  // $cipher_text_data = FALSE;
   if (in_array($user_id, $recipient_id) || $metadata_only == TRUE) {
     $cipher_text_data['source_file_name']   = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_file_name']);
     $cipher_text_data['source_input_mode']  = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_input_mode']);

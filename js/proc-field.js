@@ -8,8 +8,7 @@
     attach: function (context, settings) {
       once('proc-decrypt', 'html', context)
         .forEach(function (element) {
-          console.log('---------------');
-          
+          // console.log('---------------');
         });
     }
   };
