@@ -4,8 +4,6 @@ description: Client-side encryption with OpenPGPjs
 package: Security
 core_version_requirement: ^9 || ^10
 dependencies:
-  - libraries
-  - entity
   - drupal:options
   - drupal:user
 element:
