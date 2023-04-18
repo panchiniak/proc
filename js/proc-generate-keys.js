@@ -11,6 +11,10 @@
           let procJsLabels = drupalSettings.proc.proc_labels,
             procData = drupalSettings.proc.proc_data,
             procKeySize = drupalSettings.proc.proc_key_size;
+          if (!procKeySize) {
+            console.info('Setting default key size.')
+            procKeySize = '4096';
+          }
 
           function resetPassword() {
             $('#edit-password-confirm-pass1')
