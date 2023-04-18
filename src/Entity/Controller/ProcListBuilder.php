@@ -75,7 +75,7 @@ class ProcListBuilder extends EntityListBuilder {
    * and inserts the 'edit' and 'delete' links as defined for the entity type.
    */
   public function buildHeader() {
-    $header['id'] = $this->t('ContactID');
+    $header['id'] = $this->t('Proc ID');
     // $header['name'] = $this->t('Name');
     // $header['first_name'] = $this->t('First Name');
     // $header['role'] = $this->t('Role');
