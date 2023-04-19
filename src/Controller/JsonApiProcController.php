@@ -37,6 +37,7 @@ class JsonApiProcController {
     $proc_ids = [];
     foreach ($user_ids as $user_id) {
       $query = \Drupal::entityQuery('proc')
+        ->accessCheck(TRUE)
         ->condition($search_by, $user_id)
         ->condition('type', 'keyring')
         ->sort('id', 'DESC')

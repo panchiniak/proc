@@ -138,6 +138,7 @@ function _proc_get_keys(string $item_id, string $type = NULL) {
   }
   
   $query = \Drupal::entityQuery('proc')
+    ->accessCheck(TRUE)
     ->condition('type', 'keyring')
     ->condition('status', 1)
     ->condition('user_id', $item_id)

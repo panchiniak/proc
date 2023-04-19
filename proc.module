@@ -56,6 +56,7 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   $proc_ids = [];
   foreach ($selected_user_ids as $user_id) {
     $query = \Drupal::entityQuery('proc')
+      ->accessCheck(TRUE)
       ->condition('user_id', $user_id)
       ->condition('type', 'keyring')
       ->sort('id', 'DESC')
