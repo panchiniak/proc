@@ -108,7 +108,7 @@ class ProcKeysGenerationForm extends FormBase {
 
     $current_url = \Drupal::request()->headers->get('referer');
     $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
-    if (isset($parse_result)) {
+    if (isset($parse_result['query']['destination'])) {
       $destination = $parse_result['query']['destination'];
     }
     

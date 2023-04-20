@@ -1,0 +1,6 @@
+proc-stream-wrapper: 'public://proc'
+proc-enable-stream-wrapper: 1
+proc-rsa-key-size: '2048'
+proc-file-entity-max-filesize: ''
+proc-file-block-size: ''
+proc-enable-block-size: 0

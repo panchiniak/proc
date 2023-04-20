@@ -179,8 +179,8 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
   $user_id = $user->id();
 
 
-  if ($metadata_only != TRUE) {
-    
+  if ($metadata_only != TRUE && (isset($entity->get('armored')->getValue()[0]['cipher']))) {
+
     $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
     if ($entity->get('armored')->getValue()[0]['cipher_fid'] && !is_array($entity->get('armored')->getValue()[0]['cipher_fid'])) {
       // Stream wrapper storage in a single file:
@@ -210,9 +210,12 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
   };
 
   if (in_array($user_id, $recipient_id) || $metadata_only == TRUE) {
-    $cipher_text_data['source_file_name']   = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_file_name']);
-    $cipher_text_data['source_input_mode']  = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_input_mode']);
-    $cipher_text_data['source_file_size']   = \Drupal\Component\Utility\Html::escape($entity->get('meta')->getValue()[0]['source_file_size']);
+    $meta = $entity->get('meta')->getValue()[0];
+    if (isset($meta['input_mode_source'])) {
+      $cipher_text_data['source_input_mode'] = \Drupal\Component\Utility\Html::escape($meta['input_mode_source']); 
+    }
+    $cipher_text_data['source_file_name']   = \Drupal\Component\Utility\Html::escape($meta['source_file_name']); 
+    $cipher_text_data['source_file_size']   = \Drupal\Component\Utility\Html::escape($meta['source_file_size']);
     $cipher_text_data['cipher_cid']         = $cid;
     $cipher_text_data['proc_owner_uid']     = $entity->get('user_id')->getValue()[0]['target_id'];
     $cipher_text_data['proc_recipients']    = $recipient_id;

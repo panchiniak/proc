@@ -163,7 +163,12 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
     $files_names[] = $cipher_id_data['source_file_name'];
     $files_sizes[] = $cipher_id_data['source_file_size'];
     // For diferenciating files from text areas:
-    $sources_input_mode[] = $cipher_id_data['source_input_mode'];
+    if (isset($cipher_id_data['source_input_mode'])) {
+      $sources_input_mode[] = $cipher_id_data['source_input_mode'];      
+    }
+    else {
+      $sources_input_mode[] = 0;
+    }
     //$sources_signed[] = $cipher_id_data['signed'];
     $sources_signed[] = 0;
     

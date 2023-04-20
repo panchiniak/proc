@@ -55,9 +55,6 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
    */
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
     
-    // $form = parent::fieldSettingsForm($form, $form_state);
-    
-    
     $form['proc'] = [
       '#type' => 'details',
       '#title' => t('Protected Content Settings for this field'),
@@ -103,5 +100,21 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
 
     return $form;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  // public function settingsForm(array $form, FormStateInterface $form_state) {
+  //   $form = parent::settingsForm($form, $form_state);
+
+  //   $form['handler_settings']['target_bundles'] = [
+  //     '#type' => 'value',
+  //     '#value' => ['proc'],
+  //   ];
+
+  //   return $form;
+  // }
+
+  
 
 }

@@ -67,8 +67,7 @@
           // Clear ALL
           // messages.clear();
           // Reset messages and action.
-          $('input#edit-pass')
-            .once()
+          $(once('on', 'input#edit-pass', context))
             .on('focusin', function () {
               // $('.messages').remove();
               messages.clear();
