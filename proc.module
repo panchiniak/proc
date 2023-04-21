@@ -35,20 +35,27 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
 /**
 * Implements hook_form_alter().
 */
-function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) { 
   $proc_data = _proc_common_get_decryption_form_data(NULL);
 
   $config = \Drupal::config('proc.settings');
   $max_file_size = $config->get('proc-file-entity-max-filesize');
   if (empty($max_file_size)) {
-    // Use 10M if not value is set.
+    // Use 10M if no value is set.
     $max_file_size = 10000000;
   }
 
   $current_path = \Drupal::service('path.current')->getPath();
-  $path_array = explode('/', $current_path);
 
-  // ksm($path_array[3]);
+  $query_params = \Drupal::request()->query->all();
+  $destination = FALSE;
+  if (isset($query_params['destination'])) {
+    $destination = $query_params['destination'];
+  }
+  
+
+
+  $path_array = explode('/', $current_path);
   $selected_user_ids = explode(',', $path_array[3]);
 
   // Given a user ID, get the creation date of its 
@@ -74,7 +81,6 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
     else {
       $created[1] = 1;
     }
-    
   }
 
   $form['#attached'] = [
@@ -95,8 +101,13 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
     ],
   ];
   $current_path = substr($current_path, 1);
-  $form_state->set('storage', $selected_user_ids); 
+  $form_state->set('storage', $selected_user_ids);
   $form['#action'] = base_path() . $current_path;
+  
+  if ($destination) {
+    $form['#action'] = base_path() . $destination;
+  }
+  
 }
 
 /**
@@ -264,7 +275,6 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
     $recipients_pubkeys  = $pubkeys_data['recipients_pubkeys'];
     $post_max_size_bytes = $pubkeys_data['post_max_size_bytes'];
   
-    // ksm($recipients_pubkeys);
     $pubkeys = [];
     foreach ($recipients_pubkeys as $recipient_pubkey) {
       $pubkeys[] = ['key' => $recipient_pubkey['key'], 'changed' => "0"]; 
@@ -291,8 +301,6 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
     
     
     $proc_data = $proc_data + $encryption_form_elements;
-    
-    // ksm($encryption_form_elements);
     
     $form['#attached'] = [
       'library' => [
@@ -326,7 +334,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
     }
   }
   else {
-    ksm('Update already happened');
+    // Updating has already happened:
   }
  
   // $form['#action'] = base_path() . $current_path;
@@ -394,13 +402,8 @@ function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Co
 
   // Add a css class to widget form elements for all fields of type my_type.
   $field_definition = $context['items']->getFieldDefinition();
-    
-  // ksm($field_definition);
   
-  if ($field_definition->getType() == 'proc_entity_reference_field') {
-    // ksm($field_definition);
-    // ksm($element);
-    
+  if ($field_definition->getType() == 'proc_entity_reference_field') {    
     // $element['target_id']['#description'] = 'Encrypt';
 
     // $element['#attached']['library'][] = 'proc/proc-field';
@@ -418,8 +421,6 @@ function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Co
     //     ]
     //   ],
     // ];
-    
-    // ksm($element);
 
     // $element['target_id']['#description']['#class'] = ['button'];
     // $element['target_id']['#description']['attributes']->setAttribute('class', 'button');
@@ -434,7 +435,6 @@ function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Co
 //   // hook_field_widget_single_element_mymodule_autocomplete_form_alter() will
 //   // only act on widgets of type 'mymodule_autocomplete'.
 //   // $element['#autocomplete_route_name'] = 'mymodule.autocomplete_route';
-//   ksm('here');
 // }
 
 /**
@@ -461,7 +461,4 @@ function proc_form_field_storage_config_edit_form_alter(&$form, \Drupal\Core\For
 }
 
 function proc_form_field_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  // ksm($form_id);
-  // ksm($form);
-  // ksm($form_state);
 }

@@ -66,7 +66,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $element['#attached']['library'][] = 'proc/proc-field';
     $element['#attached']['drupalSettings']['proc']['proc_labels'] = ['test1', 'test2'];
     $element['#attached']['drupalSettings']['proc']['proc_data'] = ['test1', 'test2'];
-    $element['#description'] = $element['#description'] . "<p><a class='use-ajax' data-dialog-type='modal' href='./../../proc/add/1'><div class='button'>" . $this->t('Encrypt') . "</div></a>";
+    $element['#description'] = $element['#description'] . "<p><a class='use-ajax' data-dialog-type='modal' href='./../../proc/add/1?destination=node/add/article'><div class='button'>" . $this->t('Encrypt') . "</div></a>";
     
     // If there is a default value, add also the Decrypt button:
     if ($element['#default_value']) {
@@ -105,6 +105,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
   public static function defaultSettings() {
     $settings = parent::defaultSettings();
     $settings['foo'] = 'bar';
+    $settings['panchiniak'] = 'sim';
 
     return $settings;
   }
@@ -119,7 +120,15 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       '#title' => $this->t('Foo'),
       '#default_value' => $this->getSetting('foo'),
     ];
+
+    $form['panchiniak'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Panchiniak'),
+      '#default_value' => $this->getSetting('panchiniak'),
+    ];
+
     
+
     // Add any custom widget settings form elements here.
     return $form;
   }

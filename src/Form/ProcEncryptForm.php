@@ -25,6 +25,8 @@ class ProcEncryptForm extends FormBase {
     return 'proc_encrypt_form';
   }
 
+
+
   /**
    * Build the form.
    *
@@ -63,6 +65,20 @@ class ProcEncryptForm extends FormBase {
       '#type' => 'submit',
       '#value' => $this->t('Submit'),
     ];
+
+    // url to redirect
+    // $path = '/node/add/article';
+    // // query string
+    // // $path_param = [
+    // // 'abc' => '123',
+    // // 'xyz' => '456'
+    // // ];
+    // // // use below if you have to redirect on your known url
+    // // $url = Url::fromUserInput($path, ['query' => $path_param]);
+    // $url = Url::fromUserInput($path);
+    // $form_state->setRedirectUrl($url);
+
+
     return $form;
   }
 
@@ -101,6 +117,7 @@ class ProcEncryptForm extends FormBase {
     $destination = FALSE;
     
     $current_url = \Drupal::request()->headers->get('referer');
+
     $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
     
     if (isset($parse_result['query']['destination'])) {
