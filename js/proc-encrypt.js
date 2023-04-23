@@ -8,6 +8,15 @@
     attach: async function (context, settings) {
       once('proc-encrypt', 'html', context)
         .forEach(async function (element) {
+
+          $('#edit-submit').on(
+            'click', async function (e) {
+                e.preventDefault();
+                console.log('submit was clicked');
+            }
+          );
+  
+
           const messages = new Drupal.Message();
           if (!(window.FileReader)) {
             messages.add(drupalSettings.proc.proc_labels.proc_fileapi_err_msg, {
@@ -132,6 +141,8 @@
                 document.getElementById('edit-submit')
                   .removeAttribute("disabled");
                 document.getElementById('edit-submit').value = procJsLabels.proc_save_button_label;
+                // If there is a dialog, close it:
+                // document.getElementsByClassName('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')[0].click();
               }
             };
           }
@@ -140,6 +151,23 @@
               .addEventListener('change', handleFileSelect, false);
           }
         });
+
+        // once('#edit-submit', 'html', context).on('click', async function (e) {
+        //   e.preventDefault();
+        //   console.log('submit was clicked');
+        // });
+
+        // once('#edit-submit', function (settings, context, drupalSettings)).on('click', async function (e) {
+        //   e.preventDefault();
+        //   console.log('submit was clicked');
+        // }
+        // $('#edit-submit').on(
+        //   'click', async function (e) {
+        //       e.preventDefault();
+        //       console.log('submit was clicked');
+        //   }
+        // );
+
     }
   };
 })(jQuery, Drupal, once);

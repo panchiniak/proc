@@ -66,7 +66,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $element['#attached']['library'][] = 'proc/proc-field';
     $element['#attached']['drupalSettings']['proc']['proc_labels'] = ['test1', 'test2'];
     $element['#attached']['drupalSettings']['proc']['proc_data'] = ['test1', 'test2'];
-    $element['#description'] = $element['#description'] . "<p><a class='use-ajax' data-dialog-type='modal' href='./../../proc/add/1?destination=node/add/article'><div class='button'>" . $this->t('Encrypt') . "</div></a>";
+    $element['#description'] = $element['#description'] . "<p><a class='use-ajax' id='proc-dialog-encrypt' data-dialog-type='dialog' href='./../../proc/add/1?destination=node/add/article'><div class='button'>" . $this->t('Encrypt') . "</div></a>";
     
     // If there is a default value, add also the Decrypt button:
     if ($element['#default_value']) {
@@ -80,28 +80,16 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     return ['target_id' => $element];
   }
   
-
   /**
-   * {@inheritdoc}
-   */
-  // public static function defaultSettings() {
-  //   return [
-  //     'foo' => 'bar',
-  //   ] + parent::defaultSettings();
-  // }
-
-  // /**
-  // * {@inheritdoc}
-  // */
-  // public function settingsSummary() {
-  //   $summary[] = $this->t('Foo: @foo', ['@foo' => $this->getSetting('foo')]);
-  //   return $summary;
-  // }
-
-  
-  // /**
-  // * {@inheritdoc}
-  // */
+  * {@inheritdoc}
+  */
+  public function settingsSummary() {
+    $summary[] = $this->t('Foo: @foo', ['@foo' => $this->getSetting('foo')]);
+    return $summary;
+  }
+  /**
+  * {@inheritdoc}
+  */
   public static function defaultSettings() {
     $settings = parent::defaultSettings();
     $settings['foo'] = 'bar';
@@ -109,7 +97,6 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
 
     return $settings;
   }
-
   /**
   * {@inheritdoc}
   */
@@ -126,10 +113,6 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       '#title' => $this->t('Panchiniak'),
       '#default_value' => $this->getSetting('panchiniak'),
     ];
-
-    
-
-    // Add any custom widget settings form elements here.
     return $form;
   }
 }

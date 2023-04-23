@@ -6,7 +6,6 @@ openpgpjs:
     url: https://github.com/openpgpjs/openpgpjs/blob/main/LICENSE
     gpl-compatible: true
   js:
-    # js/openpgp.min.js: {}
     https://unpkg.com/openpgp@5.0.1/dist/openpgp.min.js: { type: external, minified: true }
 
 proc-generate-keys:
@@ -56,8 +55,5 @@ proc-field:
     - core/once
     - core/drupal.message
     - core/drupalSettings
-
-# field_proc_example:
-#   css:
-#     component:
-#       css/field-proc-example-widget.css: {}
+    - core/drupal.dialog.ajax
+    - core/jquery.form

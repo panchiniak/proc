@@ -12,6 +12,10 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\File\FileSystemInterface;
 use \Drupal\Component\Utility\Crypt;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseModalDialogCommand;
+use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\InvokeCommand;
 
 /**
  * Encrypt content.
@@ -25,18 +29,8 @@ class ProcEncryptForm extends FormBase {
     return 'proc_encrypt_form';
   }
 
-
-
   /**
-   * Build the form.
-   *
-   * @param array $form
-   *   Default form array structure.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   Object containing current form state.
-   *
-   * @return array
-   *   The render array defining the elements of the form.
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
@@ -61,26 +55,52 @@ class ProcEncryptForm extends FormBase {
 			'#description' => $this->t('Select a file for encryption.'),
     ];
 
-    $form['actions']['submit'] = [
+    // $form['actions']['submit'] = [
+    //   '#type' => 'submit',
+    //   '#value' => $this->t('Submit'),
+    //   '#ajax' => [
+    //     // #ajax has two required keys: callback and wrapper.
+    //     // 'callback' is a function that will be called when this element
+    //     // changes.
+    //     'callback' => '::promptCallback',
+    //     // 'wrapper' is the HTML id of the page element that will be replaced.
+    //     'wrapper' => 'replace-textfield-container',
+    //   ],
+    // ];
+
+    $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Submit'),
-    ];
-
-    // url to redirect
-    // $path = '/node/add/article';
-    // // query string
-    // // $path_param = [
-    // // 'abc' => '123',
-    // // 'xyz' => '456'
-    // // ];
-    // // // use below if you have to redirect on your known url
-    // // $url = Url::fromUserInput($path, ['query' => $path_param]);
-    // $url = Url::fromUserInput($path);
-    // $form_state->setRedirectUrl($url);
-
+      '#ajax' => [
+        'callback' => '::submitFormAjax',
+        'event' => 'click',
+      ],
+    ];    
 
     return $form;
   }
+
+  /**
+   * Submit handler for the ajax submit.
+   */
+  public function submitFormAjax(array &$form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+    // Selector for the dialog close button.
+    $selector = '.ui-dialog-titlebar-close';
+    // The name of a jQuery method to invoke.
+    $method = 'click';
+    $arguments = [];
+    $response->addCommand(new InvokeCommand($selector, $method, $arguments));
+
+    // $response->addCommand(new HtmlCommand('#proc-encrypt-form', $this->t('Form submitted.')));
+
+    // $selector = '#proc-encrypt-form';
+    // $persist = FALSE;
+    // $response->addCommand(new CloseModalDialogCommand($selector, $persist));
+
+
+    return $response;
+  }  
 
   /**
    * Implements form validation.

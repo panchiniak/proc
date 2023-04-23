@@ -9,13 +9,6 @@
  */
 function proc_install() {
   \Drupal::messenger()->addStatus(__FUNCTION__);
-
-  // $bundle = \Drupal\proc\Entity\ProcType::create([
-  //   'id' => 'cipher',
-  //   'label' => 'Cipher Text',
-  //   'revision' => FALSE,
-  // ]);
-  // $bundle->save();
   
   \Drupal::entityTypeManager()->clearCachedDefinitions();
 

@@ -6,8 +6,5 @@ core_version_requirement: ^9 || ^10
 dependencies:
   - drupal:options
   - drupal:user
-element:
-  proc_element:
-    class: Drupal\proc\Entity\Element\ProcProcEntityAutocomplete
 field_widget:
   proc_entity_reference_widget: ProcEntityReferenceWidget

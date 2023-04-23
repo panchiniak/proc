@@ -107,6 +107,12 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   if ($destination) {
     $form['#action'] = base_path() . $destination;
   }
+
+  // $form['#ajax'] = [
+  //   'callback' => 'proc_encrypt_form_ajax_callback',
+  //   'wrapper' => 'proc-encrypt-form-wrapper',
+  //   'effect' => 'fade',
+  // ];
   
 }
 
