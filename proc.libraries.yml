@@ -25,6 +25,9 @@ proc-encrypt:
     - core/jquery
     - core/once
     - core/drupal.message
+    - core/drupalSettings
+    - core/drupal.dialog.ajax
+    - core/jquery.form
 
 proc-decrypt:
   js:

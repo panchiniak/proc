@@ -91,7 +91,7 @@ class JsonApiProcController {
       
       // If cipher_fid key is an array, there are multiple files for the 
       // storage of the cipher:
-      if (is_array($proc->get('armored')->getValue()[0]['cipher_fid'])) {
+      if (isset($proc->get('armored')->getValue()[0]['cipher_fid']) && is_array($proc->get('armored')->getValue()[0]['cipher_fid'])) {
         // Concatenate the pieces of the cipher in a single variable:
         $armored = '';
         foreach ($proc->get('armored')->getValue()[0]['cipher_fid'] as $fid) {
