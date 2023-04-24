@@ -13,13 +13,17 @@
             'click', async function (e) {
                 e.preventDefault();
                 console.log('submit was clicked');
+                console.log(drupalSettings.proc_standalone_mode);
+                // If proc_standalone_mode is not false:
+                if (drupalSettings.proc_standalone_mode !== 'false') {
+                  $('#proc-encrypt-form').submit();
+                }
             }
-          );
-  
+          );  
 
           const messages = new Drupal.Message();
           if (!(window.FileReader)) {
-            messages.add(drupalSettings.proc.proc_labels.proc_fileapi_err_msg, {
+            messages.add(drupalSettings.proc_labels.proc_fileapi_err_msg, {
               type: 'error'
             });
           }
@@ -28,11 +32,11 @@
               .disabled = "TRUE";
           }
           async function handleFileSelect(evt) {
-            let procJsLabels = drupalSettings.proc.proc_labels,
-              procData = drupalSettings.proc.proc_data,
+            let procJsLabels = drupalSettings.proc_labels,
+              procData = drupalSettings.proc_data,
               files = evt.target.files,
-              postMaxSizeBytes = drupalSettings.proc.proc_post_max_size_bytes,
-              fileEntityMaxSize = parseInt(drupalSettings.proc.proc_file_entity_max_filesize, 10),
+              postMaxSizeBytes = drupalSettings.proc_post_max_size_bytes,
+              fileEntityMaxSize = parseInt(drupalSettings.proc_file_entity_max_filesize, 10),
               fileSize = parseInt(files[0].size, 10),
               postMaxSizeBytesInt = parseInt(postMaxSizeBytes, 10),
               // Assuming ciphertexts are at least 4 times bigger than
@@ -62,7 +66,7 @@
 
                 // At this moment we only know about validated recipient UIDs
                 // and the time stamps of their keys:
-                let recipientsUidsKeysChanged = JSON.parse(drupalSettings.proc.proc_recipients_pubkeys_changed),
+                let recipientsUidsKeysChanged = JSON.parse(drupalSettings.proc_recipients_pubkeys_changed),
                   remoteKey = [],
                   userIdIterator;
                 // False for production.
@@ -91,7 +95,7 @@
                   let remoteKeyCsv = remoteKey.join(",");
                   
                   const pubKeyAjax = async (remoteKeyCsv) => {
-                    let response = await fetch(`${window.location.origin + drupalSettings.proc.basePath}api/proc/getpubkey/${remoteKeyCsv}/user_id`);
+                    let response = await fetch(`${window.location.origin + drupalSettings.basePath}api/proc/getpubkey/${remoteKeyCsv}/user_id`);
                     pubkeysJson = await response.json();
                     if (pubkeysJson.pubkey.length > 0) {
                       pubkeysJson.pubkey.forEach(function (pubkey, index) {
@@ -141,8 +145,6 @@
                 document.getElementById('edit-submit')
                   .removeAttribute("disabled");
                 document.getElementById('edit-submit').value = procJsLabels.proc_save_button_label;
-                // If there is a dialog, close it:
-                // document.getElementsByClassName('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')[0].click();
               }
             };
           }
@@ -151,23 +153,6 @@
               .addEventListener('change', handleFileSelect, false);
           }
         });
-
-        // once('#edit-submit', 'html', context).on('click', async function (e) {
-        //   e.preventDefault();
-        //   console.log('submit was clicked');
-        // });
-
-        // once('#edit-submit', function (settings, context, drupalSettings)).on('click', async function (e) {
-        //   e.preventDefault();
-        //   console.log('submit was clicked');
-        // }
-        // $('#edit-submit').on(
-        //   'click', async function (e) {
-        //       e.preventDefault();
-        //       console.log('submit was clicked');
-        //   }
-        // );
-
     }
   };
 })(jQuery, Drupal, once);

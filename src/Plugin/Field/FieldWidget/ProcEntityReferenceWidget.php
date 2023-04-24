@@ -8,6 +8,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
 use Drupal\proc\Entity\Element\ProcEntityAutocomplete;
+use Drupal\Component\Utility\Crypt;
+// use Drupal\proc\Plugin\Field\FieldWidget\Settings;
 
 /**
  * Defines the 'proc_entity_reference_widget' field widget.
@@ -43,7 +45,12 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $element += [
       // @todo: create a form element called proc_entity_autocomplete
       '#type' => 'entity_autocomplete',
-      // '#type' => 'textfield',
+      // '#type' => 'autocomplete_flexible',
+      // '#autocomplete_route_parameters' => [
+      //   'target_type' => $this->getFieldSetting('target_type'),
+      //   'selection_handler' => $this->getFieldSetting('handler'),
+      //   'selection_settings_key' => Crypt::hmacBase64($data, Settings::getHashSalt())
+      // ],
       '#target_type' => $this->getFieldSetting('target_type'),
       '#selection_handler' => $this->getFieldSetting('handler'),
       '#selection_settings' => $selection_settings,
@@ -66,7 +73,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $element['#attached']['library'][] = 'proc/proc-field';
     $element['#attached']['drupalSettings']['proc']['proc_labels'] = ['test1', 'test2'];
     $element['#attached']['drupalSettings']['proc']['proc_data'] = ['test1', 'test2'];
-    $element['#description'] = $element['#description'] . "<p><a class='use-ajax' id='proc-dialog-encrypt' data-dialog-type='dialog' href='./../../proc/add/1?destination=node/add/article'><div class='button'>" . $this->t('Encrypt') . "</div></a>";
+    $element['#description'] = $element['#description'] . "<p><a class='use-ajax' id='proc-dialog-encrypt' data-dialog-type='dialog' href='./../../proc/add/1?proc_standalone_mode=FALSE'><div class='button'>" . $this->t('Encrypt') . "</div></a>";
     
     // If there is a default value, add also the Decrypt button:
     if ($element['#default_value']) {

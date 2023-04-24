@@ -55,28 +55,44 @@ class ProcEncryptForm extends FormBase {
 			'#description' => $this->t('Select a file for encryption.'),
     ];
 
-    // $form['actions']['submit'] = [
-    //   '#type' => 'submit',
-    //   '#value' => $this->t('Submit'),
-    //   '#ajax' => [
-    //     // #ajax has two required keys: callback and wrapper.
-    //     // 'callback' is a function that will be called when this element
-    //     // changes.
-    //     'callback' => '::promptCallback',
-    //     // 'wrapper' is the HTML id of the page element that will be replaced.
-    //     'wrapper' => 'replace-textfield-container',
-    //   ],
-    // ];
+    // Get current URL. If it has a query string standalone=FALSE, then we 
+    // do not use ajax submit.
+    
+    // Get query string:
+    $query = \Drupal::request()->query->all();
+    $proc_standalone_mode = FALSE;
+    if (isset($query['proc_standalone_mode'])) {
+      $proc_standalone_mode = $query['proc_standalone_mode'];
+    }
 
-    $form['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Submit'),
-      '#ajax' => [
-        'callback' => '::submitFormAjax',
-        'event' => 'click',
-      ],
-    ];    
+    if ($proc_standalone_mode == 'FALSE') {
+      $form['#attached']['drupalSettings'] = [
+        'proc' => [
+          'proc_standalone_mode' => FALSE,
+        ] 
+      ];
 
+      $form['submit'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Submit'),
+        '#ajax' => [
+          'callback' => '::submitFormAjax',
+          'event' => 'click',
+        ],
+      ];      
+    }
+    else {
+      $form['#attached']['drupalSettings'] = [
+        'proc' => [
+          'proc_standalone_mode' => TRUE,
+        ] 
+      ];
+
+      $form['actions']['submit'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Submit'),
+      ];
+    }
     return $form;
   }
 
@@ -87,15 +103,35 @@ class ProcEncryptForm extends FormBase {
     $response = new AjaxResponse();
     // Selector for the dialog close button.
     $selector = '.ui-dialog-titlebar-close';
-    // The name of a jQuery method to invoke.
     $method = 'click';
     $arguments = [];
     $response->addCommand(new InvokeCommand($selector, $method, $arguments));
 
-    // $response->addCommand(new HtmlCommand('#proc-encrypt-form', $this->t('Form submitted.')));
+    $file_name = $form['file']['#value']['' . "\0" . 'Symfony\\Component\\HttpFoundation\\File\\UploadedFile' . "\0" . 'originalName'];
 
-    // $selector = '#proc-encrypt-form';
-    // $persist = FALSE;
+    // Get the lates proc ID:
+    $query = \Drupal::entityQuery('proc');
+    $query->accessCheck(TRUE);
+    $query->sort('id', 'DESC');
+    $query->range(0, 1);
+    $entity_ids = $query->execute();
+    $proc_id = array_shift($entity_ids);
+    // ksm($proc_id);
+      // ksm($proc_id);
+
+
+    $file_name .= ' (' . $proc_id . ')';
+
+    // Add an InvokeCommand object to the AjaxResponse object.
+    $selector = '#edit-field-proc-attachment-0-target-id';
+    // $response->addCommand(new InvokeCommand($selector, 'val', [$file_name . ' (' . $proc_id . ')']));
+    $response->addCommand(new InvokeCommand($selector, 'val', [$file_name]));
+
+
+    // Populate entity reference field in form with JavaScript:
+    // https://www.drupal.org/node/2406845
+
+
     // $response->addCommand(new CloseModalDialogCommand($selector, $persist));
 
 

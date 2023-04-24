@@ -75,7 +75,7 @@ class JsonApiProcController {
 
       if (
         // If cipher_fid is key in armored field, proc is using stream 
-        $proc->get('armored')->getValue()[0]['cipher_fid'] && 
+        isset($proc->get('armored')->getValue()[0]['cipher_fid']) && 
         // If cipher_fid is not an array, there is one single file:
         !is_array($proc->get('armored')->getValue()[0]['cipher_fid'])
       ) {
@@ -84,7 +84,7 @@ class JsonApiProcController {
         $armored = file_get_contents($file->getFileUri());
       }
       // If 'cipher' is key at armored field:
-      if ($proc->get('armored')->getValue()[0]['cipher']) {
+      if (isset($proc->get('armored')->getValue()[0]['cipher'])) {
         // Database storage:
         $armored = $proc->get('armored')->getValue()[0]['cipher'];
       }
@@ -105,7 +105,9 @@ class JsonApiProcController {
       $cipher_data[$proc_index]['armored']            = $armored;
       $cipher_data[$proc_index]['source_file_name']   = $proc->get('meta')->getValue()[0]['source_file_name'];
       $cipher_data[$proc_index]['source_file_size']   = $proc->get('meta')->getValue()[0]['source_file_size'];
-      $cipher_data[$proc_index]['source_input_mode']  = $proc->get('meta')->getValue()[0]['source_input_mode']; 
+      if (isset($proc->get('meta')->getValue()[0]['source_input_mode'])){
+        $cipher_data[$proc_index]['source_input_mode'] = $proc->get('meta')->getValue()[0]['source_input_mode'];
+      }
       $cipher_data[$proc_index]['cipher_cid']         = $proc_id;
       $cipher_data[$proc_index]['proc_owner_uid']     = $proc->get('user_id')->getValue()[0]['target_id'];
       $cipher_data[$proc_index]['proc_recipients']    = $proc->get('field_recipients_set')->getValue();
