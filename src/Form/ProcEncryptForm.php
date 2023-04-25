@@ -107,7 +107,7 @@ class ProcEncryptForm extends FormBase {
     $arguments = [];
     $response->addCommand(new InvokeCommand($selector, $method, $arguments));
 
-    $file_name = $form['file']['#value']['' . "\0" . 'Symfony\\Component\\HttpFoundation\\File\\UploadedFile' . "\0" . 'originalName'];
+    $file_name = $form['proc-file']['#value']['' . "\0" . 'Symfony\\Component\\HttpFoundation\\File\\UploadedFile' . "\0" . 'originalName'];
 
     // Get the lates proc ID:
     $query = \Drupal::entityQuery('proc');

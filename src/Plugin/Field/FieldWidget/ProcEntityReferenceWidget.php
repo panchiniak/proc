@@ -9,6 +9,9 @@ use Drupal\Core\Field\Plugin\Field\FieldWidget;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
 use Drupal\proc\Entity\Element\ProcEntityAutocomplete;
 use Drupal\Component\Utility\Crypt;
+use Drupal\Core\Url;
+use Drupal\Core\Link;
+
 // use Drupal\proc\Plugin\Field\FieldWidget\Settings;
 
 /**
@@ -70,11 +73,60 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       ];
     }
 
+    // $url = Url::fromRoute('entity.node.edit_form', array('node' => NID));
+    $url = Url::fromUserInput(
+      '/proc/add/1', 
+      [
+        'query' => ['proc_standalone_mode' => 'FALSE'],
+        'attributes' => [
+          'class' => ['use-ajax'],
+          'data-dialog-type' => 'dialog',
+          'id' => 'proc-dialog-encrypt',
+          'onclick' => 'alert();',
+        ]
+      ]
+    );
+    ksm($url);
+
+    $link = [
+      '#title' => $this->t('Encrypt'),
+      '#type' => 'link',
+      '#url' => $url,
+      '#attributes' => [
+        'class' => ['button']
+      ]
+    ];
+
+    ksm($link);
+    // ksm(render($url));
+
+
+
+    $encryption_link = Link::fromTextAndUrl(t('Encrypt'), $url);
+    $encryption_link = $encryption_link->toRenderable();
+    // // If you need some attributes.
+    // $encryption_link['#attributes'] = array('class' => array('button', 'button-action', 'button--primary', 'button--small'));
+    // print render($project_link);
+
+
     $element['#attached']['library'][] = 'proc/proc-field';
     $element['#attached']['drupalSettings']['proc']['proc_labels'] = ['test1', 'test2'];
     $element['#attached']['drupalSettings']['proc']['proc_data'] = ['test1', 'test2'];
-    $element['#description'] = $element['#description'] . "<p><a class='use-ajax' id='proc-dialog-encrypt' data-dialog-type='dialog' href='./../../proc/add/1?proc_standalone_mode=FALSE'><div class='button'>" . $this->t('Encrypt') . "</div></a>";
-    
+
+
+    $element['#description'] = $element['#description'] . 
+        "<p>
+        <a 
+          class='use-ajax' 
+          test='test'
+          id='proc-dialog-encrypt'
+          data-dialog-type='dialog' 
+          onclick='alert();' 
+          href='./../../proc/add/1?proc_standalone_mode=FALSE'
+        >
+          <div class='button'>Encrypt</div>
+        </a>";
+
     // If there is a default value, add also the Decrypt button:
     if ($element['#default_value']) {
       $proc_id = $element['#default_value']->get('id')->getValue()[0]['value'];
@@ -83,6 +135,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     else {
       $element['#description'] = $element['#description'] . '</p>';
     }
+    $element['#description'] = $link;
 
     return ['target_id' => $element];
   }

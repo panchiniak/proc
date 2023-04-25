@@ -107,7 +107,7 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   
   if ($destination) {
     $form['#action'] = base_path() . $destination;
-  }  
+  }
 }
 
 /**
@@ -400,10 +400,15 @@ function proc_theme($existing, $type, $theme, $path) {
 
 function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
 
+  // ksm('here');
   // Add a css class to widget form elements for all fields of type my_type.
   $field_definition = $context['items']->getFieldDefinition();
   
-  if ($field_definition->getType() == 'proc_entity_reference_field') {    
+
+  if ($field_definition->getType() == 'proc_entity_reference_field') {   
+    ksm($element); 
+    // $element['target_id']['#description'] = "<p><a class='use-ajax' id='proc-dialog-encrypt' data-dialog-type='dialog' onclick='alert();' href='./../../proc/add/1?proc_standalone_mode=FALSE'><div class='button'>Encrypt Test</div></a>";
+    // ksm($field_definition);
     // $element['target_id']['#description'] = 'Encrypt';
 
     // $element['#attached']['library'][] = 'proc/proc-field';
@@ -462,3 +467,7 @@ function proc_form_field_storage_config_edit_form_alter(&$form, \Drupal\Core\For
 
 function proc_form_field_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 }
+
+// function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
+//   ksm('here');
+// }
