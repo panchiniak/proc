@@ -406,31 +406,6 @@ function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Co
   
 
   if ($field_definition->getType() == 'proc_entity_reference_field') {   
-    ksm($element); 
-    // $element['target_id']['#description'] = "<p><a class='use-ajax' id='proc-dialog-encrypt' data-dialog-type='dialog' onclick='alert();' href='./../../proc/add/1?proc_standalone_mode=FALSE'><div class='button'>Encrypt Test</div></a>";
-    // ksm($field_definition);
-    // $element['target_id']['#description'] = 'Encrypt';
-
-    // $element['#attached']['library'][] = 'proc/proc-field';
-    // $element['#attached']['drupalSettings']['proc']['proc_labels'] = ['test1', 'test2'];
-    // $element['#attached']['drupalSettings']['proc']['proc_data'] = ['test1', 'test2'];
-
-    // $element['#attached'] = [
-    //   'library' => [
-    //     0 => 'proc/field',
-    //   ],
-    //   'drupalSettings' => [
-    //     'proc' => [
-    //       'proc_labels' => 'test',
-    //       'proc_data'   => 'test',
-    //     ]
-    //   ],
-    // ];
-
-    // $element['target_id']['#description']['#class'] = ['button'];
-    // $element['target_id']['#description']['attributes']->setAttribute('class', 'button');
-    // Be sure not to overwrite existing attributes.
-    // $element['#attributes']['class'][] = 'my-class';
   }
 }
 

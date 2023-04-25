@@ -30,15 +30,14 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $entity = $items->getEntity();
+    // Will be used for default values.
     $referenced_entities = $items->referencedEntities();
-
     // Append the match operation to the selection settings.
     $selection_settings = $this->getFieldSetting('handler_settings') + [
       'match_operator' => $this->getSetting('match_operator'),
       'match_limit' => $this->getSetting('match_limit'),
     ];
-    
-    
+    // Add extra javascript library.
     $library = [
       'library' => [
         0 => 'proc/field'
@@ -46,19 +45,10 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     ];
 
     $element += [
-      // @todo: create a form element called proc_entity_autocomplete
       '#type' => 'entity_autocomplete',
-      // '#type' => 'autocomplete_flexible',
-      // '#autocomplete_route_parameters' => [
-      //   'target_type' => $this->getFieldSetting('target_type'),
-      //   'selection_handler' => $this->getFieldSetting('handler'),
-      //   'selection_settings_key' => Crypt::hmacBase64($data, Settings::getHashSalt())
-      // ],
       '#target_type' => $this->getFieldSetting('target_type'),
       '#selection_handler' => $this->getFieldSetting('handler'),
       '#selection_settings' => $selection_settings,
-      // Entity reference field items are handling validation themselves via
-      // the 'ValidReference' constraint.
       '#validate_reference' => FALSE,
       '#maxlength' => 1024,
       '#default_value' => $referenced_entities[$delta] ?? NULL,
@@ -73,34 +63,60 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       ];
     }
 
-    // $url = Url::fromRoute('entity.node.edit_form', array('node' => NID));
+    // Recipients field name:
+    $recipients_field_name = 'field_to_private_message';
+
+    $direct_fetcher_js = '
+      let recipients_colection = document.querySelectorAll("input[name^=\'' . $recipients_field_name . '\']");
+      
+      let recipients = [];
+      let recipients_length = recipients_colection.length - 1;
+      console.log(recipients_length);
+      if (recipients_length > 0) {
+        recipients_colection.forEach(function (recipient, index) {
+          if (index < recipients_length) {
+            if (recipient.value) {
+              let id_parenthesis = recipient.value.match(/\(\d+\)/)[0];
+              recipients.push(id_parenthesis.substring(1, id_parenthesis.length - 1));
+            }
+          }
+        });
+      }
+      let proc_path_prefix_add = window.location.origin + "/proclab/web" + "/proc/add";
+      let ids_csv = recipients.join();
+      let proc_path_sufix_standalone_mode_query_string = "?proc_standalone_mode=FALSE";
+      let proc_path = proc_path_prefix_add + "/" + ids_csv + proc_path_sufix_standalone_mode_query_string;
+      jQuery(this).attr("href", "");
+      //this.href = "";
+      jQuery(this).attr("href", proc_path);
+      // jQuery(this).attr("class", "use-ajax");
+      // jQuery(this).attr("data-dialog-type", "dialog");
+
+
+    ';
+
     $url = Url::fromUserInput(
-      '/proc/add/1', 
+      '#', 
       [
-        'query' => ['proc_standalone_mode' => 'FALSE'],
+        // 'query' => ['proc_standalone_mode' => 'FALSE'],
         'attributes' => [
           'class' => ['use-ajax'],
           'data-dialog-type' => 'dialog',
           'id' => 'proc-dialog-encrypt',
-          'onclick' => 'alert();',
+          'onclick' => $direct_fetcher_js,
         ]
       ]
     );
-    ksm($url);
 
     $link = [
       '#title' => $this->t('Encrypt'),
       '#type' => 'link',
       '#url' => $url,
       '#attributes' => [
-        'class' => ['button']
+        'class' => ['button', 'use-ajax'],
+        'data-dialog-type' => 'dialog',
       ]
     ];
-
-    ksm($link);
-    // ksm(render($url));
-
-
 
     $encryption_link = Link::fromTextAndUrl(t('Encrypt'), $url);
     $encryption_link = $encryption_link->toRenderable();
@@ -112,20 +128,6 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $element['#attached']['library'][] = 'proc/proc-field';
     $element['#attached']['drupalSettings']['proc']['proc_labels'] = ['test1', 'test2'];
     $element['#attached']['drupalSettings']['proc']['proc_data'] = ['test1', 'test2'];
-
-
-    $element['#description'] = $element['#description'] . 
-        "<p>
-        <a 
-          class='use-ajax' 
-          test='test'
-          id='proc-dialog-encrypt'
-          data-dialog-type='dialog' 
-          onclick='alert();' 
-          href='./../../proc/add/1?proc_standalone_mode=FALSE'
-        >
-          <div class='button'>Encrypt</div>
-        </a>";
 
     // If there is a default value, add also the Decrypt button:
     if ($element['#default_value']) {
