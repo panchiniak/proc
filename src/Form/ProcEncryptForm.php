@@ -50,7 +50,7 @@ class ProcEncryptForm extends FormBase {
       $form[$hidden_field] = ['#type' => 'hidden'];
     }
 
-    $form['file'] = [
+    $form['proc-file'] = [
 			'#type' => 'file',
 			'#description' => $this->t('Select a file for encryption.'),
     ];
@@ -72,7 +72,7 @@ class ProcEncryptForm extends FormBase {
         ] 
       ];
 
-      $form['submit'] = [
+      $form['submit-proc'] = [
         '#type' => 'submit',
         '#value' => $this->t('Submit'),
         '#ajax' => [
@@ -88,7 +88,7 @@ class ProcEncryptForm extends FormBase {
         ] 
       ];
 
-      $form['actions']['submit'] = [
+      $form['actions']['submit-proc'] = [
         '#type' => 'submit',
         '#value' => $this->t('Submit'),
       ];

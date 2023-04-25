@@ -1,19 +1,18 @@
 /**
  * @file
- * Protected Content key generation.
+ * Protected Content encryption.
  */
 (async function ($, Drupal, once) {
   'use strict';
   Drupal.behaviors.ProcBehavior = {
     attach: async function (context, settings) {
-      once('proc-encrypt', 'html', context)
-        .forEach(async function (element) {
 
-          $('#edit-submit').on(
+      $(once('proc-encrypt', 'body')).on(
+        'click', async function (element) {
+          
+          $('[id^=edit-submit-proc]').on(
             'click', async function (e) {
                 e.preventDefault();
-                console.log('submit was clicked');
-                console.log(drupalSettings.proc_standalone_mode);
                 // If proc_standalone_mode is not false:
                 if (drupalSettings.proc_standalone_mode !== 'false') {
                   $('#proc-encrypt-form').submit();
@@ -22,15 +21,17 @@
           );  
 
           const messages = new Drupal.Message();
+
           if (!(window.FileReader)) {
             messages.add(drupalSettings.proc_labels.proc_fileapi_err_msg, {
               type: 'error'
             });
           }
-          if (document.getElementById('edit-submit')) {
-            document.getElementById('edit-submit')
+          if (document.querySelector('[id^="edit-submit-proc"]')) {
+            document.querySelector('[id^="edit-submit-proc"]')
               .disabled = "TRUE";
           }
+
           async function handleFileSelect(evt) {
             let procJsLabels = drupalSettings.proc_labels,
               procData = drupalSettings.proc_data,
@@ -43,9 +44,11 @@
               // their plaintexts:
               dynamicMaximumSize = postMaxSizeBytesInt / 4;
 
-            $('#edit-file--description')[0].innerText = `${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit}
-          ${procJsLabels.proc_type} ${files[0].type}
-          ${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
+          //   $('#edit-file--description')[0].innerText = `${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit}
+          // ${procJsLabels.proc_type} ${files[0].type}
+          // ${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
+
+
             let realMaxSize = dynamicMaximumSize;
             if (fileSize > dynamicMaximumSize || fileSize > fileEntityMaxSize) {
               if (fileEntityMaxSize < dynamicMaximumSize) {
@@ -120,7 +123,7 @@
                   binary: array
                 });
                 
-                document.getElementById('edit-submit').value = procJsLabels.proc_button_state_processing;
+                document.querySelector('[id^="edit-submit-proc"]').value = procJsLabels.proc_button_state_processing;
                 
                 const encrypted = await openpgp.encrypt({
                   encryptionKeys: publicKeys,
@@ -142,17 +145,19 @@
                 $('input[name=generation_timestamp]')[0].value = startSeconds;
                 $('input[name=generation_timespan]')[0].value = total;
                 $('input[name=signed]')[0].value = 0;
-                document.getElementById('edit-submit')
+                document.querySelector('[id^="edit-submit-proc"]')
                   .removeAttribute("disabled");
-                document.getElementById('edit-submit').value = procJsLabels.proc_save_button_label;
+                document.querySelector('[id^="edit-submit-proc"]').value = procJsLabels.proc_save_button_label;
               }
             };
           }
-          if (document.getElementById('edit-file')) {
-            document.getElementById('edit-file')
+
+          if (document.querySelector('[id^="edit-proc-file"]')) {
+            document.querySelector('[id^="edit-proc-file"]')
               .addEventListener('change', handleFileSelect, false);
           }
-        });
+        }
+      );
     }
   };
 })(jQuery, Drupal, once);
