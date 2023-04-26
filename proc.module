@@ -405,17 +405,21 @@ function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Co
   $field_definition = $context['items']->getFieldDefinition();
   
 
-  if ($field_definition->getType() == 'proc_entity_reference_field') {   
+  if ($field_definition->getType() == 'proc_entity_reference_field') {  
+    // ksm('bla');
+    // ksm($element);
+    // var_dump($context);
+
   }
 }
 
-// function hook_field_widget_single_element_proc_entity_reference_field_form_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
-
-//   // Code here will only act on widgets of type WIDGET_TYPE.  For example,
-//   // hook_field_widget_single_element_mymodule_autocomplete_form_alter() will
-//   // only act on widgets of type 'mymodule_autocomplete'.
-//   // $element['#autocomplete_route_name'] = 'mymodule.autocomplete_route';
-// }
+function hook_field_widget_single_element_proc_entity_reference_field_form_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
+  // ksm('here');
+  // Code here will only act on widgets of type WIDGET_TYPE.  For example,
+  // hook_field_widget_single_element_mymodule_autocomplete_form_alter() will
+  // only act on widgets of type 'mymodule_autocomplete'.
+  // $element['#autocomplete_route_name'] = 'mymodule.autocomplete_route';
+}
 
 /**
  * Implements hook_library_info_build().
@@ -442,7 +446,3 @@ function proc_form_field_storage_config_edit_form_alter(&$form, \Drupal\Core\For
 
 function proc_form_field_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 }
-
-// function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
-//   ksm('here');
-// }

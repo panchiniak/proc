@@ -10,9 +10,7 @@ use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget
 use Drupal\proc\Entity\Element\ProcEntityAutocomplete;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Url;
-use Drupal\Core\Link;
-
-// use Drupal\proc\Plugin\Field\FieldWidget\Settings;
+use Drupal\Core\Link;;
 
 /**
  * Defines the 'proc_entity_reference_widget' field widget.
@@ -29,7 +27,12 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    
     $entity = $items->getEntity();
+    // @todo: load the direct fetcher by field field name 
+    // from proc entity reference field settings.    
+    $proc_field_name = $items->getName();
+
     // Will be used for default values.
     $referenced_entities = $items->referencedEntities();
     // Append the match operation to the selection settings.
@@ -64,14 +67,13 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     }
 
     // Recipients field name:
+    // @todo: allow this to be changed:
     $recipients_field_name = 'field_to_private_message';
 
     $direct_fetcher_js = '
-      let recipients_colection = document.querySelectorAll("input[name^=\'' . $recipients_field_name . '\']");
-      
+      let recipients_colection = document.querySelectorAll("input[name^=\'' . $recipients_field_name . '\']");      
       let recipients = [];
       let recipients_length = recipients_colection.length - 1;
-      console.log(recipients_length);
       if (recipients_length > 0) {
         recipients_colection.forEach(function (recipient, index) {
           if (index < recipients_length) {
@@ -84,25 +86,30 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       }
       let proc_path_prefix_add = window.location.origin + "/proclab/web" + "/proc/add";
       let ids_csv = recipients.join();
-      let proc_path_sufix_standalone_mode_query_string = "?proc_standalone_mode=FALSE";
-      let proc_path = proc_path_prefix_add + "/" + ids_csv + proc_path_sufix_standalone_mode_query_string;
-      jQuery(this).attr("href", "");
-      //this.href = "";
-      jQuery(this).attr("href", proc_path);
-      // jQuery(this).attr("class", "use-ajax");
-      // jQuery(this).attr("data-dialog-type", "dialog");
-
-
+      console.log(jQuery(this).parent());
+      let parent_selector = jQuery(this).parent();
+      let parent_id = parent_selector[0].getAttribute("id").slice(0, -13);
+      
+      let proc_path_sufix = "?proc_standalone_mode=FALSE&proc_parent_id=" + parent_id + "&proc_field_name=' . $proc_field_name . '";
+      let proc_path = proc_path_prefix_add + "/" + ids_csv + proc_path_sufix;
+      jQuery(this).attr("href", "#");
+      
+      let ajaxSettings = {
+        url: proc_path,
+        dialogType: "dialog",
+        dialog: { width: 400 },
+      };
+      let myAjaxObject = Drupal.ajax(ajaxSettings);
+      myAjaxObject.execute();
+      return false;
     ';
 
     $url = Url::fromUserInput(
+      // URL with recipients IDs will be defined
+      // by the direct fetcher.
       '#', 
       [
-        // 'query' => ['proc_standalone_mode' => 'FALSE'],
         'attributes' => [
-          'class' => ['use-ajax'],
-          'data-dialog-type' => 'dialog',
-          'id' => 'proc-dialog-encrypt',
           'onclick' => $direct_fetcher_js,
         ]
       ]
@@ -113,31 +120,55 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       '#type' => 'link',
       '#url' => $url,
       '#attributes' => [
-        'class' => ['button', 'use-ajax'],
-        'data-dialog-type' => 'dialog',
+        'class' => ['button'],
       ]
     ];
 
-    $encryption_link = Link::fromTextAndUrl(t('Encrypt'), $url);
-    $encryption_link = $encryption_link->toRenderable();
-    // // If you need some attributes.
-    // $encryption_link['#attributes'] = array('class' => array('button', 'button-action', 'button--primary', 'button--small'));
-    // print render($project_link);
-
+    // $encryption_link = Link::fromTextAndUrl(t('Encrypt'), $url);
+    // $encryption_link = $encryption_link->toRenderable();
 
     $element['#attached']['library'][] = 'proc/proc-field';
     $element['#attached']['drupalSettings']['proc']['proc_labels'] = ['test1', 'test2'];
     $element['#attached']['drupalSettings']['proc']['proc_data'] = ['test1', 'test2'];
 
+    // $element['#description'] = $link;
+    $decryption_link = [];
+
     // If there is a default value, add also the Decrypt button:
     if ($element['#default_value']) {
       $proc_id = $element['#default_value']->get('id')->getValue()[0]['value'];
-      $element['#description'] = $element['#description'] . "<a class='use-ajax' data-dialog-type='modal' href='./../../proc/" . $proc_id . "'><div class='button'>" . $this->t('Decrypt') . "</div></a></p>";
+
+      $decryption_url = Url::fromUserInput(
+        '/proc/' . $proc_id, 
+        [
+          'attributes' => [
+            'class' => ['button'],
+            // 'class' => ['use-ajax', 'button'],
+            // 'data-dialog-type' => 'dialog',
+          ]
+        ]
+      );
+
+      // ksm($decryption_url);
+
+      $decryption_link = Link::fromTextAndUrl(t('Decrypt'), $decryption_url); 
+      $decryption_link = $decryption_link->toRenderable();
+
+
+      // $element['#description'] = $element['#description'] . "<a class='use-ajax' data-dialog-type='modal' href='./../../proc/" . $proc_id . "'><div class='button'>" . $this->t('Decrypt') . "</div></a></p>";
     }
-    else {
-      $element['#description'] = $element['#description'] . '</p>';
-    }
-    $element['#description'] = $link;
+    // else {
+    //   $element['#description'] = $element['#description'] . '</p>';
+    // }
+
+    $encryption_button = [
+      '#type' => 'button',
+      '#value' => $this
+        ->t('Encrypt'),
+    ];
+
+    $element['#description'] = [$link, $decryption_link];
+    // $element['#description'] = $encryption_button;
 
     return ['target_id' => $element];
   }

@@ -50,16 +50,18 @@ class ProcEncryptForm extends FormBase {
       $form[$hidden_field] = ['#type' => 'hidden'];
     }
 
+    // Get query string:
+    $query = \Drupal::request()->query->all();
+
+
     $form['proc-file'] = [
 			'#type' => 'file',
 			'#description' => $this->t('Select a file for encryption.'),
+      'data' => $query,
     ];
 
     // Get current URL. If it has a query string standalone=FALSE, then we 
     // do not use ajax submit.
-    
-    // Get query string:
-    $query = \Drupal::request()->query->all();
     $proc_standalone_mode = FALSE;
     if (isset($query['proc_standalone_mode'])) {
       $proc_standalone_mode = $query['proc_standalone_mode'];
@@ -100,6 +102,7 @@ class ProcEncryptForm extends FormBase {
    * Submit handler for the ajax submit.
    */
   public function submitFormAjax(array &$form, FormStateInterface $form_state) {
+
     $response = new AjaxResponse();
     // Selector for the dialog close button.
     $selector = '.ui-dialog-titlebar-close';
@@ -116,23 +119,14 @@ class ProcEncryptForm extends FormBase {
     $query->range(0, 1);
     $entity_ids = $query->execute();
     $proc_id = array_shift($entity_ids);
-    // ksm($proc_id);
-      // ksm($proc_id);
-
 
     $file_name .= ' (' . $proc_id . ')';
 
-    // Add an InvokeCommand object to the AjaxResponse object.
-    $selector = '#edit-field-proc-attachment-0-target-id';
-    // $response->addCommand(new InvokeCommand($selector, 'val', [$file_name . ' (' . $proc_id . ')']));
+    // Set the file name in the form:
+    // ksm($form['proc-file']['data']['proc_parent_id']);
+    $selector = '#' . $form_state->getCompleteForm()['proc-file']['data']['proc_parent_id'];
+
     $response->addCommand(new InvokeCommand($selector, 'val', [$file_name]));
-
-
-    // Populate entity reference field in form with JavaScript:
-    // https://www.drupal.org/node/2406845
-
-
-    // $response->addCommand(new CloseModalDialogCommand($selector, $persist));
 
 
     return $response;

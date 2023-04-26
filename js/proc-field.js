@@ -1,6 +1,6 @@
 /**
  * @file
- * Decrypts cipher texts into a file given a correct privkey passphrase.
+ * Helper for entity reference proc field.
  */
 (function ($, Drupal, once) {
   'use strict';
@@ -8,7 +8,7 @@
     attach: function (context, settings) {
       once('proc-decrypt', 'html', context)
         .forEach(function (element) {
-          console.log('-----bla----------');
+
         });
     }
   };
