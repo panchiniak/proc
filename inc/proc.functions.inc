@@ -8,7 +8,7 @@
 /**
  * Helper function for defining labels used in JS.
  */
-function _proc_js_labels() {
+function _proc_js_labels(): array {
   return [
     'proc_fileapi_err_msg'            => t('Your browser does not support file API.'),
     'proc_button_state_processing'    => t('Processing...'),
@@ -38,13 +38,13 @@ function _proc_js_labels() {
 /**
  * Helper common to get proc decryption form data.
  *
- * @param string $privkey
+ * @param string|null $privkey
  *   Current user encrypted privkey.
  *
  * @return array
  *   Array containing proc form data.
  */
-function _proc_common_get_decryption_form_data($privkey = NULL) {
+function _proc_common_get_decryption_form_data(string $privkey = NULL): array {
   $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
   $user_uid = $user->id();
   $hash = \Drupal\Core\Site\Settings::getHashSalt();
@@ -105,13 +105,13 @@ function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
   $keyring = _proc_get_keys($user_id, 'uid');
 
   $privkey = $keyring['encrypted_private_key'];
-  $pubkey  = $keyring['public_key'];  
-  
+  $pubkey  = $keyring['public_key'];
+
   $cid_cipher = [];
   foreach($cids as $cid) {
     $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
   }
-  
+
   return [
     'privkey'     => $privkey,
     'keyring_cid' => $keyring['keyring_cid'],
@@ -136,7 +136,7 @@ function _proc_get_keys(string $item_id, string $type = NULL) {
   if (!isset($type)) {
     $type = 'uid';
   }
-  
+
   $query = \Drupal::entityQuery('proc')
     ->accessCheck(TRUE)
     ->condition('type', 'keyring')
@@ -144,7 +144,7 @@ function _proc_get_keys(string $item_id, string $type = NULL) {
     ->condition('user_id', $item_id)
     ->sort('id' , 'DESC')
     ->range(0, 1);
-    
+
   $key_id = $query->execute();
   $key_id = array_values($key_id)[0];
   $entity = \Drupal::entityTypeManager()->getStorage('proc')->load($key_id);
@@ -188,14 +188,14 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
       $file = $storage->load($entity->get('armored')->getValue()[0]['cipher_fid']);
       $cipher_text_data['cipher_text'] = file_get_contents($file->getFileUri());
     }
-    
+
     // Database storage:
     if ($entity->get('armored')->getValue()[0]['cipher']) {
       $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
     }
 
     // @todo: use cache first policy also for the update operation
-    // If cipher_fid key is an array, there are multiple files for the 
+    // If cipher_fid key is an array, there are multiple files for the
     // storage of the cipher:
     if (isset($entity->get('armored')->getValue()[0]['cipher_fid']) && is_array($entity->get('armored')->getValue()[0]['cipher_fid'])) {
       // Concatenate the pieces of the cipher in a single variable:
@@ -212,9 +212,9 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
   if (in_array($user_id, $recipient_id) || $metadata_only == TRUE) {
     $meta = $entity->get('meta')->getValue()[0];
     if (isset($meta['input_mode_source'])) {
-      $cipher_text_data['source_input_mode'] = \Drupal\Component\Utility\Html::escape($meta['input_mode_source']); 
+      $cipher_text_data['source_input_mode'] = \Drupal\Component\Utility\Html::escape($meta['input_mode_source']);
     }
-    $cipher_text_data['source_file_name']   = \Drupal\Component\Utility\Html::escape($meta['source_file_name']); 
+    $cipher_text_data['source_file_name']   = \Drupal\Component\Utility\Html::escape($meta['source_file_name']);
     $cipher_text_data['source_file_size']   = \Drupal\Component\Utility\Html::escape($meta['source_file_size']);
     $cipher_text_data['cipher_cid']         = $cid;
     $cipher_text_data['proc_owner_uid']     = $entity->get('user_id')->getValue()[0]['target_id'];

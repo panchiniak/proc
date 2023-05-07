@@ -7,8 +7,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Datetime\Entity\DateFormat;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Render\Element\RenderElement;
-use Drupal\Core\Entity\Element\EntityAutocomplete;
 
 /**
  * Provides a custom form element.
@@ -46,8 +44,8 @@ class ProcElement extends Element\FormElement {
       '#step' => 60 * 15,
     ];
   }
-  
-  
+
+
   public static function processTime(&$element, FormStateInterface $form_state, &$complete_form) {
     $element['time'] = [
       '#name' => $element['#name'],
@@ -59,10 +57,10 @@ class ProcElement extends Element\FormElement {
       '#size' => 12,
       '#error_no_message' => TRUE,
     ];
-  
+
     return $element;
-  }  
-  
+  }
+
   public static function preRenderTime($element) {
     $element['#attributes']['type'] = 'time';
     Element::setAttributes($element, ['id', 'name', 'value', 'size', 'step']);
@@ -77,7 +75,7 @@ class ProcElement extends Element\FormElement {
     if ($input !== FALSE) {
       $format = isset($element['#time_format']) && $element['#time_format'] ? $element['#time_format'] : 'html_time';
       $time_format =  DateFormat::load($format)->getPattern();
-  
+
       try {
         DrupalDateTime::createFromFormat($time_format, $input, NULL);
       }
@@ -98,12 +96,12 @@ class ProcElement extends Element\FormElement {
     $title = !empty($element['#title']) ? $element['#title'] : '';
     $input_exists = FALSE;
     $input = NestedArray::getValue($form_state->getValues(), $element['#parents'], $input_exists);
-  
+
     if ($input_exists) {
       if (empty($input) && !$element['#required']) {
         $form_state->setValueForElement($element, NULL);
       }
-  
+
       elseif (empty($input) && $element['#required']) {
         $form_state->setError($element, t('The %field is required. Please enter time in the format %format.', ['%field' => $title, '%format' => $time_format]));
       }
@@ -120,8 +118,8 @@ class ProcElement extends Element\FormElement {
   }
 
 
-  
-  
+
+
 }
 
 
