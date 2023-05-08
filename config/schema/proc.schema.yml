@@ -9,11 +9,31 @@ proc.settings:
 
 field.field_settings.proc_entity_reference_field:
   type: mapping
-  label: Proc Entity Reference Field settings
   mapping:
-    bar:
+    handler:
       type: string
-      label: Bar
+      label: 'Reference method'
+    handler_settings:
+      type: entity_reference_selection.[%parent.handler]
+      label: 'File selection handler settings'
+    proc_field_recipients_fetcher_endpoint:
+      type: string
+      label: 'Recipients fetcher endpoint'
+    proc_field_recipients_manual_fetcher:
+      type: string
+      label: 'Manual fetcher'
+    proc_field_recipients_to_field:
+      type: string
+      label: 'Recipients to field'
+    proc_field_recipients_cc_field:
+      type: string
+      label: 'Recipients cc field'
+    proc_field_mode:
+      type: integer
+      label: 'Mode'
+    proc_field_input_mode:
+      type: integer
+      label: 'Input mode'
 
 field.value.proc_entity_reference_field:
   type: mapping
@@ -34,7 +54,7 @@ field.widget.settings.proc_entity_reference_widget:
       type: integer
       label: 'Size'
 
-base_proc_entity_reference_field_field_field_settings:
+base_proc_entity_reference_field_field_settings:
   type: mapping
   mapping:
     handler:
@@ -48,7 +68,7 @@ base_proc_entity_reference_field_field_field_settings:
       label: 'Manual fetcher'
 
 field.field_settings.proc:
-  type: base_proc_entity_reference_field_field_field_settings
+  type: base_proc_entity_reference_field_field_settings
   label: 'Proc File settings'
   mapping:
     description_field:

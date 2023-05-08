@@ -2,12 +2,21 @@
 
 namespace Drupal\proc\Plugin\Field\FieldType;
 
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
+use Drupal\Component\Utility\Bytes;
+use Drupal\Component\Render\PlainTextOutput;
+use Drupal\Component\Utility\Environment;
+use Drupal\Component\Utility\Random;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\TypedData\DataDefinition;
 
 /**
- * Defines the 'proc_entity_reference_field' field type.
+ * Plugin implementation of the 'proc_entity_reference_field' field type.
  *
  * @FieldType(
  *   id = "proc_entity_reference_field",
@@ -69,42 +78,42 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
    * {@inheritdoc}
    */
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
-    $element = [];
+    $form = parent::fieldSettingsForm($form, $form_state);
     $settings = $this->getSettings();
 
 
-    $element['proc'] = [
+    $form['handler']['handler_settings']['proc'] = [
       '#type' => 'details',
       '#title' => t('Protected Content Settings for this field'),
       '#open' => TRUE,
     ];
 
-    $element['proc']['proc_field_recipients_fetcher_endpoint'] = [
+    $form['handler']['handler_settings']['proc']['proc_field_recipients_fetcher_endpoint'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Endpoint for fetching user IDs of recipients'),
       '#description' => $this->t('Leave it empty for direct fetcher'),
-      '#default_value' => $settings['proc_field_recipients_fetcher_endpoint'],
+      '#default_value' => $settings['proc_field_recipients_fetcher_endpoint'] ?? '',
     ];
 
-    $element['proc']['proc_field_recipients_manual_fetcher'] = [
+    $form['handler']['handler_settings']['proc']['proc_field_recipients_manual_fetcher'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Define the user IDs of recipients in a CSV list'),
       '#default_value' => $this->getSetting('proc_field_recipients_manual_fetcher'),
     ];
 
-    $element['proc']['proc_field_recipients_to_field'] = [
+    $form['handler']['handler_settings']['proc']['proc_field_recipients_to_field'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Machine name of the field containing the user IDs of recipients'),
       '#default_value' => $this->getSetting('proc_field_recipients_manual_fetcher'),
     ];
 
-    $element['proc']['proc_field_recipients_cc_field'] = [
+    $form['handler']['handler_settings']['proc']['proc_field_recipients_cc_field'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Machine name of the field containing the user IDs of CC recipients'),
       '#default_value' => $this->getSetting('proc_field_recipients_manual_fetcher'),
     ];
 
-    $element['proc']['proc_field_mode'] = [
+    $form['handler']['handler_settings']['proc']['proc_field_mode'] = [
       '#type' => 'radios',
       '#title' => $this->t('Modes of operation'),
       '#default_value' => $this->getSetting('proc_field_mode'),
@@ -115,7 +124,7 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
       ],
     ];
 
-    $element['proc']['proc_field_input_mode'] = [
+    $form['handler']['handler_settings']['proc']['proc_field_input_mode'] = [
       '#type' => 'radios',
       '#title' => $this->t('Modes of input'),
       '#default_value' => $this->getSetting('proc_field_input_mode'),
@@ -126,7 +135,27 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
       ],
     ];
 
-    return $element;
+    return $form;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
+    // Define properties for the field type.
+    $properties = parent::propertyDefinitions($field_definition);
+    return $properties;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitSettingsForm(array &$form, FormStateInterface $form_state) {
+    parent::submitSettingsForm($form, $form_state);
+
+    $values = $form_state->getValue($form['#parents']);
+    $this->setSetting('proc_field_recipients_fetcher_endpoint', $values['proc_field_recipients_fetcher_endpoint']);
+  }
+
 
 }

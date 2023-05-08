@@ -4,7 +4,21 @@
  * Primary module hooks for Protected Content module.
  */
 
+use Drupal\Core\Routing\RouteMatchInterface;
+
 require_once 'inc/proc.functions.inc';
+
+/**
+ * Implements hook_help().
+ */
+function proc_help($route_name, RouteMatchInterface $route_match) {
+  if ($route_name == 'help.page.proc') {
+    $output = '<h3>' . t('About') . '</h3>';
+    $output .= '<p>' . t('The Protected Content module allows you to create RSA keys, encrypt and decrypt content.') . '</p>';
+    return $output;
+  }
+}
+
 
  /**
  * Implements hook_form_alter().

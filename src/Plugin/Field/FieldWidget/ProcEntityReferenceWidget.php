@@ -3,14 +3,21 @@
 namespace Drupal\proc\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Field\Plugin\Field\FieldWidget;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
-use Drupal\proc\Entity\Element\ProcEntityAutocomplete;
-use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Url;
 use Drupal\Core\Link;;
+use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\Field\WidgetBase;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Render\ElementInfoManagerInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\file\Element\ManagedFile;
+use Drupal\file\Entity\File;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * Defines the 'proc_entity_reference_widget' field widget.
@@ -18,7 +25,9 @@ use Drupal\Core\Link;;
  * @FieldWidget(
  *   id = "proc_entity_reference_widget",
  *   label = @Translation("Proc Entity Reference Field Widget"),
- *   field_types = {"proc_entity_reference_field"},
+ *   field_types = {
+ *     "proc_entity_reference_field"
+ *   },
  * )
  */
 class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
@@ -27,10 +36,10 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    
+
     $entity = $items->getEntity();
-    // @todo: load the direct fetcher by field field name 
-    // from proc entity reference field settings.    
+    // @todo: load the direct fetcher by field field name
+    // from proc entity reference field settings.
     $proc_field_name = $items->getName();
 
     // Will be used for default values.
@@ -71,7 +80,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $recipients_field_name = 'field_to_private_message';
 
     $direct_fetcher_js = '
-      let recipients_colection = document.querySelectorAll("input[name^=\'' . $recipients_field_name . '\']");      
+      let recipients_colection = document.querySelectorAll("input[name^=\'' . $recipients_field_name . '\']");
       let recipients = [];
       let recipients_length = recipients_colection.length - 1;
       if (recipients_length > 0) {
@@ -89,11 +98,11 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       console.log(jQuery(this).parent());
       let parent_selector = jQuery(this).parent();
       let parent_id = parent_selector[0].getAttribute("id").slice(0, -13);
-      
+
       let proc_path_sufix = "?proc_standalone_mode=FALSE&proc_parent_id=" + parent_id + "&proc_field_name=' . $proc_field_name . '";
       let proc_path = proc_path_prefix_add + "/" + ids_csv + proc_path_sufix;
       jQuery(this).attr("href", "#");
-      
+
       let ajaxSettings = {
         url: proc_path,
         dialogType: "dialog",
@@ -107,7 +116,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $url = Url::fromUserInput(
       // URL with recipients IDs will be defined
       // by the direct fetcher.
-      '#', 
+      '#',
       [
         'attributes' => [
           'onclick' => $direct_fetcher_js,
@@ -139,7 +148,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       $proc_id = $element['#default_value']->get('id')->getValue()[0]['value'];
 
       $decryption_url = Url::fromUserInput(
-        '/proc/' . $proc_id, 
+        '/proc/' . $proc_id,
         [
           'attributes' => [
             'class' => ['button'],
@@ -151,7 +160,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
 
       // ksm($decryption_url);
 
-      $decryption_link = Link::fromTextAndUrl(t('Decrypt'), $decryption_url); 
+      $decryption_link = Link::fromTextAndUrl(t('Decrypt'), $decryption_url);
       $decryption_link = $decryption_link->toRenderable();
 
 
@@ -172,7 +181,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
 
     return ['target_id' => $element];
   }
-  
+
   /**
   * {@inheritdoc}
   */
