@@ -13,17 +13,13 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\proc\ProcInterface;
-use Drupal\user\EntityOwnerTrait;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\user\UserInterface;
-
-
 
 /**
  * Defines the Proc entity.
  *
  * @ingroup proc
- * 
+ *
  * @ContentEntityType(
  *   id = "proc",
  *   label = @Translation("Protected content"),
@@ -70,7 +66,7 @@ use Drupal\user\UserInterface;
  *   field_ui_base_route = "entity.proc.edit_form",
  *   bundle_entity_type = "proc_type"
  * )
- * 
+ *
  */
 class Proc extends ContentEntityBase implements ProcInterface {
   use EntityChangedTrait;
@@ -125,7 +121,7 @@ class Proc extends ContentEntityBase implements ProcInterface {
     return $this->get('armored')->target_id;
   }
 
-  
+
   /**
    * {@inheritdoc}
    *
@@ -239,12 +235,12 @@ class Proc extends ContentEntityBase implements ProcInterface {
       $fields['created'] = BaseFieldDefinition::create('created')
         ->setLabel(t('Created'))
         ->setDescription(t('The time that the entity was created.'));
-  
+
       $fields['changed'] = BaseFieldDefinition::create('changed')
         ->setLabel(t('Changed'))
         ->setDescription(t('The time that the entity was last edited.'))
         ->setDefaultValue('browser_figerprint');
-  
+
       $fields['armored'] = BaseFieldDefinition::create('map')
         ->setLabel(t('Armored'))
         ->setDescription(t('The armored value of the Proc entity.'))
@@ -261,7 +257,7 @@ class Proc extends ContentEntityBase implements ProcInterface {
         ])
         ->setDisplayConfigurable('form', TRUE)
         ->setDisplayConfigurable('view', TRUE);
-  
+
     // Owner field of the contact.
     // Entity reference field, holds the reference to the user object.
     // The view shows the user name field of the user.
