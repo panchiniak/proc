@@ -33,3 +33,24 @@ field.widget.settings.proc_entity_reference_widget:
     size:
       type: integer
       label: 'Size'
+
+base_proc_entity_reference_field_field_field_settings:
+  type: mapping
+  mapping:
+    handler:
+      type: string
+      label: 'Reference method'
+    handler_settings:
+      type: entity_reference_selection.[%parent.handler]
+      label: 'File selection handler settings'
+    proc_field_recipients_manual_fetcher:
+      type: string
+      label: 'Manual fetcher'
+
+field.field_settings.proc:
+  type: base_proc_entity_reference_field_field_field_settings
+  label: 'Proc File settings'
+  mapping:
+    description_field:
+      type: boolean
+      label: 'Enable Description field'

@@ -11,7 +11,7 @@ require_once 'inc/proc.functions.inc';
  */
 function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   $proc_data = _proc_common_get_decryption_form_data(NULL);
-  
+
   $config = \Drupal::config('proc.settings');
   $key_size = $config->get('proc-rsa-key-size');
 
@@ -35,7 +35,7 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
 /**
 * Implements hook_form_alter().
 */
-function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) { 
+function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
   $proc_data = _proc_common_get_decryption_form_data(NULL);
 
@@ -57,7 +57,7 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   $path_array = explode('/', $current_path);
   $selected_user_ids = explode(',', $path_array[3]);
 
-  // Given a user ID, get the creation date of its 
+  // Given a user ID, get the creation date of its
   // newwest encryption key.
   $proc_ids = [];
   foreach ($selected_user_ids as $user_id) {
@@ -75,7 +75,7 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
     // Get the creation data of the proc ID:
     $proc = \Drupal\proc\Entity\Proc::load($proc_id);
     if ($proc) {
-      $created[$user_id] = $proc->get('created')->getValue()[0]['value'];  
+      $created[$user_id] = $proc->get('created')->getValue()[0]['value'];
     }
     else {
       $created[1] = 1;
@@ -92,7 +92,7 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
     'basePath' => base_path(),
   ];
   $settings += $form['#attached']['drupalSettings']['proc'];
-  
+
   $form['#attached'] = [
     'library' => [
       0 => 'proc/openpgpjs',
@@ -104,7 +104,7 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   $current_path = substr($current_path, 1);
   $form_state->set('storage', $selected_user_ids);
   $form['#action'] = base_path() . $current_path;
-  
+
   if ($destination) {
     $form['#action'] = base_path() . $destination;
   }
@@ -156,16 +156,16 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   $path_array = explode('/', $current_path);
   $cipher_ids_csv = $path_array[2];
   $cids = _proc_get_csv_argument($cipher_ids_csv);
-  // Get 
+  // Get
   $ciphers_data = _proc_common_get_ciphers($cids, FALSE);
-  
+
   // Decryption requires a keyring:
   if (empty($ciphers_data['pubkey'])) {
     \Drupal\proc\Form\ProcDecryptForm::denyAccess();
   }
-  
+
   $common_data = _proc_common_get_decryption_form_data($ciphers_data['privkey']);
-  
+
   $ciphers_changed = [];
   $files_names = [];
   $files_sizes = [];
@@ -175,17 +175,17 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
     $files_sizes[] = $cipher_id_data['source_file_size'];
     // For diferenciating files from text areas:
     if (isset($cipher_id_data['source_input_mode'])) {
-      $sources_input_mode[] = $cipher_id_data['source_input_mode'];      
+      $sources_input_mode[] = $cipher_id_data['source_input_mode'];
     }
     else {
       $sources_input_mode[] = 0;
     }
     //$sources_signed[] = $cipher_id_data['signed'];
     $sources_signed[] = 0;
-    
+
   }
-  
-  
+
+
   $form['#attached'] = [
     'library' => [
       0 => 'proc/openpgpjs',
@@ -195,7 +195,7 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
       'proc' => [
         'proc_labels'              => _proc_js_labels(),
         'proc_pass'                => $common_data['proc_pass'],
-        // 'proc_data'                => $ciphers_data, 
+        // 'proc_data'                => $ciphers_data,
         'proc_privkey'             => $ciphers_data['privkey'],
         'proc_ids'                 => array_keys($ciphers_data['ciphers']),
         'procs_changed'            => $ciphers_changed,
@@ -235,7 +235,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
     $uids_csv = $csvs['uids_csv']['string'];
     $cids     = $csvs['cids_csv']['array'];
     $cids_csv = $csvs['cids_csv']['string'];
-  
+
     $ciphers_data = _proc_common_get_ciphers($cids);
 
     // Updating requires a keyring:
@@ -246,11 +246,11 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
     $privkey      = $ciphers_data['privkey'];
     $cid_cipher   = $ciphers_data['ciphers'];
     $form['pass'] = _proc_common_get_decryption_form_data(NULL)['proc_pass'];
-  
+
     // If some recipient is being removed of some content, allow update to proceed
     // only if current user is also the author of the content:
     $recipients = [];
-    
+
     foreach ($ciphers_data['ciphers'] as $cipher_data) {
       if ($cipher_data['proc_owner_uid'] != $user->uid) {
         // Current recipients:
@@ -265,43 +265,43 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
       //   'unalterable_recipient_uids' => $uids,
       // ];
       // drupal_alter('cipher_update_owner_check', $all_current_recipients, $context);
-  
+
       if (array_diff($all_current_recipients, $uids)) {
         \Drupal\proc\Form\ProcDecryptForm::denyAccess();
       }
     }
-  
+
     $pubkeys_data        = _proc_common_get_pubkeys($uids);
     $recipients_pubkeys  = $pubkeys_data['recipients_pubkeys'];
     $post_max_size_bytes = $pubkeys_data['post_max_size_bytes'];
-  
+
     $pubkeys = [];
     foreach ($recipients_pubkeys as $recipient_pubkey) {
-      $pubkeys[] = ['key' => $recipient_pubkey['key'], 'changed' => "0"]; 
+      $pubkeys[] = ['key' => $recipient_pubkey['key'], 'changed' => "0"];
     }
-    
-    
+
+
     $armored_ciphers = [];
     foreach ($cids as $cid) {
       $armored_ciphers[$cid] = _proc_get_cipher($cid, NULL, NULL, FALSE);
-      
+
     }
-    
-    
+
+
     $encryption_form_elements = [
       'proc_ciphers'             => $cid_cipher,
       'proc_ciphers_index'       => $cids,
       'proc_recipients_pubkeys'  => \Drupal\Component\Serialization\Json::encode($pubkeys),
       'proc_post_max_size_bytes' => $post_max_size_bytes,
     ];
-    
+
 
     $proc_data = _proc_common_get_decryption_form_data($privkey);
-    
-    
-    
+
+
+
     $proc_data = $proc_data + $encryption_form_elements;
-    
+
     $form['#attached'] = [
       'library' => [
         0 => 'proc/openpgpjs',
@@ -310,7 +310,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
       'drupalSettings' => [
         'proc' => [
           'proc_labels' => _proc_js_labels(),
-          'proc_data'   => $proc_data, 
+          'proc_data'   => $proc_data,
         ]
       ],
     ];
@@ -325,8 +325,8 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
       'source_file_type_cid_',
       'source_file_last_change_cid_',
     ];
-  
-  
+
+
     foreach ($cids as $cid) {
       foreach ($update_field_form_elemement_prefixes as $update_field_form_elemement_prefix) {
         $form[$update_field_form_elemement_prefix . $cid] = ['#type' => 'hidden'];
@@ -336,7 +336,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
   else {
     // Updating has already happened:
   }
- 
+
   // $form['#action'] = base_path() . $current_path;
 
 }
@@ -403,9 +403,9 @@ function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Co
   // ksm('here');
   // Add a css class to widget form elements for all fields of type my_type.
   $field_definition = $context['items']->getFieldDefinition();
-  
 
-  if ($field_definition->getType() == 'proc_entity_reference_field') {  
+
+  if ($field_definition->getType() == 'proc_entity_reference_field') {
     // ksm('bla');
     // ksm($element);
     // var_dump($context);
@@ -436,12 +436,16 @@ function proc_library_info_build() {
 }
 
 
-function proc_form_field_storage_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
-  if ($form['settings']['target_type']['#default_value'] === 'proc') {
+/**
+ * Implements hook_form_alter().
+ */
+function proc_form_field_storage_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id): void {
+
+  if (isset($form['settings']['target_type']) && $form['settings']['target_type']['#default_value'] === 'proc') {
     $form['settings']['target_type']['#disabled'] = TRUE;
   }
-  
+
 }
 
 function proc_form_field_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {

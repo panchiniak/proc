@@ -11,7 +11,7 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
  * @FieldType(
  *   id = "proc_entity_reference_field",
  *   label = @Translation("Proc Entity Reference Field"),
- *   description = @Translation("An entity field containing an proc enabled entity reference."),
+ *   description = @Translation("An entity field containing a proc enabled entity reference."),
  *   category = @Translation("Reference"),
  *   default_widget = "proc_entity_reference_widget",
  *   default_formatter = "entity_reference_label",
@@ -19,12 +19,29 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
  * )
  */
 class ProcEntityReferenceFieldItem extends EntityReferenceItem {
+
   /**
-  * {@inheritdoc}
-  */
+   * {@inheritdoc}
+   */
+  public static function defaultStorageSettings() {
+    return [
+      // The default target type is 'proc' because the default widget is
+      // 'proc_entity_reference_widget'.
+        'target_type' => 'proc',
+      ] + parent::defaultStorageSettings();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function defaultFieldSettings() {
-    $settings = ['target_type' => 'proc'];
-    return $settings + parent::defaultFieldSettings();
+    return [
+        'proc_field_recipients_fetcher_endpoint' => 'test',
+//        'file_extensions' => 'txt',
+//        'file_directory' => '[date:custom:Y]-[date:custom:m]',
+//        'max_filesize' => '',
+//        'description_field' => 0,
+      ] + parent::defaultFieldSettings();
   }
 
   /**
@@ -48,6 +65,18 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
     $form['proc']['proc_field_recipients_manual_fetcher'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Define the user IDs of recipients in a CSV list'),
+      '#default_value' => $this->getSetting('proc_field_recipients_manual_fetcher'),
+    ];
+
+    $form['proc']['proc_field_recipients_to_field'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Machine name of the field containing the user IDs of recipients'),
+      '#default_value' => $this->getSetting('proc_field_recipients_manual_fetcher'),
+    ];
+
+    $form['proc']['proc_field_recipients_cc_field'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Machine name of the field containing the user IDs of CC recipients'),
       '#default_value' => $this->getSetting('proc_field_recipients_manual_fetcher'),
     ];
 
@@ -78,19 +107,6 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
     return $form;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  // public function settingsForm(array $form, FormStateInterface $form_state) {
-  //   $form = parent::settingsForm($form, $form_state);
-
-  //   $form['handler_settings']['target_bundles'] = [
-  //     '#type' => 'value',
-  //     '#value' => ['proc'],
-  //   ];
-
-  //   return $form;
-  // }
 
 
 
