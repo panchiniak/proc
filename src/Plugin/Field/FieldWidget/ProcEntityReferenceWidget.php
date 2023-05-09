@@ -182,40 +182,4 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $element['#description'] = [$link, $decryption_link];
     return ['target_id' => $element];
   }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsSummary() {
-    $summary[] = $this->t('Foo: @foo', ['@foo' => $this->getSetting('foo')]);
-    return $summary;
-  }
-  /**
-   * {@inheritdoc}
-   */
-  public static function defaultSettings() {
-    $settings = parent::defaultSettings();
-    $settings['foo'] = 'bar';
-    $settings['panchiniak'] = 'sim';
-
-    return $settings;
-  }
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $form = parent::settingsForm($form, $form_state);
-    $form['size'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Foo'),
-      '#default_value' => $this->getSetting('foo'),
-    ];
-
-    $form['panchiniak'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Panchiniak'),
-      '#default_value' => $this->getSetting('panchiniak'),
-    ];
-    return $form;
-  }
 }
