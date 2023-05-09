@@ -8,7 +8,7 @@
 /**
  * Helper function for defining labels used in JS.
  */
-function _proc_js_labels(): array {
+function _proc_js_labels() {
   return [
     'proc_fileapi_err_msg'            => t('Your browser does not support file API.'),
     'proc_button_state_processing'    => t('Processing...'),
@@ -38,13 +38,13 @@ function _proc_js_labels(): array {
 /**
  * Helper common to get proc decryption form data.
  *
- * @param string|null $privkey
+ * @param string $privkey
  *   Current user encrypted privkey.
  *
  * @return array
  *   Array containing proc form data.
  */
-function _proc_common_get_decryption_form_data(string $privkey = NULL): array {
+function _proc_common_get_decryption_form_data($privkey = NULL) {
   $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
   $user_uid = $user->id();
   $hash = \Drupal\Core\Site\Settings::getHashSalt();
@@ -70,7 +70,7 @@ function _proc_common_get_decryption_form_data(string $privkey = NULL): array {
  * @return array
  *   An array containing the unique entries of the CSV
  */
-function _proc_get_csv_argument($csv_data): ?array {
+function _proc_get_csv_argument($csv_data) {
   if (isset($csv_data)) {
     // Remove query string from the path if any.
     $csv_data = preg_replace('/\?.+/', '', $csv_data);
@@ -98,7 +98,7 @@ function _proc_get_csv_argument($csv_data): ?array {
  * @return array
  *   Array containing cihpers, encrypted priv key and pass form element.
  */
-function _proc_common_get_ciphers(array $cids, $metadata_only = NULL): array {
+function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
   $user = \Drupal::currentUser();
   $user_id = $user->id();
 
@@ -116,6 +116,7 @@ function _proc_common_get_ciphers(array $cids, $metadata_only = NULL): array {
     'privkey'     => $privkey,
     'keyring_cid' => $keyring['keyring_cid'],
     'ciphers'     => $cid_cipher,
+    // 'form_pass'   => $form_pass,
     'pubkey'      => $pubkey,
   ];
 }
@@ -131,7 +132,7 @@ function _proc_common_get_ciphers(array $cids, $metadata_only = NULL): array {
  * @return array
  *   Array containing pubkey and encrypted privkey.
  */
-function _proc_get_keys(string $item_id, string $type = NULL): array {
+function _proc_get_keys(string $item_id, string $type = NULL) {
   if (!isset($type)) {
     $type = 'uid';
   }
@@ -162,16 +163,11 @@ function _proc_get_keys(string $item_id, string $type = NULL): array {
  *
  * @param string $cid
  *   Ciphertext ID (proc entity).
- * @param null $form
- * @param null $form_state
- * @param null $metadata_only
  *
  * @return array
  *   Array containing ciphertext data.
- * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
- * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
  */
-function _proc_get_cipher(string $cid, $form = NULL, $form_state = NULL, $metadata_only = NULL): array {
+function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only = NULL) {
   $entity = \Drupal::entityTypeManager()->getStorage('proc')->load($cid);
 
   $recipients = $entity->get('field_recipients_set')->getValue();
@@ -183,7 +179,7 @@ function _proc_get_cipher(string $cid, $form = NULL, $form_state = NULL, $metada
   $user_id = $user->id();
 
 
-  if (!$metadata_only && (isset($entity->get('armored')->getValue()[0]['cipher']))) {
+  if ($metadata_only != TRUE && (isset($entity->get('armored')->getValue()[0]['cipher']))) {
 
     $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
     if (isset($entity->get('armored')->getValue()[0]['cipher_fid']) && !is_array($entity->get('armored')->getValue()[0]['cipher_fid'])) {
@@ -237,7 +233,7 @@ function _proc_get_cipher(string $cid, $form = NULL, $form_state = NULL, $metada
  * @return array
  *   Array containing sanitized CSVs strings and arrays
  */
-function _proc_get_csv_arguments(array $csvs): ?array {
+function _proc_get_csv_arguments(array $csvs) {
   $csvs_strings = [];
   foreach ($csvs as $csvs_key => $csv_data) {
     $csv_data = _proc_get_csv_argument($csv_data);
@@ -252,19 +248,18 @@ function _proc_get_csv_arguments(array $csvs): ?array {
   return NULL;
 
 }
-
 /**
  * Helper function for retrieval of pubkeys.
  *
  * @param array $items
  *   UIDs | PIDs.
- * @param string|null $type
+ * @param string $type
  *   Uid (default) | pid.
  *
  * @return array
  *   Array containing pubkeys.
  */
-function _proc_get_pubkeys(array $items, string $type = NULL): array {
+function _proc_get_pubkeys(array $items, string $type = NULL) {
   if (!isset($type)) {
     $type = 'uid';
   }
@@ -287,7 +282,7 @@ function _proc_get_pubkeys(array $items, string $type = NULL): array {
  * @return array
  *   Array containing pubkeys and max file size.
  */
-function _proc_common_get_pubkeys(array $uids): array {
+function _proc_common_get_pubkeys(array $uids) {
   $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids, 'uid'));
   // If some UID does not return keys:
   if (empty($recipients_pubkeys) || (count($uids) != count($recipients_pubkeys))) {
@@ -304,9 +299,10 @@ function _proc_common_get_pubkeys(array $uids): array {
  * Helper function to get max file size for encryption in bytes.
  *
  * @return string
- *   Dynamically defined max file size.
+ *   Dimicaly deined max file size.
  */
-function _proc_get_post_max_size_bytes(): string {
+function _proc_get_post_max_size_bytes() {
   $post_max_size = substr_replace(ini_get('post_max_size'), "", -1);
-  return $post_max_size * 1000000;
+  $post_max_size_bytes = $post_max_size * 1000000;
+  return $post_max_size_bytes;
 }

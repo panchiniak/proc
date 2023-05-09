@@ -33,25 +33,6 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
   /**
    * {@inheritdoc}
    */
-//  public static function schema(\Drupal\Core\Field\FieldStorageDefinitionInterface $field_definition) {
-//    $schema = parent::schema($field_definition);
-//
-//    // Add the 'proc' column to the schema.
-//    $schema['columns']['proc'] = [
-//      'type' => 'blob',
-//      'size' => 'big',
-//      'serialize' => TRUE,
-//      'not null' => FALSE,
-//    ];
-//
-//    return $schema;
-//  }
-
-
-
-  /**
-   * {@inheritdoc}
-   */
   public static function defaultStorageSettings() {
     return [
       // The default target type is 'proc' because the default widget is
@@ -81,6 +62,8 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
     $form = parent::fieldSettingsForm($form, $form_state);
     $settings = $this->getSettings();
 
+    //ksm($settings);
+
 
     $form['handler']['handler_settings']['proc'] = [
       '#type' => 'details',
@@ -92,7 +75,7 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
       '#type' => 'textfield',
       '#title' => $this->t('Endpoint for fetching user IDs of recipients'),
       '#description' => $this->t('Leave it empty for direct fetcher'),
-      '#default_value' => $settings['proc_field_recipients_fetcher_endpoint'] ?? '',
+      '#default_value' => $settings['handler_settings']['proc']['proc_field_recipients_fetcher_endpoint'] ?? '',
     ];
 
     $form['handler']['handler_settings']['proc']['proc_field_recipients_manual_fetcher'] = [

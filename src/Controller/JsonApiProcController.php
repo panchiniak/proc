@@ -42,7 +42,7 @@ class JsonApiProcController {
         ->condition('type', 'keyring')
         ->sort('id', 'DESC')
         ->range(0, 1);
-        $proc_ids[] = key($query->execute());
+      $proc_ids[] = key($query->execute());
     }
 
     $result = [];
@@ -57,7 +57,7 @@ class JsonApiProcController {
 
     return $result;
   }
-  
+
   /**
    * @return array
    */
@@ -65,17 +65,17 @@ class JsonApiProcController {
 
     $current_path = \Drupal::service('path.current')->getPath();
     $path_array = explode('/', $current_path);
-    
+
     $cipher_ids_string = $path_array[4];
     $proc_ids = explode(',', $cipher_ids_string);
-    
+
     $cipher_data = [];
     foreach ($proc_ids as $proc_index => $proc_id) {
       $proc = \Drupal\proc\Entity\Proc::load($proc_id);
 
       if (
-        // If cipher_fid is key in armored field, proc is using stream 
-        isset($proc->get('armored')->getValue()[0]['cipher_fid']) && 
+        // If cipher_fid is key in armored field, proc is using stream
+        isset($proc->get('armored')->getValue()[0]['cipher_fid']) &&
         // If cipher_fid is not an array, there is one single file:
         !is_array($proc->get('armored')->getValue()[0]['cipher_fid'])
       ) {
@@ -88,8 +88,8 @@ class JsonApiProcController {
         // Database storage:
         $armored = $proc->get('armored')->getValue()[0]['cipher'];
       }
-      
-      // If cipher_fid key is an array, there are multiple files for the 
+
+      // If cipher_fid key is an array, there are multiple files for the
       // storage of the cipher:
       if (isset($proc->get('armored')->getValue()[0]['cipher_fid']) && is_array($proc->get('armored')->getValue()[0]['cipher_fid'])) {
         // Concatenate the pieces of the cipher in a single variable:

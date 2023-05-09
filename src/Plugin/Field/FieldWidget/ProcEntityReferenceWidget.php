@@ -3,21 +3,14 @@
 namespace Drupal\proc\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Field\Plugin\Field\FieldWidget;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
+use Drupal\proc\Entity\Element\ProcEntityAutocomplete;
+use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Url;
 use Drupal\Core\Link;;
-use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\Core\Field\WidgetBase;
-use Drupal\Core\Render\Element;
-use Drupal\Core\Render\ElementInfoManagerInterface;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\file\Element\ManagedFile;
-use Drupal\file\Entity\File;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * Defines the 'proc_entity_reference_widget' field widget.
@@ -25,9 +18,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  * @FieldWidget(
  *   id = "proc_entity_reference_widget",
  *   label = @Translation("Proc Entity Reference Field Widget"),
- *   field_types = {
- *     "proc_entity_reference_field"
- *   },
+ *   field_types = {"proc_entity_reference_field"},
  * )
  */
 class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
@@ -46,9 +37,9 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $referenced_entities = $items->referencedEntities();
     // Append the match operation to the selection settings.
     $selection_settings = $this->getFieldSetting('handler_settings') + [
-      'match_operator' => $this->getSetting('match_operator'),
-      'match_limit' => $this->getSetting('match_limit'),
-    ];
+        'match_operator' => $this->getSetting('match_operator'),
+        'match_limit' => $this->getSetting('match_limit'),
+      ];
     // Add extra javascript library.
     $library = [
       'library' => [
@@ -114,8 +105,8 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     ';
 
     $url = Url::fromUserInput(
-      // URL with recipients IDs will be defined
-      // by the direct fetcher.
+    // URL with recipients IDs will be defined
+    // by the direct fetcher.
       '#',
       [
         'attributes' => [
@@ -183,15 +174,15 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
   }
 
   /**
-  * {@inheritdoc}
-  */
+   * {@inheritdoc}
+   */
   public function settingsSummary() {
     $summary[] = $this->t('Foo: @foo', ['@foo' => $this->getSetting('foo')]);
     return $summary;
   }
   /**
-  * {@inheritdoc}
-  */
+   * {@inheritdoc}
+   */
   public static function defaultSettings() {
     $settings = parent::defaultSettings();
     $settings['foo'] = 'bar';
@@ -200,8 +191,8 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     return $settings;
   }
   /**
-  * {@inheritdoc}
-  */
+   * {@inheritdoc}
+   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $form = parent::settingsForm($form, $form_state);
     $form['size'] = [
