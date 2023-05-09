@@ -62,38 +62,46 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
     $form = parent::fieldSettingsForm($form, $form_state);
     $settings = $this->getSettings();
 
-    //ksm($settings);
-
-
     $form['handler']['handler_settings']['proc'] = [
       '#type' => 'details',
       '#title' => t('Protected Content Settings for this field'),
       '#open' => TRUE,
     ];
 
+    $form['handler']['handler_settings']['proc']['direct_fetcher'] = [
+      '#type' => 'details',
+      '#title' => t('Direct fetcher settings'),
+      '#open' => TRUE,
+    ];
+
+    $form['handler']['handler_settings']['proc']['direct_fetcher']['proc_field_recipients_to_field'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Machine name of the field containing the user IDs of recipients'),
+      '#description' => $this->t('It must be a user reference field visible in the same form as this field.'),
+      '#default_value' => $settings['handler_settings']['proc']['direct_fetcher']['proc_field_recipients_to_field'] ?? '',
+    ];
+
+    $form['handler']['handler_settings']['proc']['direct_fetcher']['proc_field_recipients_cc_field'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Machine name of the field containing user IDs of CC recipients'),
+      '#description' => $this->t('It must be a user reference field visible in the same form as this field.'),
+      '#default_value' => $settings['handler_settings']['proc']['direct_fetcher']['proc_field_recipients_cc_field'] ?? '',
+    ];
+
+    $form['handler']['handler_settings']['proc']['direct_fetcher']['proc_field_recipients_manual_fetcher'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Define the user IDs of recipients in a CSV list'),
+      '#description' => $this->t('Example: 1,2,3'),
+      '#default_value' => $settings['handler_settings']['proc']['direct_fetcher']['proc_field_recipients_manual_fetcher'] ?? '',
+      '#disabled' => TRUE,
+    ];
+
     $form['handler']['handler_settings']['proc']['proc_field_recipients_fetcher_endpoint'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Endpoint for fetching user IDs of recipients'),
-      '#description' => $this->t('Leave it empty for direct fetcher'),
+      '#description' => $this->t('Example: https://example.com/api/get/users/param-a/param-b/param-c?param-d=1&param-e=2'),
       '#default_value' => $settings['handler_settings']['proc']['proc_field_recipients_fetcher_endpoint'] ?? '',
-    ];
-
-    $form['handler']['handler_settings']['proc']['proc_field_recipients_manual_fetcher'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Define the user IDs of recipients in a CSV list'),
-      '#default_value' => $this->getSetting('proc_field_recipients_manual_fetcher'),
-    ];
-
-    $form['handler']['handler_settings']['proc']['proc_field_recipients_to_field'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Machine name of the field containing the user IDs of recipients'),
-      '#default_value' => $this->getSetting('proc_field_recipients_manual_fetcher'),
-    ];
-
-    $form['handler']['handler_settings']['proc']['proc_field_recipients_cc_field'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Machine name of the field containing the user IDs of CC recipients'),
-      '#default_value' => $this->getSetting('proc_field_recipients_manual_fetcher'),
+      '#disabled' => TRUE,
     ];
 
     $form['handler']['handler_settings']['proc']['proc_field_mode'] = [
@@ -105,6 +113,9 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
         1 => $this->t('Only encryption'),
         2 => $this->t('Encryption and signature'),
       ],
+      2 => [
+        '#disabled' => TRUE,
+      ]
     ];
 
     $form['handler']['handler_settings']['proc']['proc_field_input_mode'] = [
@@ -116,6 +127,12 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
         1 => $this->t('Text area'),
         2 => $this->t('Text field'),
       ],
+      1 => [
+        '#disabled' => TRUE,
+      ],
+      2 => [
+        '#disabled' => TRUE,
+      ]
     ];
 
     return $form;
@@ -129,16 +146,5 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
     $properties = parent::propertyDefinitions($field_definition);
     return $properties;
   }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitSettingsForm(array &$form, FormStateInterface $form_state) {
-    parent::submitSettingsForm($form, $form_state);
-
-    $values = $form_state->getValue($form['#parents']);
-    $this->setSetting('proc_field_recipients_fetcher_endpoint', $values['proc_field_recipients_fetcher_endpoint']);
-  }
-
 
 }

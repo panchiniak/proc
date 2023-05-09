@@ -67,15 +67,40 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     }
 
     // Recipients field name:
-    // @todo: allow this to be changed:
-    $recipients_field_name = 'field_to_private_message';
+    // $recipients_field_name = $selection_settings['proc']['direct_fetcher']['proc_field_recipients_to_field'];
+    if (isset($selection_settings['proc']['direct_fetcher']['proc_field_recipients_to_field'])) {
+      $to_recipients_field_name = $selection_settings['proc']['direct_fetcher']['proc_field_recipients_to_field'];
+    }
+    if (isset($selection_settings['proc']['direct_fetcher']['proc_field_recipients_cc_field'])) {
+      $carbon_copy_recipients_field_name = $selection_settings['proc']['direct_fetcher']['proc_field_recipients_cc_field'];
+    }
+
+    $direct_fetcher_js_prefix = '
+      let to_recipients_collection = [];
+      let cc_recipients_collection = [];
+      let recipients = [];
+    ';
+
+    $direct_fetcher_to = '';
+    if (!empty($to_recipients_field_name)) {
+      $direct_fetcher_to = '
+        to_recipients_collection = Object.values(document.querySelectorAll("input[name^=\'' . $to_recipients_field_name . '\']"));
+        to_recipients_collection.pop();
+      ';
+    }
+    $direct_fetcher_cc = '';
+    if (!empty($carbon_copy_recipients_field_name)) {
+      $direct_fetcher_cc = '
+        cc_recipients_collection = Object.values(document.querySelectorAll("input[name^=\'' . $carbon_copy_recipients_field_name . '\']"));
+        cc_recipients_collection.pop();
+      ';
+    }
 
     $direct_fetcher_js = '
-      let recipients_colection = document.querySelectorAll("input[name^=\'' . $recipients_field_name . '\']");
-      let recipients = [];
-      let recipients_length = recipients_colection.length - 1;
+      let recipients_length = to_recipients_collection.length + cc_recipients_collection.length;
       if (recipients_length > 0) {
-        recipients_colection.forEach(function (recipient, index) {
+        let recipients_collection = to_recipients_collection.concat(cc_recipients_collection);
+        recipients_collection.forEach(function (recipient, index) {
           if (index < recipients_length) {
             if (recipient.value) {
               let id_parenthesis = recipient.value.match(/\(\d+\)/)[0];
@@ -84,14 +109,14 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
           }
         });
       }
-      let proc_path_prefix_add = window.location.origin + "/proclab/web" + "/proc/add";
+
+      let proc_path_prefix_add = window.location.origin + drupalSettings.path.baseUrl + "proc/add";
       let ids_csv = recipients.join();
-      console.log(jQuery(this).parent());
       let parent_selector = jQuery(this).parent();
       let parent_id = parent_selector[0].getAttribute("id").slice(0, -13);
 
-      let proc_path_sufix = "?proc_standalone_mode=FALSE&proc_parent_id=" + parent_id + "&proc_field_name=' . $proc_field_name . '";
-      let proc_path = proc_path_prefix_add + "/" + ids_csv + proc_path_sufix;
+      let proc_path_suffix = "?proc_standalone_mode=FALSE&proc_parent_id=" + parent_id + "&proc_field_name=' . $proc_field_name . '";
+      let proc_path = proc_path_prefix_add + "/" + ids_csv + proc_path_suffix;
       jQuery(this).attr("href", "#");
 
       let ajaxSettings = {
@@ -103,6 +128,8 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       myAjaxObject.execute();
       return false;
     ';
+
+    $direct_fetcher_js = $direct_fetcher_js_prefix . $direct_fetcher_to . $direct_fetcher_cc . $direct_fetcher_js;
 
     $url = Url::fromUserInput(
     // URL with recipients IDs will be defined
@@ -124,14 +151,9 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       ]
     ];
 
-    // $encryption_link = Link::fromTextAndUrl(t('Encrypt'), $url);
-    // $encryption_link = $encryption_link->toRenderable();
-
     $element['#attached']['library'][] = 'proc/proc-field';
     $element['#attached']['drupalSettings']['proc']['proc_labels'] = ['test1', 'test2'];
     $element['#attached']['drupalSettings']['proc']['proc_data'] = ['test1', 'test2'];
-
-    // $element['#description'] = $link;
     $decryption_link = [];
 
     // If there is a default value, add also the Decrypt button:
@@ -143,23 +165,13 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
         [
           'attributes' => [
             'class' => ['button'],
-            // 'class' => ['use-ajax', 'button'],
-            // 'data-dialog-type' => 'dialog',
           ]
         ]
       );
 
-      // ksm($decryption_url);
-
       $decryption_link = Link::fromTextAndUrl(t('Decrypt'), $decryption_url);
       $decryption_link = $decryption_link->toRenderable();
-
-
-      // $element['#description'] = $element['#description'] . "<a class='use-ajax' data-dialog-type='modal' href='./../../proc/" . $proc_id . "'><div class='button'>" . $this->t('Decrypt') . "</div></a></p>";
     }
-    // else {
-    //   $element['#description'] = $element['#description'] . '</p>';
-    // }
 
     $encryption_button = [
       '#type' => 'button',
@@ -168,8 +180,6 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     ];
 
     $element['#description'] = [$link, $decryption_link];
-    // $element['#description'] = $encryption_button;
-
     return ['target_id' => $element];
   }
 
