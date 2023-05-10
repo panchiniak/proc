@@ -4,16 +4,7 @@ namespace Drupal\proc\Plugin\Field\FieldType;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
-use Drupal\Component\Utility\Bytes;
-use Drupal\Component\Render\PlainTextOutput;
-use Drupal\Component\Utility\Environment;
-use Drupal\Component\Utility\Random;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\Core\File\FileSystemInterface;
-use Drupal\Core\StreamWrapper\StreamWrapperInterface;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\Core\TypedData\DataDefinition;
 
 /**
  * Plugin implementation of the 'proc_entity_reference_field' field type.

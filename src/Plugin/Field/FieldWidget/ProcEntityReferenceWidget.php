@@ -3,14 +3,11 @@
 namespace Drupal\proc\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Field\Plugin\Field\FieldWidget;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
 use Drupal\proc\Entity\Element\ProcEntityAutocomplete;
-use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Url;
-use Drupal\Core\Link;;
+use Drupal\Core\Link;
 
 /**
  * Defines the 'proc_entity_reference_widget' field widget.
@@ -67,7 +64,6 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     }
 
     // Recipients field name:
-    // $recipients_field_name = $selection_settings['proc']['direct_fetcher']['proc_field_recipients_to_field'];
     if (isset($selection_settings['proc']['direct_fetcher']['proc_field_recipients_to_field'])) {
       $to_recipients_field_name = $selection_settings['proc']['direct_fetcher']['proc_field_recipients_to_field'];
     }
@@ -152,8 +148,6 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     ];
 
     $element['#attached']['library'][] = 'proc/proc-field';
-    $element['#attached']['drupalSettings']['proc']['proc_labels'] = ['test1', 'test2'];
-    $element['#attached']['drupalSettings']['proc']['proc_data'] = ['test1', 'test2'];
     $decryption_link = [];
 
     // If there is a default value, add also the Decrypt button:
@@ -172,13 +166,6 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       $decryption_link = Link::fromTextAndUrl(t('Decrypt'), $decryption_url);
       $decryption_link = $decryption_link->toRenderable();
     }
-
-    $encryption_button = [
-      '#type' => 'button',
-      '#value' => $this
-        ->t('Encrypt'),
-    ];
-
     $element['#description'] = [$link, $decryption_link];
     return ['target_id' => $element];
   }
