@@ -61,7 +61,7 @@ use Drupal\user\UserInterface;
  *     "canonical" = "/proc/{proc}",
  *     "edit-form" = "/proc/{proc}/edit",
  *     "delete-form" = "/proc/{proc}/delete",
- *     "collection" = "/proc/list"
+ *     "collection" = "/admin/content/procs",
  *   },
  *   field_ui_base_route = "entity.proc.edit_form",
  *   bundle_entity_type = "proc_type"
@@ -125,10 +125,22 @@ class Proc extends ContentEntityBase implements ProcInterface {
    * Get public key cipher
    */
   public function getType() {
-//    return $this->get('armored')->target_id;
     return $this->values["type"]["x-default"];
   }
 
+  /**
+   * Get public key cipher
+   */
+  public function getStatus() {
+    return $this->values["status"]["x-default"];
+  }
+
+  /**
+   * Get public key cipher
+   */
+  public function getMeta() {
+    return $this->values["meta"]["x-default"];
+  }
 
 
 
