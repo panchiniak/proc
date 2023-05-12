@@ -76,6 +76,9 @@ class ProcListBuilder extends EntityListBuilder {
    */
   public function buildHeader() {
     $header['id'] = $this->t('Proc ID');
+    $header['label'] = $this->t('Label');
+    $header['owner'] = $this->t('Owner');
+    $header['type'] = $this->t('Type');
     // $header['name'] = $this->t('Name');
     // $header['first_name'] = $this->t('First Name');
     // $header['role'] = $this->t('Role');
@@ -87,7 +90,18 @@ class ProcListBuilder extends EntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\content_entity_example\Entity\Contact */
+//    ksm($entity->get('status')->value());
+//    ksm($entity->getOwner()->getAccountName());
+    ksm($entity);
+//    ksm($entity->getEntityType());
     $row['id'] = $entity->id();
+
+    $row['label'] = $entity->label();
+    $row['owner'] = $entity->getOwner()->getAccountName();
+    $row['type'] = $entity->getType();
+
+
+
     // $row['name'] = $entity->toLink()->toString();
     // $row['first_name'] = $entity->first_name->value;
     // $row['role'] = $entity->role->value;

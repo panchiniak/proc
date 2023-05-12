@@ -121,6 +121,16 @@ class Proc extends ContentEntityBase implements ProcInterface {
     return $this->get('armored')->target_id;
   }
 
+  /**
+   * Get public key cipher
+   */
+  public function getType() {
+//    return $this->get('armored')->target_id;
+    return $this->values["type"]["x-default"];
+  }
+
+
+
 
   /**
    * {@inheritdoc}
