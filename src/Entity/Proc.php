@@ -138,11 +138,9 @@ class Proc extends ContentEntityBase implements ProcInterface {
   /**
    * Get public key cipher
    */
-  public function getMeta() {
-    return $this->values["meta"]["x-default"];
+  public function getCreated() {
+    return $this->values["created"]["x-default"];
   }
-
-
 
   /**
    * {@inheritdoc}

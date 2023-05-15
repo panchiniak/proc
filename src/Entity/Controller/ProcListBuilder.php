@@ -8,6 +8,10 @@ use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Core\Routing\RedirectDestinationInterface;
+
+
 
 /**
  * Provides a list controller for proc entity.
@@ -15,13 +19,31 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @ingroup proc
  */
 class ProcListBuilder extends EntityListBuilder {
+  /**
+   * The date formatter service.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatterInterface
+   */
+  protected $dateFormatter;
 
   /**
-   * The url generator.
+   * Constructs a new NodeListBuilder object.
    *
-   * @var \Drupal\Core\Routing\UrlGeneratorInterface
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type definition.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+   *   The entity storage class.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
+   *   The date formatter service.
+   * @param \Drupal\Core\Routing\RedirectDestinationInterface $redirect_destination
+   *   The redirect destination service.
    */
-  protected $urlGenerator;
+  public function __construct(EntityTypeInterface $entity_type, EntityStorageInterface $storage, DateFormatterInterface $date_formatter, RedirectDestinationInterface $redirect_destination) {
+    parent::__construct($entity_type, $storage);
+
+    $this->dateFormatter = $date_formatter;
+    $this->redirectDestination = $redirect_destination;
+  }
 
   /**
    * {@inheritdoc}
@@ -30,41 +52,10 @@ class ProcListBuilder extends EntityListBuilder {
     return new static(
       $entity_type,
       $container->get('entity_type.manager')->getStorage($entity_type->id()),
-      $container->get('url_generator')
+      $container->get('date.formatter'),
+      $container->get('redirect.destination')
     );
   }
-
-  /**
-   * Constructs a new ProcListBuilder object.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   *   The entity type definition.
-   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
-   *   The entity storage class.
-   * @param \Drupal\Core\Routing\UrlGeneratorInterface $url_generator
-   *   The url generator.
-   */
-  public function __construct(EntityTypeInterface $entity_type, EntityStorageInterface $storage, UrlGeneratorInterface $url_generator) {
-    parent::__construct($entity_type, $storage);
-    $this->urlGenerator = $url_generator;
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * We override ::render() so that we can add our own content above the table.
-   * parent::render() is where EntityListBuilder creates the table using our
-   * buildHeader() and buildRow() implementations.
-   */
-  // public function render() {
-  //   $build['description'] = [
-  //     '#markup' => $this->t('Content Entity Example implements a Contacts model. These contacts are fieldable entities. You can manage the fields on the <a href="@adminlink">Contacts admin page</a>.', [
-  //       '@adminlink' => $this->urlGenerator->generateFromRoute('content_entity_example.contact_settings'),
-  //     ]),
-  //   ];
-  //   $build['table'] = parent::render();
-  //   return $build;
-  // }
 
   /**
    * {@inheritdoc}
@@ -75,12 +66,32 @@ class ProcListBuilder extends EntityListBuilder {
    * and inserts the 'edit' and 'delete' links as defined for the entity type.
    */
   public function buildHeader() {
-    $header['id'] = $this->t('Proc ID');
-    $header['label'] = $this->t('Label');
-    $header['owner'] = $this->t('Owner');
-    $header['type'] = $this->t('Type');
-    $header['status'] = $this->t('Status');
-    $header['meta'] = $this->t('Meta');
+
+    $header = [
+      'id' => $this->t('Proc ID'),
+      'label' => [
+        'data' => $this->t('Label'),
+        'class' => [RESPONSIVE_PRIORITY_MEDIUM],
+      ],
+      'owner' => [
+        'data' => $this->t('Owner'),
+        'class' => [RESPONSIVE_PRIORITY_LOW],
+      ],
+      'type' => $this->t('Type'),
+      'status' => [
+        'data' => $this->t('Status'),
+        'class' => [RESPONSIVE_PRIORITY_LOW],
+      ],
+      'created' => [
+        'data' => $this->t('Created'),
+        'class' => [RESPONSIVE_PRIORITY_LOW],
+      ],
+      'changed' => [
+        'data' => $this->t('Changed'),
+        'class' => [RESPONSIVE_PRIORITY_LOW],
+      ],
+    ];
+
     return $header + parent::buildHeader();
   }
 
@@ -89,22 +100,30 @@ class ProcListBuilder extends EntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\content_entity_example\Entity\Contact */
-//    ksm($entity->get('status')->value());
-//    ksm($entity->getOwner()->getAccountName());
-//    ksm($entity);
-//    ksm($entity->get('meta')->getValue());
-//    ksm($entity->getEntityType());
+    $mark = [
+      '#theme' => 'mark',
+      '#mark_type' => node_mark($entity->id(), $entity->getChangedTime()),
+    ];
+
+
+
     $row['id'] = $entity->id();
-    $row['label'] = $entity->label();
+//    $row['label'] = $entity->label();
+
+    $row['title']['data'] = [
+      '#type' => 'link',
+      '#title' => $entity->label(),
+      '#suffix' => ' ' . \Drupal::service('renderer')->render($mark),
+      '#url' => $entity->toUrl(),
+    ];
+
+
     $row['owner'] = $entity->getOwner()->getAccountName();
     $row['type'] = $entity->getType();
     $row['status'] = $entity->getStatus();
-    $row['meta'] = $entity->getMeta();
+    $row['created'] = $this->dateFormatter->format($entity->getCreated(), 'short');
+    $row['changed'] = $this->dateFormatter->format($entity->getChangedTime(), 'short');
 
-    // $row['name'] = $entity->toLink()->toString();
-    // $row['first_name'] = $entity->first_name->value;
-    // $row['role'] = $entity->role->value;
     return $row + parent::buildRow($entity);
   }
-
 }
