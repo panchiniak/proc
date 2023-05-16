@@ -6,12 +6,9 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Routing\UrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Routing\RedirectDestinationInterface;
-
-
 
 /**
  * Provides a list controller for proc entity.
@@ -19,6 +16,7 @@ use Drupal\Core\Routing\RedirectDestinationInterface;
  * @ingroup proc
  */
 class ProcListBuilder extends EntityListBuilder {
+
   /**
    * The date formatter service.
    *
@@ -105,24 +103,18 @@ class ProcListBuilder extends EntityListBuilder {
       '#mark_type' => node_mark($entity->id(), $entity->getChangedTime()),
     ];
 
-
-
     $row['id'] = $entity->id();
-//    $row['label'] = $entity->label();
-
     $row['title']['data'] = [
       '#type' => 'link',
       '#title' => $entity->label(),
       '#suffix' => ' ' . \Drupal::service('renderer')->render($mark),
       '#url' => $entity->toUrl(),
     ];
-
-
     $row['owner'] = $entity->getOwner()->getAccountName();
     $row['type'] = $entity->getType();
-    $row['status'] = $entity->getStatus();
+    $row['status'] = $entity->getStatus()  ? $this->t('published') : $this->t('not published');
     $row['created'] = $this->dateFormatter->format($entity->getCreated(), 'short');
-    $row['changed'] = $this->dateFormatter->format($entity->getChangedTime(), 'short');
+    $row['changed'] = $entity->getChangedTime()  ? $this->dateFormatter->format($entity->getChangedTime(), 'short') : $this->t('not changed');
 
     return $row + parent::buildRow($entity);
   }
