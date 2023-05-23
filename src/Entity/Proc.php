@@ -143,6 +143,14 @@ class Proc extends ContentEntityBase implements ProcInterface {
   }
 
   /**
+   * Get public key cipher
+   */
+  public function getMeta() {
+    return $this->get('meta')->getValue();
+  }
+
+
+  /**
    * {@inheritdoc}
    *
    * Define the field properties here.
@@ -203,28 +211,6 @@ class Proc extends ContentEntityBase implements ProcInterface {
       ])
       ->setDisplayConfigurable('view', TRUE)
       ->setDisplayConfigurable('form', TRUE);
-
-      $fields['type'] = BaseFieldDefinition::create('string')
-        ->setLabel(t('Type'))
-        ->setDescription(t('The type of the Proc entity (keyring or ciphertext).'))
-        ->setSettings([
-          'max_length' => 255,
-          'text_processing' => 0,
-        ])
-        // Set no default value.
-        ->setDefaultValue('keyring')
-        ->setDisplayOptions('view', [
-          'label' => 'above',
-          'type' => 'string',
-          'weight' => -6,
-        ])
-        ->setDisplayOptions('form', [
-          'type' => 'string_textfield',
-          'weight' => -6,
-        ])
-        ->setDisplayConfigurable('form', TRUE)
-        ->setDisplayConfigurable('view', TRUE)
-        ->setReadOnly(TRUE);
 
       $fields['type'] = BaseFieldDefinition::create('list_string')
         ->setLabel(t('Type of the proc'))

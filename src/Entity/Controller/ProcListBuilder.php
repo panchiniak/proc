@@ -25,7 +25,7 @@ class ProcListBuilder extends EntityListBuilder {
   protected $dateFormatter;
 
   /**
-   * Constructs a new NodeListBuilder object.
+   * Constructs a new ProcListBuilder object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type definition.
@@ -88,6 +88,10 @@ class ProcListBuilder extends EntityListBuilder {
         'data' => $this->t('Changed'),
         'class' => [RESPONSIVE_PRIORITY_LOW],
       ],
+      'size' => [
+        'data' => $this->t('Size'),
+        'class' => [RESPONSIVE_PRIORITY_LOW],
+      ],
     ];
 
     return $header + parent::buildHeader();
@@ -97,6 +101,8 @@ class ProcListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
+
+//    ksm($entity->getMeta());
 
     $flag = '';
     // Proc entities less than 30 days old are considered new:
@@ -115,6 +121,7 @@ class ProcListBuilder extends EntityListBuilder {
     $row['status'] = $entity->getStatus()  ? $this->t('published') : $this->t('not published');
     $row['created'] = $this->dateFormatter->format($entity->getCreated(), 'short');
     $row['changed'] = $entity->getChangedTime()  ? $this->dateFormatter->format($entity->getChangedTime(), 'short') : $this->t('not changed');
+    $row['size'] = $entity->getType() == 'cipher' ? format_size($entity->getMeta()[0]['source_file_size']) : $this->t('n/a');
 
     return $row + parent::buildRow($entity);
   }
