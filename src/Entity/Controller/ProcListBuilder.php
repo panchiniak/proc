@@ -121,7 +121,7 @@ class ProcListBuilder extends EntityListBuilder {
     $row['status'] = $entity->getStatus()  ? $this->t('published') : $this->t('not published');
     $row['created'] = $this->dateFormatter->format($entity->getCreated(), 'short');
     $row['changed'] = $entity->getChangedTime()  ? $this->dateFormatter->format($entity->getChangedTime(), 'short') : $this->t('not changed');
-    $row['size'] = $entity->getType() == 'cipher' ? format_size($entity->getMeta()[0]['source_file_size']) : $this->t('n/a');
+    $row['size'] = $entity->getType() == 'cipher' ? format_size($entity->getMeta()[0]['source_file_size']) : format_size($entity->getMeta()[0]['key_size']);
 
     return $row + parent::buildRow($entity);
   }

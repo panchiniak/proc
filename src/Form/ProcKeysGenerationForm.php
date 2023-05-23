@@ -38,10 +38,10 @@ class ProcKeysGenerationForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $proc_hidden_fields_key_generation = [
-      // @todo: move this to static property of ProcKeys class 
+      // @todo: move this to static property of ProcKeys class
       'public_key',
       'encrypted_private_key',
-      // @todo: move this to static property of Proc class 
+      // @todo: move this to static property of Proc class
       'generation_timestamp',
       'generation_timespan',
       'browser_fingerprint',
@@ -100,7 +100,7 @@ class ProcKeysGenerationForm extends FormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Object describing the current state of the form.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) { 
+  public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $destination = FALSE;
     $key_created = FALSE;
@@ -111,25 +111,30 @@ class ProcKeysGenerationForm extends FormBase {
     if (isset($parse_result['query']['destination'])) {
       $destination = $parse_result['query']['destination'];
     }
-    
+
     if (!empty($form_state->getValue('encrypted_private_key'))) {
       $keyring = [
         'privkey' => $form_state->getValue('encrypted_private_key'),
         'pubkey'  => $form_state->getValue('public_key'),
       ];
+
+      $config = \Drupal::config('proc.settings');
+      $key_size = $config->get('proc-rsa-key-size');
+
       $meta = [
         'generation_timestamp' => $form_state->getValue('generation_timestamp'),
         'generation_timespan' => $form_state->getValue('generation_timespan'),
         'browser_fingerprint' => $form_state->getValue('browser_fingerprint'),
         'proc_email'          => $form_state->getValue('proc_email'),
+        'key_size'            => $key_size,
       ];
-  
+
       $proc = \Drupal\proc\Entity\Proc::create();
       $proc->set('armored', $keyring)
         ->set('meta', $meta)
         ->set('label', $meta['proc_email'])
         ->save();
-  
+
       $key_created = TRUE;
       if (!$destination) {
         $this->messenger()->addMessage($this->t($success_message));
@@ -140,7 +145,7 @@ class ProcKeysGenerationForm extends FormBase {
     }
 
     if ($destination && $key_created) {
-      $url = \Drupal\Core\Url::fromUri('internal:/' . $destination);     
+      $url = \Drupal\Core\Url::fromUri('internal:/' . $destination);
       $response = new \Symfony\Component\HttpFoundation\RedirectResponse($url->toString());
       $response->send();
       \Drupal::messenger()->addStatus($this->t($success_message));

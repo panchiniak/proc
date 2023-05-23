@@ -4,7 +4,13 @@
  * Primary module hooks for Protected Content module.
  */
 
+use Drupal\Component\Serialization\Json;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\proc\Entity\Bundle\ProcCipherTextBundle;
+use Drupal\proc\Entity\Proc;
+use Drupal\proc\Form\ProcDecryptForm;
 
 require_once 'inc/proc.functions.inc';
 
@@ -17,16 +23,17 @@ function proc_help($route_name, RouteMatchInterface $route_match) {
     $output .= '<p>' . t('The Protected Content module allows you to create RSA keys, encrypt and decrypt content.') . '</p>';
     return $output;
   }
+  return FALSE;
 }
 
 
  /**
  * Implements hook_form_alter().
  */
-function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function proc_form_proc_keys_generation_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
   $proc_data = _proc_common_get_decryption_form_data(NULL);
 
-  $config = \Drupal::config('proc.settings');
+  $config = Drupal::config('proc.settings');
   $key_size = $config->get('proc-rsa-key-size');
 
   $form['#attached'] = [
@@ -49,20 +56,20 @@ function proc_form_proc_keys_generation_form_alter(&$form, \Drupal\Core\Form\For
 /**
 * Implements hook_form_alter().
 */
-function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function proc_form_proc_encrypt_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
 
   $proc_data = _proc_common_get_decryption_form_data(NULL);
 
-  $config = \Drupal::config('proc.settings');
+  $config = Drupal::config('proc.settings');
   $max_file_size = $config->get('proc-file-entity-max-filesize');
   if (empty($max_file_size)) {
     // Use 10M if no value is set.
     $max_file_size = 10000000;
   }
 
-  $current_path = \Drupal::service('path.current')->getPath();
+  $current_path = Drupal::service('path.current')->getPath();
 
-  $query_params = \Drupal::request()->query->all();
+  $query_params = Drupal::request()->query->all();
   $destination = FALSE;
   if (isset($query_params['destination'])) {
     $destination = $query_params['destination'];
@@ -75,7 +82,7 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   // newwest encryption key.
   $proc_ids = [];
   foreach ($selected_user_ids as $user_id) {
-    $query = \Drupal::entityQuery('proc')
+    $query = Drupal::entityQuery('proc')
       ->accessCheck(TRUE)
       ->condition('user_id', $user_id)
       ->condition('type', 'keyring')
@@ -87,7 +94,7 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
   $created = [];
   foreach ($proc_ids as $user_id => $proc_id) {
     // Get the creation data of the proc ID:
-    $proc = \Drupal\proc\Entity\Proc::load($proc_id);
+    $proc = Proc::load($proc_id);
     if ($proc) {
       $created[$user_id] = $proc->get('created')->getValue()[0]['value'];
     }
@@ -129,44 +136,16 @@ function proc_form_proc_encrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
  */
 function proc_entity_bundle_info_alter(array &$bundles): void {
   if (isset($bundles['proc']['proc'])) {
-    $bundles['proc']['cipher']['class'] = \Drupal\proc\Entity\Bundle\ProcCipherTextBundle::class;
+    $bundles['proc']['cipher']['class'] = ProcCipherTextBundle::class;
   }
-}
-
-// use Drupal\Core\Field\BaseFieldDefinition;
-// use Drupal\Core\Entity\EntityTypeInterface;
-
-/**
- * Implements hook_entity_base_field_info().
- */
-// function proc_entity_base_field_info(EntityTypeInterface $entity_type) {
-//   // if ($entity_type->id() === 'proc_type' || $entity_type->id() === 'proc') {
-//   //   $fields['path'] = BaseFieldDefinition::create('path')
-//   //     ->setLabel(t('The path alias'))
-//   //     ->setComputed(TRUE);
-
-//   //   return $fields;
-//   // }
-// }
-
-/**
- * Implements hook_entity_bundle_field_info().
- */
-function proc_entity_bundle_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type, $bundle, array $base_field_definitions) {
-  // if ($entity_type->isFieldable()) {
-  //   // Configurable fields, which are always attached to a specific bundle, are
-  //   // added 'by bundle'.
-  //   return Field::fieldInfo()->getBundleInstances($entity_type->id(), $bundle);
-  // }
-  // return $entity_type->Field::fieldInfo()->getBundleInstances($entity_type->id(), $bundle);
 }
 
 /**
 * Implements hook_form_alter().
 */
-function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function proc_form_proc_decrypt_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
   // Get cipher IDs from the URL:
-  $current_path = \Drupal::service('path.current')->getPath();
+  $current_path = Drupal::service('path.current')->getPath();
   $path_array = explode('/', $current_path);
   $cipher_ids_csv = $path_array[2];
   $cids = _proc_get_csv_argument($cipher_ids_csv);
@@ -175,7 +154,7 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
 
   // Decryption requires a keyring:
   if (empty($ciphers_data['pubkey'])) {
-    \Drupal\proc\Form\ProcDecryptForm::denyAccess();
+    ProcDecryptForm::denyAccess();
   }
 
   $common_data = _proc_common_get_decryption_form_data($ciphers_data['privkey']);
@@ -187,18 +166,16 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
     $ciphers_changed[] = $cipher_id_data['changed'];
     $files_names[] = $cipher_id_data['source_file_name'];
     $files_sizes[] = $cipher_id_data['source_file_size'];
-    // For diferenciating files from text areas:
+    // For differentiating files from text areas:
     if (isset($cipher_id_data['source_input_mode'])) {
       $sources_input_mode[] = $cipher_id_data['source_input_mode'];
     }
     else {
       $sources_input_mode[] = 0;
     }
-    //$sources_signed[] = $cipher_id_data['signed'];
     $sources_signed[] = 0;
 
   }
-
 
   $form['#attached'] = [
     'library' => [
@@ -216,7 +193,9 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
         // Also used for labels on text area encryption:
         'proc_sources_file_names'  => $files_names,
         'proc_sources_file_sizes'  => $files_sizes,
+        // @todo: implement this:
         'proc_sources_input_modes' => $sources_input_mode,
+        // @todo: implement this:
         'proc_sources_signed'      => $sources_signed,
         // @TODO: get this from configuration:
         'proc_skip_size_mismatch'  => 'TRUE',
@@ -230,9 +209,9 @@ function proc_form_proc_decrypt_form_alter(&$form, \Drupal\Core\Form\FormStateIn
 /**
 * Implements hook_form_alter().
 */
-function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function proc_form_proc_update_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
 
-  $current_path = \Drupal::service('path.current')->getPath();
+  $current_path = Drupal::service('path.current')->getPath();
   $path_array = explode('/', $current_path);
 
   // Sanitize and preprocess arguments:
@@ -254,7 +233,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
 
     // Updating requires a keyring:
     if (!$ciphers_data['pubkey']) {
-      \Drupal\proc\Form\ProcDecryptForm::denyAccess();
+      ProcDecryptForm::denyAccess();
     }
 
     $privkey      = $ciphers_data['privkey'];
@@ -266,7 +245,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
     $recipients = [];
 
     foreach ($ciphers_data['ciphers'] as $cipher_data) {
-      if ($cipher_data['proc_owner_uid'] != $user->uid) {
+      if ($cipher_data['proc_owner_uid'] != \Drupal::currentUser()->id()) {
         // Current recipients:
         foreach ($cipher_data['proc_recipients'] as $recipient) {
           $recipients[] = $recipient;
@@ -281,7 +260,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
       // drupal_alter('cipher_update_owner_check', $all_current_recipients, $context);
 
       if (array_diff($all_current_recipients, $uids)) {
-        \Drupal\proc\Form\ProcDecryptForm::denyAccess();
+        ProcDecryptForm::denyAccess();
       }
     }
 
@@ -294,25 +273,20 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
       $pubkeys[] = ['key' => $recipient_pubkey['key'], 'changed' => "0"];
     }
 
-
     $armored_ciphers = [];
     foreach ($cids as $cid) {
       $armored_ciphers[$cid] = _proc_get_cipher($cid, NULL, NULL, FALSE);
 
     }
 
-
     $encryption_form_elements = [
       'proc_ciphers'             => $cid_cipher,
       'proc_ciphers_index'       => $cids,
-      'proc_recipients_pubkeys'  => \Drupal\Component\Serialization\Json::encode($pubkeys),
+      'proc_recipients_pubkeys'  => Json::encode($pubkeys),
       'proc_post_max_size_bytes' => $post_max_size_bytes,
     ];
 
-
     $proc_data = _proc_common_get_decryption_form_data($privkey);
-
-
 
     $proc_data = $proc_data + $encryption_form_elements;
 
@@ -340,7 +314,6 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
       'source_file_last_change_cid_',
     ];
 
-
     foreach ($cids as $cid) {
       foreach ($update_field_form_elemement_prefixes as $update_field_form_elemement_prefix) {
         $form[$update_field_form_elemement_prefix . $cid] = ['#type' => 'hidden'];
@@ -351,50 +324,7 @@ function proc_form_proc_update_form_alter(&$form, \Drupal\Core\Form\FormStateInt
     // Updating has already happened:
   }
 
-  // $form['#action'] = base_path() . $current_path;
-
 }
-
-/**
- * Implements hook_field_info().
- */
-// function proc_field_info_alter(&$info) {
-//   return [
-//     'proc_entity_reference_field' => [
-//       'label' => t('Proc Entity Reference Field'),
-//       'description' => t('A custom entity reference field.'),
-//       'settings' => [
-//         'target_type' => 'proc',
-//         'handler' => 'default',
-//       ],
-//       'instance_settings' => [
-//         'target_bundles' => [],
-//       ],
-//       'default_widget' => 'options_select',
-//       'default_formatter' => 'entity_reference_label',
-//     ],
-//   ];
-// }
-
-// /**
-// * Implements hook_field_schema().
-// */
-// function proc_field_schema_alter($field) {
-//   $schema = array(
-//     'columns' => array(
-//       'target_id' => array(
-//         'type' => 'int',
-//         'unsigned' => TRUE,
-//         'not null' => FALSE,
-//       ),
-//     ),
-//     'indexes' => array(
-//       'target_id' => array('target_id'),
-//     ),
-//   );
-
-//   return $schema;
-// }
 
 /**
  * Implements hook_theme().
@@ -412,29 +342,6 @@ function proc_theme($existing, $type, $theme, $path) {
   ];
 }
 
-function proc_field_widget_single_element_form_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
-
-  // ksm('here');
-  // Add a css class to widget form elements for all fields of type my_type.
-  $field_definition = $context['items']->getFieldDefinition();
-
-
-  if ($field_definition->getType() == 'proc_entity_reference_field') {
-    // ksm('bla');
-    // ksm($element);
-    // var_dump($context);
-
-  }
-}
-
-function hook_field_widget_single_element_proc_entity_reference_field_form_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
-  // ksm('here');
-  // Code here will only act on widgets of type WIDGET_TYPE.  For example,
-  // hook_field_widget_single_element_mymodule_autocomplete_form_alter() will
-  // only act on widgets of type 'mymodule_autocomplete'.
-  // $element['#autocomplete_route_name'] = 'mymodule.autocomplete_route';
-}
-
 /**
  * Implements hook_library_info_build().
  */
@@ -449,18 +356,13 @@ function proc_library_info_build() {
   return $libraries;
 }
 
-
-
 /**
  * Implements hook_form_alter().
  */
-function proc_form_field_storage_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id): void {
+function proc_form_field_storage_config_edit_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
 
   if (isset($form['settings']['target_type']) && $form['settings']['target_type']['#default_value'] === 'proc') {
     $form['settings']['target_type']['#disabled'] = TRUE;
   }
 
-}
-
-function proc_form_field_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 }
