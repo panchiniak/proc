@@ -97,17 +97,17 @@ class ProcListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var $entity \Drupal\content_entity_example\Entity\Contact */
-    $mark = [
-      '#theme' => 'mark',
-      '#mark_type' => node_mark($entity->id(), $entity->getChangedTime()),
-    ];
 
+    $flag = '';
+    // Proc entities less than 30 days old are considered new:
+    if ($entity->getCreated() > HISTORY_READ_LIMIT) {
+      $flag = $this->t('New');
+    }
     $row['id'] = $entity->id();
     $row['title']['data'] = [
       '#type' => 'link',
       '#title' => $entity->label(),
-      '#suffix' => ' ' . \Drupal::service('renderer')->render($mark),
+      '#suffix' => ' ' . $flag,
       '#url' => $entity->toUrl(),
     ];
     $row['owner'] = $entity->getOwner()->getAccountName();
