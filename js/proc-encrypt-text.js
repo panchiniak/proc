@@ -9,10 +9,10 @@
       async function encrypt() {
         let procJsLabels = Drupal.settings.proc.proc_labels,
           plaintext = document.getElementById('edit-plaintext')
-          .value,
+            .value,
           plainTextSize = (new TextEncoder()
             .encode(plaintext))
-          .length,
+            .length,
           postMaxSizeBytes = Drupal.settings.proc.proc_post_max_size_bytes,
           fileEntityMaxSize = parseInt(Drupal.settings.proc.proc_file_entity_max_filesize, 10),
           postMaxSizeBytesInt = parseInt(postMaxSizeBytes, 10),
@@ -25,7 +25,7 @@
             if (fileEntityMaxSize < dynamicMaximumSize) {
               realMaxSize = fileEntityMaxSize;
             }
-            $("form#-proc-encrypt-file")
+            $('form#-proc-encrypt-file')
               .prepend('<div class="messages error">' + `${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}` + '</div>');
             document.getElementById('edit-button')
               .value = procJsLabels.proc_save_button_label;
@@ -58,7 +58,7 @@
           }
           let pubkeysJson;
           if (remoteKey.length > 0) {
-            let remoteKeyCsv = remoteKey.join(",");
+            let remoteKeyCsv = remoteKey.join(',');
             const pubKeyAjax = async (remoteKeyCsv) => {
               let response = await fetch(`${window.location.origin + Drupal.settings.basePath}proc/api/getpubkey/${remoteKeyCsv}/uid`);
               pubkeysJson = await response.json();
@@ -76,23 +76,23 @@
             await pubKeyAjax(remoteKeyCsv);
           }
           const publicKeys = await Promise.all(recipientsPubkeys.map(armoredKey => openpgp.readKey({
-            armoredKey
+            armoredKey,
           })));
           let startSeconds = new Date()
             .getTime() / 1000;
           const message = await openpgp.createMessage({
-            text: plaintext
+            text: plaintext,
           });
           const encrypted = await openpgp.encrypt({
             encryptionKeys: publicKeys,
             message,
             format: 'armored',
             config: {
-              preferredCompressionAlgorithm: openpgp.enums.compression.zip
-            }
+              preferredCompressionAlgorithm: openpgp.enums.compression.zip,
+            },
           });
           let endSeconds = new Date()
-            .getTime() / 1000,
+              .getTime() / 1000,
             total = endSeconds - startSeconds;
           if (encrypted) {
             $('input[name=cipher_text]')[0].value = encrypted;
@@ -113,10 +113,11 @@
           }
         }
       }
+
       if (document.getElementById('edit-button')) {
         document.getElementById('edit-button')
           .addEventListener('click', encrypt, false);
       }
-    }
+    },
   };
 })(jQuery);

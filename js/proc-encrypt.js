@@ -8,28 +8,29 @@
     attach: async function (context, settings) {
 
       $(once('proc-encrypt', 'body')).on(
-        'click', async function (element) {
-          
+        'click',
+        async function (element) {
+
           $('[id^=edit-submit-proc]').on(
             'click', async function (e) {
-                e.preventDefault();
-                // If proc_standalone_mode is not false:
-                if (drupalSettings.proc_standalone_mode !== 'false') {
-                  $('#proc-encrypt-form').submit();
-                }
-            }
-          );  
+              e.preventDefault();
+              // If proc_standalone_mode is not false:
+              if (drupalSettings.proc_standalone_mode !== 'false') {
+                $('#proc-encrypt-form').submit();
+              }
+            },
+          );
 
           const messages = new Drupal.Message();
 
           if (!(window.FileReader)) {
             messages.add(drupalSettings.proc_labels.proc_fileapi_err_msg, {
-              type: 'error'
+              type: 'error',
             });
           }
           if (document.querySelector('[id^="edit-submit-proc"]')) {
             document.querySelector('[id^="edit-submit-proc"]')
-              .disabled = "TRUE";
+              .disabled = 'TRUE';
           }
 
           async function handleFileSelect(evt) {
@@ -44,18 +45,13 @@
               // their plaintexts:
               dynamicMaximumSize = postMaxSizeBytesInt / 4;
 
-          //   $('#edit-file--description')[0].innerText = `${procJsLabels.proc_size} ${files[0].size} ${procJsLabels.proc_max_encryption_size_unit}
-          // ${procJsLabels.proc_type} ${files[0].type}
-          // ${procJsLabels.proc_last_modified} ${files[0].lastModifiedDate}`;
-
-
             let realMaxSize = dynamicMaximumSize;
             if (fileSize > dynamicMaximumSize || fileSize > fileEntityMaxSize) {
               if (fileEntityMaxSize < dynamicMaximumSize) {
                 realMaxSize = fileEntityMaxSize;
               }
               messages.add(`${procJsLabels.proc_max_encryption_size} ${realMaxSize} ${procJsLabels.proc_max_encryption_size_unit}`, {
-                type: 'error'
+                type: 'error',
               });
               return;
             }
@@ -64,7 +60,7 @@
             let reader = new FileReader();
             reader.readAsArrayBuffer(file);
             reader.onloadend = async function (evt) {
-              if (evt.target.readyState == FileReader.DONE) {
+              if (evt.target.readyState === FileReader.DONE) {
                 const recipientsPubkeys = [];
 
                 // At this moment we only know about validated recipient UIDs
@@ -83,7 +79,7 @@
                   } else {
                     let storageKeys = Object.keys(localStorage);
                     if (storageKeys.length > 0) {
-                      storageKeys.forEach(async function (storageKey, storageKeyIndex) {
+                      storageKeys.forEach(function (storageKey, storageKeyIndex) {
                         if (storageKey.startsWith(`proc.key_user_id.${userIdIterator}`)) {
                           localStorage.removeItem(storageKeys[storageKeyIndex]);
                         }
@@ -92,14 +88,13 @@
                     remoteKey.push(userIdIterator);
                   }
                 }
-                let pubkeysJson;
-                
+
                 if (remoteKey.length > 0) {
-                  let remoteKeyCsv = remoteKey.join(",");
-                  
+                  let remoteKeyCsv = remoteKey.join(',');
+
                   const pubKeyAjax = async (remoteKeyCsv) => {
                     let response = await fetch(`${window.location.origin + drupalSettings.basePath}api/proc/getpubkey/${remoteKeyCsv}/user_id`);
-                    pubkeysJson = await response.json();
+                    let pubkeysJson = await response.json();
                     if (pubkeysJson.pubkey.length > 0) {
                       pubkeysJson.pubkey.forEach(function (pubkey, index) {
                         recipientsPubkeys.push(pubkey.key);
@@ -114,28 +109,29 @@
                   await pubKeyAjax(remoteKeyCsv);
                 }
                 const publicKeys = await Promise.all(recipientsPubkeys.map(armoredKey => openpgp.readKey({
-                  armoredKey
+                  armoredKey,
                 })));
                 let startSeconds = new Date()
                   .getTime() / 1000;
                 let array = new Uint8Array(evt.target.result);
                 const message = await openpgp.createMessage({
-                  binary: array
+                  binary: array,
                 });
-                
+
                 document.querySelector('[id^="edit-submit-proc"]').value = procJsLabels.proc_button_state_processing;
-                
+
                 const encrypted = await openpgp.encrypt({
                   encryptionKeys: publicKeys,
                   message,
                   format: 'armored',
                   config: {
-                    preferredCompressionAlgorithm: openpgp.enums.compression.zip
-                  }
+                    preferredCompressionAlgorithm: openpgp.enums.compression.zip,
+                  },
                 });
-                let endSeconds = new Date()
-                  .getTime() / 1000,
-                  total = endSeconds - startSeconds;
+                let endSeconds, total;
+                endSeconds = new Date()
+                  .getTime() / 1000;
+                total = endSeconds - startSeconds;
                 $('input[name=cipher_text]')[0].value = encrypted;
                 $('input[name=source_file_name]')[0].value = files[0].name;
                 $('input[name=source_file_size]')[0].value = files[0].size;
@@ -146,7 +142,7 @@
                 $('input[name=generation_timespan]')[0].value = total;
                 $('input[name=signed]')[0].value = 0;
                 document.querySelector('[id^="edit-submit-proc"]')
-                  .removeAttribute("disabled");
+                  .removeAttribute('disabled');
                 document.querySelector('[id^="edit-submit-proc"]').value = procJsLabels.proc_save_button_label;
               }
             };
@@ -156,8 +152,8 @@
             document.querySelector('[id^="edit-proc-file"]')
               .addEventListener('change', handleFileSelect, false);
           }
-        }
+        },
       );
-    }
+    },
   };
 })(jQuery, Drupal, once);

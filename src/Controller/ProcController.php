@@ -8,4 +8,5 @@ use Drupal\Core\Controller\ControllerBase;
  * Controller.
  */
 class ProcController extends ControllerBase {
+
 }

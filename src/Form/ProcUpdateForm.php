@@ -2,11 +2,12 @@
 
 namespace Drupal\proc\Form;
 
+use Drupal;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\proc;
-use \Drupal\Core\Link;
-use \Drupal\Core\Url;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManager;
@@ -39,17 +40,16 @@ class ProcUpdateForm extends FormBase {
    *   The render array defining the elements of the form.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-
     $proc_hidden_fields_key_generation = [
-			'cipher_text',
-			'source_file_name',
-			'source_file_size',
-			'source_file_type',
-			'source_file_last_change',
-			'browser_fingerprint',
-			'generation_timestamp',
-			'generation_timespan',
-			'signed',
+      'cipher_text',
+      'source_file_name',
+      'source_file_size',
+      'source_file_type',
+      'source_file_last_change',
+      'browser_fingerprint',
+      'generation_timestamp',
+      'generation_timespan',
+      'signed',
     ];
 
     foreach ($proc_hidden_fields_key_generation as $hidden_field) {
@@ -100,31 +100,30 @@ class ProcUpdateForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $current_path = \Drupal::service('path.current')->getPath();
+    $current_path = Drupal::service('path.current')->getPath();
     $path_array = explode('/', $current_path);
 
     // Sanitize and preprocess arguments:
-    $csvs     = _proc_get_csv_arguments([
+    $csvs = _proc_get_csv_arguments([
       'cids_csv' => $path_array[3],
       'uids_csv' => $path_array[4],
     ]);
 
     // If there is at least one selected uid:
     if (is_numeric($csvs['uids_csv']['array'][0])) {
-
-      $time_value = \Drupal::time()->getCurrentTime();
+      $time_value = Drupal::time()->getCurrentTime();
 
       // Get the data of cihpers for updating their proc entities:
       $procs_data = [];
       $proc_ids = $csvs['cids_csv']['array'];
       foreach ($proc_ids as $proc_id) {
         $procs_data[] = [
-          'cipher_text'             => $form_state->getValue('cipher_text_cid_' . $proc_id, $default = null),
-          'browser_fingerprint'     => $form_state->getValue('browser_fingerprint_cid_' . $proc_id, $default = null),
-          'generation_timestamp'    => $form_state->getValue('generation_timestamp_cid_' . $proc_id, $default = null),
-          'generation_timespan'     => $form_state->getValue('generation_timespan_cid_' . $proc_id, $default = null),
+          'cipher_text' => $form_state->getValue('cipher_text_cid_' . $proc_id, $default = NULL),
+          'browser_fingerprint' => $form_state->getValue('browser_fingerprint_cid_' . $proc_id, $default = NULL),
+          'generation_timestamp' => $form_state->getValue('generation_timestamp_cid_' . $proc_id, $default = NULL),
+          'generation_timespan' => $form_state->getValue('generation_timespan_cid_' . $proc_id, $default = NULL),
           // 'signed'                  => $form_state->getValue('signed_cid_' . $proc_id, $default = null),
-          'proc_id'                 => $proc_id,
+          'proc_id' => $proc_id,
         ];
       }
       $recipient_users = [];
@@ -132,7 +131,7 @@ class ProcUpdateForm extends FormBase {
         $recipient_users[] = ['target_id' => $recipient_id];
       }
       foreach ($procs_data as $proc_data) {
-        $proc = $proc = \Drupal\proc\Entity\Proc::load($proc_data['proc_id']);
+        $proc = $proc = proc\Entity\Proc::load($proc_data['proc_id']);
         $meta = $proc->get('meta')->getValue()[0];
         $meta['browser_fingerprint'] = $proc_data['browser_fingerprint'];
         $meta['generation_timestamp'] = $proc_data['generation_timestamp'];
@@ -141,7 +140,7 @@ class ProcUpdateForm extends FormBase {
         $proc->set('meta', $meta);
 
         // If file storage is set:
-        $config = \Drupal::config('proc.settings');
+        $config = Drupal::config('proc.settings');
         $enable_stream_wrapper = $config->get('proc-enable-stream-wrapper');
         $stream_wrapper = $config->get('proc-stream-wrapper');
         $block_size = $config->get('proc-file-block-size');
@@ -149,14 +148,13 @@ class ProcUpdateForm extends FormBase {
 
         $file_id = FALSE;
         if ($enable_stream_wrapper === 1 && !empty($stream_wrapper) && !($blocks_split_enabled)) {
-
           $json_dest = $stream_wrapper;
           if (!is_dir($json_dest)) {
-            \Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
+            Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
           }
 
           if ($proc_data['cipher_text']) {
-            $jsonFid = \Drupal::service('file.repository')
+            $jsonFid = Drupal::service('file.repository')
               ->writeData(
                 $proc_data['cipher_text'],
                 "$json_dest/$json_filename",
@@ -168,7 +166,6 @@ class ProcUpdateForm extends FormBase {
             }
           }
         }
-
 
         if ($enable_stream_wrapper === 1 && !empty($stream_wrapper) && !($blocks_split_enabled) && !empty($block_size)) {
           // @todo: add split storage mode for update.
@@ -206,11 +203,10 @@ class ProcUpdateForm extends FormBase {
 
           $json_fids = [];
           foreach ($blocks_texts as $block_text) {
-
             $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
             $json_filename = $fragment . '.json';
 
-            $jsonFid = \Drupal::service('file.repository')
+            $jsonFid = Drupal::service('file.repository')
               ->writeData(
                 $block_text,
                 "$json_dest/$json_filename",
@@ -220,7 +216,6 @@ class ProcUpdateForm extends FormBase {
               $json_fids[] = $jsonFid->id();
             }
           }
-
         }
 
         if ($file_id) {
@@ -250,4 +245,5 @@ class ProcUpdateForm extends FormBase {
       );
     }
   }
+
 }

@@ -5,33 +5,39 @@
  * proc.functions.inc
  */
 
+use Drupal\Component\Utility\Crypt;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Site\Settings;
+use Drupal\proc\Form\ProcDecryptForm;
+use Drupal\user\Entity\User;
+
 /**
  * Helper function for defining labels used in JS.
  */
 function _proc_js_labels() {
   return [
-    'proc_fileapi_err_msg'            => t('Your browser does not support file API.'),
-    'proc_button_state_processing'    => t('Processing...'),
-    'proc_max_encryption_size'        => t('Error. Maximum file size allowed:'),
-    'proc_max_encryption_size_unit'   => t('bytes'),
-    'proc_save_button_label'          => t('Save'),
-    'proc_size'                       => t('Size:'),
-    'proc_type'                       => t('Type:'),
-    'proc_last_modified'              => t('Last modified:'),
+    'proc_fileapi_err_msg' => t('Your browser does not support file API.'),
+    'proc_button_state_processing' => t('Processing...'),
+    'proc_max_encryption_size' => t('Error. Maximum file size allowed:'),
+    'proc_max_encryption_size_unit' => t('bytes'),
+    'proc_save_button_label' => t('Save'),
+    'proc_size' => t('Size:'),
+    'proc_type' => t('Type:'),
+    'proc_last_modified' => t('Last modified:'),
     // Visible as data-drupal-selector=password-strength-text
-    'proc_minimal_password_strenght'  => t('Strong'),
+    'proc_minimal_password_strenght' => t('Strong'),
     'proc_generate_keys_submit_label' => t('Generate encryption keys'),
-    'proc_submit_saving_state'        => t('Saving...'),
-    'proc_password_match'             => t('You must type in both password fields the same password'),
-    'proc_password_required'          => t('Password is required.'),
-    'proc_introducing_decryption'     => t('Indroducing key passphrase for decryption...'),
-    'proc_open_file_state'            => t('Open'),
-    'proc_decryption_success'         => t('Decryption successful.'),
-    'proc_decryption_size_mismatch'   => t('Error: size mismatch.'),
-    'proc_button_update_label'        => t('Update'),
-    'proc_introducing_signature'      => t('Indroducing key passphrase for signature...'),
-    'proc_pass_weak'                  => t('Your password must be stronger.'),
-    'proc_caches_unsupported'         => t('Error: this browser does not suport cache API. Please use an updated browser.'),
+    'proc_submit_saving_state' => t('Saving...'),
+    'proc_password_match' => t('You must type in both password fields the same password'),
+    'proc_password_required' => t('Password is required.'),
+    'proc_introducing_decryption' => t('Indroducing key passphrase for decryption...'),
+    'proc_open_file_state' => t('Open'),
+    'proc_decryption_success' => t('Decryption successful.'),
+    'proc_decryption_size_mismatch' => t('Error: size mismatch.'),
+    'proc_button_update_label' => t('Update'),
+    'proc_introducing_signature' => t('Indroducing key passphrase for signature...'),
+    'proc_pass_weak' => t('Your password must be stronger.'),
+    'proc_caches_unsupported' => t('Error: this browser does not suport cache API. Please use an updated browser.'),
   ];
 }
 
@@ -45,20 +51,18 @@ function _proc_js_labels() {
  *   Array containing proc form data.
  */
 function _proc_common_get_decryption_form_data($privkey = NULL) {
-  $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+  $user = User::load(Drupal::currentUser()->id());
   $user_uid = $user->id();
-  $hash = \Drupal\Core\Site\Settings::getHashSalt();
-  $hash_base64 = \Drupal\Component\Utility\Crypt::hashBase64($hash . $user_uid);
-
+  $hash = Settings::getHashSalt();
+  $hash_base64 = Crypt::hashBase64($hash . $user_uid);
 
   return [
-    'proc_uid'     => $user_uid,
-    'proc_pass'    => $hash_base64,
-    'proc_email'   => $user->getEmail(),
-    'proc_name'    => $user->getAccountName(),
+    'proc_uid' => $user_uid,
+    'proc_pass' => $hash_base64,
+    'proc_email' => $user->getEmail(),
+    'proc_name' => $user->getAccountName(),
     'proc_privkey' => $privkey,
   ];
-
 }
 
 /**
@@ -74,7 +78,7 @@ function _proc_get_csv_argument($csv_data) {
   if (isset($csv_data)) {
     // Remove query string from the path if any.
     $csv_data = preg_replace('/\?.+/', '', $csv_data);
-    $csv_data = \Drupal\Component\Utility\Html::escape($csv_data);
+    $csv_data = Html::escape($csv_data);
     $csv_values = str_getcsv($csv_data);
     $csv_data = [];
     foreach ($csv_values as $csv_value) {
@@ -99,25 +103,25 @@ function _proc_get_csv_argument($csv_data) {
  *   Array containing cihpers, encrypted priv key and pass form element.
  */
 function _proc_common_get_ciphers(array $cids, $metadata_only = NULL) {
-  $user = \Drupal::currentUser();
+  $user = Drupal::currentUser();
   $user_id = $user->id();
 
   $keyring = _proc_get_keys($user_id, 'uid');
 
   $privkey = $keyring['encrypted_private_key'];
-  $pubkey  = $keyring['public_key'];
+  $pubkey = $keyring['public_key'];
 
   $cid_cipher = [];
-  foreach($cids as $cid) {
+  foreach ($cids as $cid) {
     $cid_cipher[$cid] = _proc_get_cipher((int) $cid, NULL, NULL, $metadata_only);
   }
 
   return [
-    'privkey'     => $privkey,
+    'privkey' => $privkey,
     'keyring_cid' => $keyring['keyring_cid'],
-    'ciphers'     => $cid_cipher,
+    'ciphers' => $cid_cipher,
     // 'form_pass'   => $form_pass,
-    'pubkey'      => $pubkey,
+    'pubkey' => $pubkey,
   ];
 }
 
@@ -137,23 +141,25 @@ function _proc_get_keys(string $item_id, string $type = NULL) {
     $type = 'uid';
   }
 
-  $query = \Drupal::entityQuery('proc')
+  $query = Drupal::entityQuery('proc')
     ->accessCheck(TRUE)
     ->condition('type', 'keyring')
     ->condition('status', 1)
     ->condition('user_id', $item_id)
-    ->sort('id' , 'DESC')
+    ->sort('id', 'DESC')
     ->range(0, 1);
 
   $key_id = $query->execute();
   $key_id = array_values($key_id)[0];
-  $entity = \Drupal::entityTypeManager()->getStorage('proc')->load($key_id);
+  $entity = Drupal::entityTypeManager()->getStorage('proc')->load($key_id);
   // Private key:
-  $keyring_keys['encrypted_private_key'] = $entity->get('armored')->getValue()[0]['privkey'];
-  $keyring_keys['public_key']            = $entity->get('armored')->getValue()[0]['pubkey'];
-  $keyring_keys['created']               = $entity->get('created')->getValue()[0]['value'];
-  $keyring_keys['changed']               = $entity->get('changed')->getValue()[0]['value'];
-  $keyring_keys['keyring_cid']           = $key_id;
+  $keyring_keys['encrypted_private_key'] = $entity->get('armored')
+    ->getValue()[0]['privkey'];
+  $keyring_keys['public_key'] = $entity->get('armored')
+    ->getValue()[0]['pubkey'];
+  $keyring_keys['created'] = $entity->get('created')->getValue()[0]['value'];
+  $keyring_keys['changed'] = $entity->get('changed')->getValue()[0]['value'];
+  $keyring_keys['keyring_cid'] = $key_id;
 
   return $keyring_keys;
 }
@@ -168,58 +174,66 @@ function _proc_get_keys(string $item_id, string $type = NULL) {
  *   Array containing ciphertext data.
  */
 function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only = NULL) {
-  $entity = \Drupal::entityTypeManager()->getStorage('proc')->load($cid);
+  $entity = Drupal::entityTypeManager()->getStorage('proc')->load($cid);
 
   $recipients = $entity->get('field_recipients_set')->getValue();
   $recipient_id = [];
   foreach ($recipients as $recipient) {
     $recipient_id[] = $recipient['target_id'];
   }
-  $user = \Drupal::currentUser();
+  $user = Drupal::currentUser();
   $user_id = $user->id();
 
-
-  if ($metadata_only != TRUE && (isset($entity->get('armored')->getValue()[0]['cipher']))) {
-
-    $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
-    if (isset($entity->get('armored')->getValue()[0]['cipher_fid']) && !is_array($entity->get('armored')->getValue()[0]['cipher_fid'])) {
+  if ($metadata_only != TRUE && (isset($entity->get('armored')
+        ->getValue()[0]['cipher']))) {
+    $cipher_text_data['cipher_text'] = $entity->get('armored')
+      ->getValue()[0]['cipher'];
+    if (isset($entity->get('armored')
+          ->getValue()[0]['cipher_fid']) && !is_array($entity->get('armored')
+        ->getValue()[0]['cipher_fid'])) {
       // Stream wrapper storage in a single file:
-      $storage = \Drupal::entityTypeManager()->getStorage('file');
-      $file = $storage->load($entity->get('armored')->getValue()[0]['cipher_fid']);
+      $storage = Drupal::entityTypeManager()->getStorage('file');
+      $file = $storage->load($entity->get('armored')
+        ->getValue()[0]['cipher_fid']);
       $cipher_text_data['cipher_text'] = file_get_contents($file->getFileUri());
     }
 
     // Database storage:
     if ($entity->get('armored')->getValue()[0]['cipher']) {
-      $cipher_text_data['cipher_text'] = $entity->get('armored')->getValue()[0]['cipher'];
+      $cipher_text_data['cipher_text'] = $entity->get('armored')
+        ->getValue()[0]['cipher'];
     }
 
     // @todo: use cache first policy also for the update operation
     // If cipher_fid key is an array, there are multiple files for the
     // storage of the cipher:
-    if (isset($entity->get('armored')->getValue()[0]['cipher_fid']) && is_array($entity->get('armored')->getValue()[0]['cipher_fid'])) {
+    if (isset($entity->get('armored')
+          ->getValue()[0]['cipher_fid']) && is_array($entity->get('armored')
+        ->getValue()[0]['cipher_fid'])) {
       // Concatenate the pieces of the cipher in a single variable:
       $armored = '';
       foreach ($entity->get('armored')->getValue()[0]['cipher_fid'] as $fid) {
-        $storage = \Drupal::entityTypeManager()->getStorage('file');
+        $storage = Drupal::entityTypeManager()->getStorage('file');
         $file = $storage->load($fid);
         $armored = $armored . file_get_contents($file->getFileUri());
       }
       $cipher_text_data['cipher_text'] = $armored;
     }
-  };
+  }
 
   if (in_array($user_id, $recipient_id) || $metadata_only == TRUE) {
     $meta = $entity->get('meta')->getValue()[0];
     if (isset($meta['input_mode_source'])) {
-      $cipher_text_data['source_input_mode'] = \Drupal\Component\Utility\Html::escape($meta['input_mode_source']);
+      $cipher_text_data['source_input_mode'] = Html::escape($meta['input_mode_source']);
     }
-    $cipher_text_data['source_file_name']   = \Drupal\Component\Utility\Html::escape($meta['source_file_name']);
-    $cipher_text_data['source_file_size']   = \Drupal\Component\Utility\Html::escape($meta['source_file_size']);
-    $cipher_text_data['cipher_cid']         = $cid;
-    $cipher_text_data['proc_owner_uid']     = $entity->get('user_id')->getValue()[0]['target_id'];
-    $cipher_text_data['proc_recipients']    = $recipient_id;
-    $cipher_text_data['changed']            = $entity->get('changed')->getValue()[0]['value'];
+    $cipher_text_data['source_file_name'] = Html::escape($meta['source_file_name']);
+    $cipher_text_data['source_file_size'] = Html::escape($meta['source_file_size']);
+    $cipher_text_data['cipher_cid'] = $cid;
+    $cipher_text_data['proc_owner_uid'] = $entity->get('user_id')
+      ->getValue()[0]['target_id'];
+    $cipher_text_data['proc_recipients'] = $recipient_id;
+    $cipher_text_data['changed'] = $entity->get('changed')
+      ->getValue()[0]['value'];
   }
   return $cipher_text_data;
 }
@@ -246,8 +260,8 @@ function _proc_get_csv_arguments(array $csvs) {
     return $csvs_strings;
   }
   return NULL;
-
 }
+
 /**
  * Helper function for retrieval of pubkeys.
  *
@@ -273,6 +287,7 @@ function _proc_get_pubkeys(array $items, string $type = NULL) {
   }
   return $pubkeys;
 }
+
 /**
  * Helper common function to get pubkeys for encryption.
  *
@@ -286,15 +301,16 @@ function _proc_common_get_pubkeys(array $uids) {
   $recipients_pubkeys = array_filter(_proc_get_pubkeys($uids, 'uid'));
   // If some UID does not return keys:
   if (empty($recipients_pubkeys) || (count($uids) != count($recipients_pubkeys))) {
-    \Drupal\proc\Form\ProcDecryptForm::denyAccess();
+    ProcDecryptForm::denyAccess();
   }
   $post_max_size_bytes = _proc_get_post_max_size_bytes();
 
   return [
-    'recipients_pubkeys'  => $recipients_pubkeys,
+    'recipients_pubkeys' => $recipients_pubkeys,
     'post_max_size_bytes' => $post_max_size_bytes,
   ];
 }
+
 /**
  * Helper function to get max file size for encryption in bytes.
  *

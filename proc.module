@@ -26,8 +26,7 @@ function proc_help($route_name, RouteMatchInterface $route_match) {
   return FALSE;
 }
 
-
- /**
+/**
  * Implements hook_form_alter().
  */
 function proc_form_proc_keys_generation_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
@@ -43,10 +42,10 @@ function proc_form_proc_keys_generation_form_alter(&$form, FormStateInterface $f
     ],
     'drupalSettings' => [
       'proc' => [
-        'proc_labels'   => _proc_js_labels(),
-        'proc_data'     => $proc_data,
+        'proc_labels' => _proc_js_labels(),
+        'proc_data' => $proc_data,
         'proc_key_size' => $key_size,
-      ]
+      ],
     ],
   ];
 
@@ -54,10 +53,9 @@ function proc_form_proc_keys_generation_form_alter(&$form, FormStateInterface $f
 }
 
 /**
-* Implements hook_form_alter().
-*/
+ * Implements hook_form_alter().
+ */
 function proc_form_proc_encrypt_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
-
   $proc_data = _proc_common_get_decryption_form_data(NULL);
 
   $config = Drupal::config('proc.settings');
@@ -105,7 +103,7 @@ function proc_form_proc_encrypt_form_alter(&$form, FormStateInterface $form_stat
 
   $settings = [
     'proc_labels' => _proc_js_labels(),
-    'proc_data'   => $proc_data,
+    'proc_data' => $proc_data,
     // @todo: turn this into a configuration:
     'proc_file_entity_max_filesize' => $max_file_size,
     'proc_post_max_size_bytes' => _proc_get_post_max_size_bytes(),
@@ -141,8 +139,8 @@ function proc_entity_bundle_info_alter(array &$bundles): void {
 }
 
 /**
-* Implements hook_form_alter().
-*/
+ * Implements hook_form_alter().
+ */
 function proc_form_proc_decrypt_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
   // Get cipher IDs from the URL:
   $current_path = Drupal::service('path.current')->getPath();
@@ -162,7 +160,7 @@ function proc_form_proc_decrypt_form_alter(&$form, FormStateInterface $form_stat
   $ciphers_changed = [];
   $files_names = [];
   $files_sizes = [];
-  foreach($ciphers_data['ciphers'] as $cipher_id_data) {
+  foreach ($ciphers_data['ciphers'] as $cipher_id_data) {
     $ciphers_changed[] = $cipher_id_data['changed'];
     $files_names[] = $cipher_id_data['source_file_name'];
     $files_sizes[] = $cipher_id_data['source_file_size'];
@@ -174,7 +172,6 @@ function proc_form_proc_decrypt_form_alter(&$form, FormStateInterface $form_stat
       $sources_input_mode[] = 0;
     }
     $sources_signed[] = 0;
-
   }
 
   $form['#attached'] = [
@@ -184,33 +181,32 @@ function proc_form_proc_decrypt_form_alter(&$form, FormStateInterface $form_stat
     ],
     'drupalSettings' => [
       'proc' => [
-        'proc_labels'              => _proc_js_labels(),
-        'proc_pass'                => $common_data['proc_pass'],
+        'proc_labels' => _proc_js_labels(),
+        'proc_pass' => $common_data['proc_pass'],
         // 'proc_data'                => $ciphers_data,
-        'proc_privkey'             => $ciphers_data['privkey'],
-        'proc_ids'                 => array_keys($ciphers_data['ciphers']),
-        'procs_changed'            => $ciphers_changed,
+        'proc_privkey' => $ciphers_data['privkey'],
+        'proc_ids' => array_keys($ciphers_data['ciphers']),
+        'procs_changed' => $ciphers_changed,
         // Also used for labels on text area encryption:
-        'proc_sources_file_names'  => $files_names,
-        'proc_sources_file_sizes'  => $files_sizes,
+        'proc_sources_file_names' => $files_names,
+        'proc_sources_file_sizes' => $files_sizes,
         // @todo: implement this:
         'proc_sources_input_modes' => $sources_input_mode,
         // @todo: implement this:
-        'proc_sources_signed'      => $sources_signed,
+        'proc_sources_signed' => $sources_signed,
         // @TODO: get this from configuration:
-        'proc_skip_size_mismatch'  => 'TRUE',
-        'base_path'                => base_path(),
-        'proc_signed'              => $sources_signed,
-      ]
+        'proc_skip_size_mismatch' => 'TRUE',
+        'base_path' => base_path(),
+        'proc_signed' => $sources_signed,
+      ],
     ],
   ];
 }
 
 /**
-* Implements hook_form_alter().
-*/
+ * Implements hook_form_alter().
+ */
 function proc_form_proc_update_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
-
   $current_path = Drupal::service('path.current')->getPath();
   $path_array = explode('/', $current_path);
 
@@ -224,9 +220,9 @@ function proc_form_proc_update_form_alter(&$form, FormStateInterface $form_state
     $action_path = base_path() . substr($current_path, 1);
     $form['#action'] = $action_path;
     // There is at least one user ID and therefore updated did not happen yet:
-    $uids     = $csvs['uids_csv']['array'];
+    $uids = $csvs['uids_csv']['array'];
     $uids_csv = $csvs['uids_csv']['string'];
-    $cids     = $csvs['cids_csv']['array'];
+    $cids = $csvs['cids_csv']['array'];
     $cids_csv = $csvs['cids_csv']['string'];
 
     $ciphers_data = _proc_common_get_ciphers($cids);
@@ -236,8 +232,8 @@ function proc_form_proc_update_form_alter(&$form, FormStateInterface $form_state
       ProcDecryptForm::denyAccess();
     }
 
-    $privkey      = $ciphers_data['privkey'];
-    $cid_cipher   = $ciphers_data['ciphers'];
+    $privkey = $ciphers_data['privkey'];
+    $cid_cipher = $ciphers_data['ciphers'];
     $form['pass'] = _proc_common_get_decryption_form_data(NULL)['proc_pass'];
 
     // If some recipient is being removed of some content, allow update to proceed
@@ -245,7 +241,7 @@ function proc_form_proc_update_form_alter(&$form, FormStateInterface $form_state
     $recipients = [];
 
     foreach ($ciphers_data['ciphers'] as $cipher_data) {
-      if ($cipher_data['proc_owner_uid'] != \Drupal::currentUser()->id()) {
+      if ($cipher_data['proc_owner_uid'] != Drupal::currentUser()->id()) {
         // Current recipients:
         foreach ($cipher_data['proc_recipients'] as $recipient) {
           $recipients[] = $recipient;
@@ -264,8 +260,8 @@ function proc_form_proc_update_form_alter(&$form, FormStateInterface $form_state
       }
     }
 
-    $pubkeys_data        = _proc_common_get_pubkeys($uids);
-    $recipients_pubkeys  = $pubkeys_data['recipients_pubkeys'];
+    $pubkeys_data = _proc_common_get_pubkeys($uids);
+    $recipients_pubkeys = $pubkeys_data['recipients_pubkeys'];
     $post_max_size_bytes = $pubkeys_data['post_max_size_bytes'];
 
     $pubkeys = [];
@@ -276,13 +272,12 @@ function proc_form_proc_update_form_alter(&$form, FormStateInterface $form_state
     $armored_ciphers = [];
     foreach ($cids as $cid) {
       $armored_ciphers[$cid] = _proc_get_cipher($cid, NULL, NULL, FALSE);
-
     }
 
     $encryption_form_elements = [
-      'proc_ciphers'             => $cid_cipher,
-      'proc_ciphers_index'       => $cids,
-      'proc_recipients_pubkeys'  => Json::encode($pubkeys),
+      'proc_ciphers' => $cid_cipher,
+      'proc_ciphers_index' => $cids,
+      'proc_recipients_pubkeys' => Json::encode($pubkeys),
       'proc_post_max_size_bytes' => $post_max_size_bytes,
     ];
 
@@ -298,8 +293,8 @@ function proc_form_proc_update_form_alter(&$form, FormStateInterface $form_state
       'drupalSettings' => [
         'proc' => [
           'proc_labels' => _proc_js_labels(),
-          'proc_data'   => $proc_data,
-        ]
+          'proc_data' => $proc_data,
+        ],
       ],
     ];
 
@@ -323,7 +318,6 @@ function proc_form_proc_update_form_alter(&$form, FormStateInterface $form_state
   else {
     // Updating has already happened:
   }
-
 }
 
 /**
@@ -360,9 +354,7 @@ function proc_library_info_build() {
  * Implements hook_form_alter().
  */
 function proc_form_field_storage_config_edit_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
-
   if (isset($form['settings']['target_type']) && $form['settings']['target_type']['#default_value'] === 'proc') {
     $form['settings']['target_type']['#disabled'] = TRUE;
   }
-
 }

@@ -8,34 +8,37 @@
     attach: function (context, settings) {
       once('proc-decrypt', 'html', context)
         .forEach(function (element) {
-          let procJsLabels    = drupalSettings.proc.proc_labels,
-            passDrupal        = drupalSettings.proc.proc_pass,
-            privkey           = drupalSettings.proc.proc_privkey,
-            cipherIds         = drupalSettings.proc.proc_ids,
-            ciphersChanged    = drupalSettings.proc.procs_changed,
-            sourcesFileNames  = drupalSettings.proc.proc_sources_file_names,
+          let procJsLabels = drupalSettings.proc.proc_labels,
+            passDrupal = drupalSettings.proc.proc_pass,
+            privkey = drupalSettings.proc.proc_privkey,
+            cipherIds = drupalSettings.proc.proc_ids,
+            ciphersChanged = drupalSettings.proc.procs_changed,
+            sourcesFileNames = drupalSettings.proc.proc_sources_file_names,
             sourcesFilesSizes = drupalSettings.proc.proc_sources_file_sizes,
             sourcesInputModes = drupalSettings.proc.proc_sources_input_modes,
-            ciphersSigned     = drupalSettings.proc.proc_signed,
-            skipSizeMismatch  = drupalSettings.proc.proc_skip_size_mismatch,
-            basePath          = drupalSettings.proc.base_path;
+            ciphersSigned = drupalSettings.proc.proc_signed,
+            skipSizeMismatch = drupalSettings.proc.proc_skip_size_mismatch,
+            basePath = drupalSettings.proc.base_path;
           const messages = new Drupal.Message();
+
+          let decryptionLink = $('#decryption-link');
           if (!(window.Blob)) {
             messages.add(drupalSettings.proc.proc_labels.proc_fileapi_err_msg, {
-              type: 'error'
+              type: 'error',
             });
           }
           let procURLs = [];
+
           async function procOpenFile(decrypted, temporaryDownloadLink, cipherIndex) {
             const plaintext = decrypted.data,
               blob = new Blob([plaintext], {
                 type: 'application/octet-binary',
-                endings: 'native'
+                endings: 'native',
               }),
-              link = $('#decryption-link');
+              link = decryptionLink;
             temporaryDownloadLink.setAttribute('href', URL.createObjectURL(blob));
             let openActionLabel = procJsLabels.proc_open_file_state;
-            if (link.text() != openActionLabel) {
+            if (link.text() !== openActionLabel) {
               link.text(openActionLabel);
               // Highlight the link for better UX
               link.removeClass('active');
@@ -43,7 +46,7 @@
                 .after(`<div class="messages status" id="proc-decrypting-status">${procJsLabels.proc_decryption_success}</div>`);
             }
             // Check if file generated is the same size of source file.
-            if (blob.size.toString() === sourcesFilesSizes[cipherIndex] || skipSizeMismatch == true) {
+            if (blob.size.toString() === sourcesFilesSizes[cipherIndex] || skipSizeMismatch === true) {
               // Restore original file name:
               temporaryDownloadLink.setAttribute('download', sourcesFileNames[cipherIndex]);
               temporaryDownloadLink.click();
@@ -53,26 +56,18 @@
                 .prepend(`<div class="messages error">${procJsLabels.proc_decryption_size_mismatch}</div>`);
             }
           }
+
           cipherIds.forEach(function (cipherId, cipherIdIndex) {
             procURLs[cipherIdIndex] = `${window.location.origin + basePath}api/proc/getcipher/${cipherIds[cipherIdIndex]}/?cipherchanged=${ciphersChanged[cipherIdIndex]}`;
           });
           let cipherResponse,
             cipher;
           const introducingKeyDecryptionMsgElement = `<div class="messages info proc-info" id="proc-decrypting-info">${procJsLabels.proc_introducing_decryption}</div>`;
-          // const messages = new Drupal.Message();
-          // const messageId = messages.add('test message');
-          // messages.remove(messageId);
-          // messages.add('test message', {type: 'warning'});
-          // messages.add('test message', {type: 'error'});
-          // Clear ALL
-          // messages.clear();
-          // Reset messages and action.
           $(once('on', 'input#edit-pass', context))
             .on('focusin', function () {
-              // $('.messages').remove();
               messages.clear();
               this.value = '';
-              let actionLink = $('#decryption-link');
+              let actionLink = decryptionLink;
               if (!(actionLink.hasClass('active'))) {
                 actionLink.text('Decrypt')
                   .removeClass('active')
@@ -85,7 +80,7 @@
             .submit(function (e) {
               e.preventDefault();
               // Click decrypt instead:
-              $('#decryption-link')
+              decryptionLink
                 .click();
             });
           if ('caches' in self) {
@@ -96,12 +91,11 @@
                 let response = await cache.match(procURLs[cipherIdIndex]);
                 if (response) {
                   console.info('Reusing cipher from cache');
-                  return;
                 } else {
                   console.info('Adding cipher to cache');
                   cipherResponse = (await fetch(procURLs[cipherIdIndex]));
                   cipher = cipherResponse.clone();
-                  cache.put(procURLs[cipherIdIndex], cipherResponse);
+                  await cache.put(procURLs[cipherIdIndex], cipherResponse);
                   return cipher;
                   // @TODO: add clean up of expired cache if any!
                 }
@@ -109,28 +103,29 @@
             });
           } else {
             messages.add(drupalSettings.proc.proc_labels.proc_caches_unsupported, {
-              type: 'error'
+              type: 'error',
             });
           }
-          $('#decryption-link')
+          decryptionLink
             .on('click', async function (e) {
               e.preventDefault();
               let secretPassString = $('input[name=password]')[0].value,
                 passphrase = passDrupal.concat(secretPassString);
               const privateKey = await openpgp.readPrivateKey({
-                armoredKey: privkey
+                armoredKey: privkey,
               });
               const decryptedPrivateKey = await openpgp.decryptKey({
-                  privateKey,
-                  passphrase
-                })
+                privateKey,
+                passphrase,
+              })
                 .catch(function (err) {
+                  let decryptionLinkElement = $('a#decryption-link');
                   $('form#-proc-decrypt-to-file')
                     .prepend(`<div class="messages error">${Drupal.t(err)}</div>`);
-                  if ($('a#decryption-link')[0].href) {
-                    const fileUrl = $('a#decryption-link')[0].href;
+                  if (decryptionLinkElement[0].href) {
+                    const fileUrl = decryptionLinkElement[0].href;
                     URL.revokeObjectURL(fileUrl);
-                    $('a#decryption-link')
+                    decryptionLinkElement
                       .removeAttr('href');
                   }
                 });
@@ -138,7 +133,7 @@
                 $('form#-proc-decrypt-to-file')
                   .prepend(introducingKeyDecryptionMsgElement);
               }
-              let temporaryDownloadLink = document.createElement("a");
+              let temporaryDownloadLink = document.createElement('a');
               temporaryDownloadLink.style.display = 'none';
               document.body.appendChild(temporaryDownloadLink);
               cipherIds.forEach(function (cipherId, cipherIndex) {
@@ -152,7 +147,8 @@
                         response,
                         pubkeysJson,
                         pubKeyObj;
-                      if (ciphersSigned[cipherIndex] != 0) {
+                      if (ciphersSigned[cipherIndex] !== 0) {
+                        // @todo: implement signature:
                         expectedSignedValue = true;
                         response = await fetch(`${window.location.origin + Drupal.settings.basePath}proc/api/getpubkey/${ciphersSigned[cipherIndex]}/pid`);
                         pubkeysJson = await response.json();
@@ -180,31 +176,31 @@
                             }
                           });
                         if (decrypted) {
-                          procOpenFile(decrypted, temporaryDownloadLink, cipherIndex);
+                          await procOpenFile(decrypted, temporaryDownloadLink, cipherIndex);
                         }
                       } else {
                         const message = await openpgp.readMessage({
-                          armoredMessage: cipherText
+                          armoredMessage: cipherText,
                         });
                         let procFormat = 'binary';
                         if (sourcesInputModes[cipherIndex]) {
                           procFormat = sourcesInputModes[cipherIndex];
                         }
                         decrypted = await openpgp.decrypt({
-                            decryptionKeys: decryptedPrivateKey,
-                            // verificationKeys: publicKeys,
-                            message,
-                            format: procFormat
-                          })
+                          decryptionKeys: decryptedPrivateKey,
+                          // verificationKeys: publicKeys,
+                          message,
+                          format: procFormat,
+                        })
                           .catch(function (err) {
                             alert(err);
                           });
                         if (decrypted) {
                           if ($('textarea')
-                            .length != 0 && (typeof decrypted.data === 'string' || decrypted.data instanceof String)) {
+                            .length !== 0 && (typeof decrypted.data === 'string' || decrypted.data instanceof String)) {
                             $(`#edit-${cipherId}`)[0].innerText = decrypted.data;
                           } else {
-                            procOpenFile(decrypted, temporaryDownloadLink, cipherIndex);
+                            await procOpenFile(decrypted, temporaryDownloadLink, cipherIndex);
                           }
                         }
                       }
@@ -214,6 +210,6 @@
               document.body.removeChild(temporaryDownloadLink);
             });
         });
-    }
+    },
   };
 })(jQuery, Drupal, once);

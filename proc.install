@@ -4,24 +4,27 @@
  * Install, update and uninstall functions for the Protected Content module.
  */
 
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
+
 /**
  * Implements hook_install().
  */
 function proc_install() {
-  \Drupal::messenger()->addStatus(__FUNCTION__);
-  
-  \Drupal::entityTypeManager()->clearCachedDefinitions();
+  Drupal::messenger()->addStatus(__FUNCTION__);
 
-  $entity_type_manager = \Drupal::entityTypeManager();
+  Drupal::entityTypeManager()->clearCachedDefinitions();
+
+  $entity_type_manager = Drupal::entityTypeManager();
   $custom_entity_type = $entity_type_manager->getDefinition('proc');
-  $field_storage_definition = \Drupal\Core\Field\BaseFieldDefinition::create('entity_reference')
+  $field_storage_definition = BaseFieldDefinition::create('entity_reference')
     ->setLabel(t('Cipher recipients set'))
     ->setDescription(t('Recipients set for a cipher text.'))
     ->setSetting('target_type', 'user')
     ->setCardinality(-1)
     ->setTranslatable(FALSE)
     ->setRevisionable(FALSE)
-    ->setCardinality(\Drupal\Core\Field\FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+    ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
     ->setDisplayOptions('view', [
       'label' => 'above',
       'type' => 'entity_reference_label',
@@ -37,8 +40,8 @@ function proc_install() {
         'placeholder' => '',
       ],
     ])
-    ->setDisplayConfigurable('form', true)
-    ->setDisplayConfigurable('view', true);
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayConfigurable('view', TRUE);
 
   $field_name = 'field_proc_recipients';
   $entity_type_manager->getStorage('field_storage_config')->create([
@@ -47,7 +50,7 @@ function proc_install() {
     'type' => 'entity_reference',
     'cardinality' => -1,
   ])->save();
-  
+
   $entity_type_manager->getStorage('proc')->create([
     'field_name' => $field_name,
     'entity_type' => $custom_entity_type->id(),
@@ -61,8 +64,8 @@ function proc_install() {
     $field_name,
   ];
 
-  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
-  $field_definitions = \Drupal::service('entity_field.manager')
+  $entity_definition_update_manager = Drupal::entityDefinitionUpdateManager();
+  $field_definitions = Drupal::service('entity_field.manager')
     ->getFieldDefinitions($entity_type, $entity_type);
   foreach ($fields as $field_name) {
     if (!empty($field_definitions[$field_name])) {
@@ -81,7 +84,7 @@ function proc_install() {
  */
 function proc_uninstall() {
   // @TODO: remove leftovers from database
-  \Drupal::messenger()->addStatus(__FUNCTION__);
+  Drupal::messenger()->addStatus(__FUNCTION__);
 }
 
 /**

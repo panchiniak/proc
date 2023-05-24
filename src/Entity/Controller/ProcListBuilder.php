@@ -64,7 +64,6 @@ class ProcListBuilder extends EntityListBuilder {
    * and inserts the 'edit' and 'delete' links as defined for the entity type.
    */
   public function buildHeader() {
-
     $header = [
       'id' => $this->t('Proc ID'),
       'label' => [
@@ -101,8 +100,7 @@ class ProcListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-
-//    ksm($entity->getMeta());
+    //    ksm($entity->getMeta());
 
     $flag = '';
     // Proc entities less than 30 days old are considered new:
@@ -118,11 +116,12 @@ class ProcListBuilder extends EntityListBuilder {
     ];
     $row['owner'] = $entity->getOwner()->getAccountName();
     $row['type'] = $entity->getType();
-    $row['status'] = $entity->getStatus()  ? $this->t('published') : $this->t('not published');
+    $row['status'] = $entity->getStatus() ? $this->t('published') : $this->t('not published');
     $row['created'] = $this->dateFormatter->format($entity->getCreated(), 'short');
-    $row['changed'] = $entity->getChangedTime()  ? $this->dateFormatter->format($entity->getChangedTime(), 'short') : $this->t('not changed');
+    $row['changed'] = $entity->getChangedTime() ? $this->dateFormatter->format($entity->getChangedTime(), 'short') : $this->t('not changed');
     $row['size'] = $entity->getType() == 'cipher' ? format_size($entity->getMeta()[0]['source_file_size']) : format_size($entity->getMeta()[0]['key_size']);
 
     return $row + parent::buildRow($entity);
   }
+
 }

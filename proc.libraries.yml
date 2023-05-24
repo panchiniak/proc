@@ -10,7 +10,7 @@ openpgpjs:
 
 proc-generate-keys:
   js:
-    js/proc-generate-keys.js: {}
+    js/proc-generate-keys.js: { }
   dependencies:
     - core/drupal
     - core/jquery
@@ -19,7 +19,7 @@ proc-generate-keys:
 
 proc-encrypt:
   js:
-    js/proc-encrypt.js: {}
+    js/proc-encrypt.js: { }
   dependencies:
     - core/drupal
     - core/jquery
@@ -31,7 +31,7 @@ proc-encrypt:
 
 proc-decrypt:
   js:
-    js/proc-decrypt.js: {}
+    js/proc-decrypt.js: { }
   dependencies:
     - core/drupal
     - core/jquery
@@ -41,7 +41,7 @@ proc-decrypt:
 
 proc-update:
   js:
-    js/proc-update.js: {}
+    js/proc-update.js: { }
   dependencies:
     - core/drupal
     - core/jquery
@@ -51,7 +51,7 @@ proc-update:
 
 proc-field:
   js:
-    js/proc-field.js: {}
+    js/proc-field.js: { }
   dependencies:
     - core/drupal
     - core/jquery

@@ -26,13 +26,17 @@ class CipherForm extends ContentEntityForm {
 
     switch ($result) {
       case SAVED_NEW:
-        $this->messenger()->addStatus($this->t('New cipher %label has been created.', $message_arguments));
-        $this->logger('proc')->notice('Created new cipher %label', $logger_arguments);
+        $this->messenger()
+          ->addStatus($this->t('New cipher %label has been created.', $message_arguments));
+        $this->logger('proc')
+          ->notice('Created new cipher %label', $logger_arguments);
         break;
 
       case SAVED_UPDATED:
-        $this->messenger()->addStatus($this->t('The cipher %label has been updated.', $message_arguments));
-        $this->logger('proc')->notice('Updated cipher %label.', $logger_arguments);
+        $this->messenger()
+          ->addStatus($this->t('The cipher %label has been updated.', $message_arguments));
+        $this->logger('proc')
+          ->notice('Updated cipher %label.', $logger_arguments);
         break;
     }
 

@@ -13,4 +13,5 @@ use Drupal\Core\Entity\Element\EntityAutocomplete;
  * @FormElement("proc_entity_autocomplete")
  */
 class ProcEntityAutocomplete extends EntityAutocomplete {
+
 }

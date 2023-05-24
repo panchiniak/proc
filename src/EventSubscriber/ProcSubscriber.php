@@ -31,6 +31,16 @@ class ProcSubscriber implements EventSubscriberInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function getSubscribedEvents() {
+    return [
+      // KernelEvents::REQUEST => ['onKernelRequest'],
+      // KernelEvents::RESPONSE => ['onKernelResponse'],
+    ];
+  }
+
+  /**
    * Kernel request event handler.
    *
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
@@ -48,16 +58,6 @@ class ProcSubscriber implements EventSubscriberInterface {
    */
   public function onKernelResponse(FilterResponseEvent $event) {
     $this->messenger->addStatus(__FUNCTION__);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function getSubscribedEvents() {
-    return [
-      // KernelEvents::REQUEST => ['onKernelRequest'],
-      // KernelEvents::RESPONSE => ['onKernelResponse'],
-    ];
   }
 
 }

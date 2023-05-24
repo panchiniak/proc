@@ -2,6 +2,7 @@
 
 namespace Drupal\proc\Plugin\Field\FieldWidget;
 
+use Drupal;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
@@ -24,7 +25,6 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-
     $entity = $items->getEntity();
     // @todo: load the direct fetcher by field field name
     // from proc entity reference field settings.
@@ -40,7 +40,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     // Add extra javascript library.
     $library = [
       'library' => [
-        0 => 'proc/field'
+        0 => 'proc/field',
       ],
     ];
 
@@ -59,7 +59,8 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     if ($bundle = $this->getAutocreateBundle()) {
       $element['#autocreate'] = [
         'bundle' => $bundle,
-        'uid' => ($entity instanceof EntityOwnerInterface) ? $entity->getOwnerId() : \Drupal::currentUser()->id(),
+        'uid' => ($entity instanceof EntityOwnerInterface) ? $entity->getOwnerId() : Drupal::currentUser()
+          ->id(),
       ];
     }
 
@@ -134,7 +135,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       [
         'attributes' => [
           'onclick' => $direct_fetcher_js,
-        ]
+        ],
       ]
     );
 
@@ -144,7 +145,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
       '#url' => $url,
       '#attributes' => [
         'class' => ['button'],
-      ]
+      ],
     ];
 
     $element['#attached']['library'][] = 'proc/proc-field';
@@ -159,7 +160,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
         [
           'attributes' => [
             'class' => ['button'],
-          ]
+          ],
         ]
       );
 
@@ -169,4 +170,5 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $element['#description'] = [$link, $decryption_link];
     return ['target_id' => $element];
   }
+
 }

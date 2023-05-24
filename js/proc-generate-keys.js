@@ -12,15 +12,15 @@
             procData = drupalSettings.proc.proc_data,
             procKeySize = drupalSettings.proc.proc_key_size;
           if (!procKeySize) {
-            console.info('Setting default key size.')
+            console.info('Setting default key size.');
             procKeySize = '4096';
           }
 
           function resetPassword() {
             $('#edit-password-confirm-pass1')
-              .val("");
+              .val('');
             $('#edit-password-confirm-pass2')
-              .val("");
+              .val('');
           }
 
           function validatePassword(pass, passConfirm, strenght) {
@@ -40,6 +40,7 @@
             }
             return error_message;
           }
+
           $('#edit-submit')
             .on('click', async function (e) {
               e.preventDefault();
@@ -87,23 +88,25 @@
                   passDrupalString = passDrupal,
                   cryptoPass = passDrupalString.concat(passString),
                   startSeconds = new Date()
-                  .getTime() / 1000;
+                    .getTime() / 1000;
                 const {
                   privateKey,
                   publicKey,
-                  revocationCertificate
+                  revocationCertificate,
                 } = await openpgp.generateKey({
-                    userIDs: [{
+                  userIDs: [
+                    {
                       name: procData.proc_name,
-                      email: procData.proc_email
-                    }],
-                    type: 'rsa',
-                    passphrase: cryptoPass,
-                    // @todo: made this configurable:
-                    // rsaBits: 2048,
-                    rsaBits: procKeySize,
-                    format: 'armored',
-                  })
+                      email: procData.proc_email,
+                    },
+                  ],
+                  type: 'rsa',
+                  passphrase: cryptoPass,
+                  // @todo: made this configurable:
+                  // rsaBits: 2048,
+                  rsaBits: procKeySize,
+                  format: 'armored',
+                })
                   .catch(
                     // This error is possibly due to tampering atempt.
                     function (err) {
@@ -112,7 +115,7 @@
                       // Reset password and action label.
                       resetPassword();
                       $('#edit-submit')[0].value = procJsLabels.proc_generate_keys_submit_label;
-                      return;
+
                     });
                 let endSeconds = new Date()
                   .getTime() / 1000;
@@ -132,6 +135,6 @@
               }
             });
         });
-    }
+    },
   };
 })(jQuery, Drupal, once);

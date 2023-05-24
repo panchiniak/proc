@@ -2,12 +2,15 @@
 
 namespace Drupal\proc\Form;
 
+use Drupal;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Drupal\proc;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Routing;
 use Drupal\Component\Utility\UrlHelper;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Generate PGP asymmetric keys.
@@ -36,7 +39,6 @@ class ProcKeysGenerationForm extends FormBase {
    *   The render array defining the elements of the form.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-
     $proc_hidden_fields_key_generation = [
       // @todo: move this to static property of ProcKeys class
       'public_key',
@@ -101,13 +103,12 @@ class ProcKeysGenerationForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-
     $destination = FALSE;
     $key_created = FALSE;
     $success_message = 'Your key is saved.';
 
-    $current_url = \Drupal::request()->headers->get('referer');
-    $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
+    $current_url = Drupal::request()->headers->get('referer');
+    $parse_result = UrlHelper::parse($current_url);
     if (isset($parse_result['query']['destination'])) {
       $destination = $parse_result['query']['destination'];
     }
@@ -115,21 +116,21 @@ class ProcKeysGenerationForm extends FormBase {
     if (!empty($form_state->getValue('encrypted_private_key'))) {
       $keyring = [
         'privkey' => $form_state->getValue('encrypted_private_key'),
-        'pubkey'  => $form_state->getValue('public_key'),
+        'pubkey' => $form_state->getValue('public_key'),
       ];
 
-      $config = \Drupal::config('proc.settings');
+      $config = Drupal::config('proc.settings');
       $key_size = $config->get('proc-rsa-key-size');
 
       $meta = [
         'generation_timestamp' => $form_state->getValue('generation_timestamp'),
         'generation_timespan' => $form_state->getValue('generation_timespan'),
         'browser_fingerprint' => $form_state->getValue('browser_fingerprint'),
-        'proc_email'          => $form_state->getValue('proc_email'),
-        'key_size'            => $key_size,
+        'proc_email' => $form_state->getValue('proc_email'),
+        'key_size' => $key_size,
       ];
 
-      $proc = \Drupal\proc\Entity\Proc::create();
+      $proc = proc\Entity\Proc::create();
       $proc->set('armored', $keyring)
         ->set('meta', $meta)
         ->set('label', $meta['proc_email'])
@@ -141,14 +142,16 @@ class ProcKeysGenerationForm extends FormBase {
       }
     }
     else {
-      $this->messenger()->addMessage($this->t('Unknown error on the generation of the key. Please try again.'), 'error');
+      $this->messenger()
+        ->addMessage($this->t('Unknown error on the generation of the key. Please try again.'), 'error');
     }
 
     if ($destination && $key_created) {
-      $url = \Drupal\Core\Url::fromUri('internal:/' . $destination);
-      $response = new \Symfony\Component\HttpFoundation\RedirectResponse($url->toString());
+      $url = Url::fromUri('internal:/' . $destination);
+      $response = new RedirectResponse($url->toString());
       $response->send();
-      \Drupal::messenger()->addStatus($this->t($success_message));
+      Drupal::messenger()->addStatus($this->t($success_message));
     }
   }
+
 }

@@ -12,11 +12,11 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
  * @FieldType(
  *   id = "proc_entity_reference_field",
  *   label = @Translation("Proc Entity Reference Field"),
- *   description = @Translation("An entity field containing a proc enabled entity reference."),
- *   category = @Translation("Reference"),
- *   default_widget = "proc_entity_reference_widget",
- *   default_formatter = "entity_reference_label",
- *   list_class = "\Drupal\Core\Field\EntityReferenceFieldItemList",
+ *   description = @Translation("An entity field containing a proc enabled
+ *   entity reference."), category = @Translation("Reference"), default_widget
+ *   = "proc_entity_reference_widget", default_formatter =
+ *   "entity_reference_label", list_class =
+ *   "\Drupal\Core\Field\EntityReferenceFieldItemList",
  * )
  */
 class ProcEntityReferenceFieldItem extends EntityReferenceItem {
@@ -26,8 +26,8 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
    */
   public static function defaultStorageSettings() {
     return [
-      // The default target type is 'proc' because the default widget is
-      // 'proc_entity_reference_widget'.
+        // The default target type is 'proc' because the default widget is
+        // 'proc_entity_reference_widget'.
         'target_type' => 'proc',
       ] + parent::defaultStorageSettings();
   }
@@ -37,13 +37,22 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
    */
   public static function defaultFieldSettings() {
     return [
-      'proc_field_recipients_fetcher_endpoint' => '',
-      'proc_field_recipients_manual_fetcher' => '',
-      'proc_field_recipients_to_field' => '',
-      'proc_field_recipients_cc_field' => '',
-      'proc_field_mode' => 1,
-      'proc_field_input_mode' => 0,
-    ] + parent::defaultFieldSettings();
+        'proc_field_recipients_fetcher_endpoint' => '',
+        'proc_field_recipients_manual_fetcher' => '',
+        'proc_field_recipients_to_field' => '',
+        'proc_field_recipients_cc_field' => '',
+        'proc_field_mode' => 1,
+        'proc_field_input_mode' => 0,
+      ] + parent::defaultFieldSettings();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
+    // Define properties for the field type.
+    $properties = parent::propertyDefinitions($field_definition);
+    return $properties;
   }
 
   /**
@@ -106,7 +115,7 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
       ],
       2 => [
         '#disabled' => TRUE,
-      ]
+      ],
     ];
 
     $form['handler']['handler_settings']['proc']['proc_field_input_mode'] = [
@@ -123,19 +132,10 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
       ],
       2 => [
         '#disabled' => TRUE,
-      ]
+      ],
     ];
 
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
-    // Define properties for the field type.
-    $properties = parent::propertyDefinitions($field_definition);
-    return $properties;
   }
 
 }

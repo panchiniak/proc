@@ -2,20 +2,23 @@
 
 namespace Drupal\proc\Form;
 
+use Drupal;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\proc;
-use \Drupal\Core\Link;
-use \Drupal\Core\Url;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\File\FileSystemInterface;
-use \Drupal\Component\Utility\Crypt;
+use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\InvokeCommand;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Encrypt content.
@@ -33,17 +36,16 @@ class ProcEncryptForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-
     $proc_hidden_fields_key_generation = [
-			'cipher_text',
-			'source_file_name',
-			'source_file_size',
-			'source_file_type',
-			'source_file_last_change',
-			'browser_fingerprint',
-			'generation_timestamp',
-			'generation_timespan',
-			'signed',
+      'cipher_text',
+      'source_file_name',
+      'source_file_size',
+      'source_file_type',
+      'source_file_last_change',
+      'browser_fingerprint',
+      'generation_timestamp',
+      'generation_timespan',
+      'signed',
     ];
 
     foreach ($proc_hidden_fields_key_generation as $hidden_field) {
@@ -51,12 +53,11 @@ class ProcEncryptForm extends FormBase {
     }
 
     // Get query string:
-    $query = \Drupal::request()->query->all();
-
+    $query = Drupal::request()->query->all();
 
     $form['proc-file'] = [
-			'#type' => 'file',
-			'#description' => $this->t('Select a file for encryption.'),
+      '#type' => 'file',
+      '#description' => $this->t('Select a file for encryption.'),
       'data' => $query,
     ];
 
@@ -71,7 +72,7 @@ class ProcEncryptForm extends FormBase {
       $form['#attached']['drupalSettings'] = [
         'proc' => [
           'proc_standalone_mode' => FALSE,
-        ]
+        ],
       ];
 
       $form['submit-proc'] = [
@@ -87,7 +88,7 @@ class ProcEncryptForm extends FormBase {
       $form['#attached']['drupalSettings'] = [
         'proc' => [
           'proc_standalone_mode' => TRUE,
-        ]
+        ],
       ];
 
       $form['actions']['submit-proc'] = [
@@ -102,7 +103,6 @@ class ProcEncryptForm extends FormBase {
    * Submit handler for the ajax submit.
    */
   public function submitFormAjax(array &$form, FormStateInterface $form_state) {
-
     $response = new AjaxResponse();
     // Selector for the dialog close button.
     $selector = '.ui-dialog-titlebar-close';
@@ -113,7 +113,7 @@ class ProcEncryptForm extends FormBase {
     $file_name = $form['proc-file']['#value']['' . "\0" . 'Symfony\\Component\\HttpFoundation\\File\\UploadedFile' . "\0" . 'originalName'];
 
     // Get the lates proc ID:
-    $query = \Drupal::entityQuery('proc');
+    $query = Drupal::entityQuery('proc');
     $query->accessCheck(TRUE);
     $query->sort('id', 'DESC');
     $query->range(0, 1);
@@ -127,7 +127,6 @@ class ProcEncryptForm extends FormBase {
     $selector = '#' . $form_state->getCompleteForm()['proc-file']['data']['proc_parent_id'];
 
     $response->addCommand(new InvokeCommand($selector, 'val', [$file_name]));
-
 
     return $response;
   }
@@ -162,13 +161,13 @@ class ProcEncryptForm extends FormBase {
 
     $recipients_set_ids = $form_state->get('storage');
 
-    $request = \Drupal::request();
+    $request = Drupal::request();
 
     $destination = FALSE;
 
-    $current_url = \Drupal::request()->headers->get('referer');
+    $current_url = Drupal::request()->headers->get('referer');
 
-    $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
+    $parse_result = UrlHelper::parse($current_url);
 
     if (isset($parse_result['query']['destination'])) {
       $destination = $parse_result['query']['destination'];
@@ -186,7 +185,7 @@ class ProcEncryptForm extends FormBase {
       'signed' => $form_state->getValue('signed'),
     ];
 
-    $proc = \Drupal\proc\Entity\Proc::create();
+    $proc = proc\Entity\Proc::create();
 
     $recipient_users = [];
     foreach ($recipients_set_ids as $recipient_id) {
@@ -197,7 +196,7 @@ class ProcEncryptForm extends FormBase {
     $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
     $json_filename = $fragment . '.json';
 
-    $config = \Drupal::config('proc.settings');
+    $config = Drupal::config('proc.settings');
     $enable_stream_wrapper = $config->get('proc-enable-stream-wrapper');
     $stream_wrapper = $config->get('proc-stream-wrapper');
     $block_size = $config->get('proc-file-block-size');
@@ -205,16 +204,13 @@ class ProcEncryptForm extends FormBase {
 
     $file_id = FALSE;
     if ($enable_stream_wrapper === 1 && !empty($stream_wrapper)) {
-
       $json_dest = $stream_wrapper;
       if (!is_dir($json_dest)) {
-        \Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
+        Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
       }
 
       if ($json_content) {
-
         if ($blocks_split_enabled && !empty($block_size)) {
-
           // $content_lines_number = substr_count($json_content, "\n");
           $lines = explode("\n", $json_content);
           $content_lines_number = count($lines);
@@ -249,11 +245,10 @@ class ProcEncryptForm extends FormBase {
 
           $json_fids = [];
           foreach ($blocks_texts as $block_text) {
-
             $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
             $json_filename = $fragment . '.json';
 
-            $jsonFid = \Drupal::service('file.repository')
+            $jsonFid = Drupal::service('file.repository')
               ->writeData(
                 $block_text,
                 "$json_dest/$json_filename",
@@ -265,7 +260,7 @@ class ProcEncryptForm extends FormBase {
           }
         }
         else {
-          $jsonFid = \Drupal::service('file.repository')
+          $jsonFid = Drupal::service('file.repository')
             ->writeData(
               $json_content,
               "$json_dest/$json_filename",
@@ -312,9 +307,10 @@ class ProcEncryptForm extends FormBase {
       $this->messenger()->addMessage($this->t('Error'), type: TYPE_ERROR);
     }
     if ($destination) {
-      $url = \Drupal\Core\Url::fromUri('internal:/' . $destination);
-      $response = new \Symfony\Component\HttpFoundation\RedirectResponse($url->toString());
+      $url = Url::fromUri('internal:/' . $destination);
+      $response = new RedirectResponse($url->toString());
       $response->send();
     }
   }
+
 }

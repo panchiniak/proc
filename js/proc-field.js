@@ -10,6 +10,6 @@
         .forEach(function (element) {
 
         });
-    }
+    },
   };
 })(jQuery, Drupal, once);

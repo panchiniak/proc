@@ -38,7 +38,7 @@ proc.json_api_proc:
   defaults:
     _controller: 'Drupal\proc\Controller\JsonApiProcController::index'
     _title: 'Proc JSON api'
-  methods:  [GET]
+  methods: [ GET ]
   requirements:
     _access: 'TRUE'
 
@@ -47,7 +47,7 @@ proc.json_api_proc_cipher:
   defaults:
     _controller: 'Drupal\proc\Controller\JsonApiProcController::cipher'
     _title: 'Proc JSON api'
-  methods:  [GET]
+  methods: [ GET ]
   requirements:
     _access: 'TRUE'
 

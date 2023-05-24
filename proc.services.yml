@@ -1,6 +1,6 @@
 services:
   proc.event_subscriber:
     class: Drupal\proc\EventSubscriber\ProcSubscriber
-    arguments: ['@messenger']
+    arguments: [ '@messenger' ]
     tags:
       - { name: event_subscriber }

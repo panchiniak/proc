@@ -14,4 +14,5 @@ use Drupal\Core\Entity\EntityChangedInterface;
  * @ingroup proc
  */
 interface ProcInterface extends ContentEntityInterface, EntityOwnerInterface, EntityChangedInterface {
+
 }

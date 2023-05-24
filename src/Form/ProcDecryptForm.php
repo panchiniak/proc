@@ -2,14 +2,14 @@
 
 namespace Drupal\proc\Form;
 
+use Drupal;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\proc;
-use \Drupal\Core\Link;
-use \Drupal\Core\Url;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use \Drupal\Component\Utility\Crypt;
-
+use Drupal\Component\Utility\Crypt;
 
 /**
  * Decrypt content.
@@ -35,7 +35,6 @@ class ProcDecryptForm extends FormBase {
    *   The render array defining the elements of the form.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-
     $form['password'] = [
       '#type' => 'password',
       '#title' => $this->t('Protected Content Password'),
@@ -46,8 +45,9 @@ class ProcDecryptForm extends FormBase {
       'button--primary',
       'button',
     ];
-    \Drupal::moduleHandler()->alter('decryption_link_classes', $decryption_link_classes);
-    
+    Drupal::moduleHandler()
+      ->alter('decryption_link_classes', $decryption_link_classes);
+
     $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
     $form['decrypt'] = [
       '#type' => 'link',
@@ -59,25 +59,25 @@ class ProcDecryptForm extends FormBase {
         'class' => ['button--primary', 'button'],
       ],
     ];
-    
+
     return $form;
   }
 
   /**
    * Implements form validation.
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-  }
+  public function validateForm(array &$form, FormStateInterface $form_state) {}
 
   /**
    * Implements a form submit handler.
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-  }
+  public function submitForm(array &$form, FormStateInterface $form_state) {}
+
   /**
    * Deny access.
    */
   public function denyAccess() {
-      throw new AccessDeniedHttpException();
+    throw new AccessDeniedHttpException();
   }
+
 }
