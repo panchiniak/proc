@@ -141,7 +141,7 @@
               let temporaryDownloadLink = document.createElement("a");
               temporaryDownloadLink.style.display = 'none';
               document.body.appendChild(temporaryDownloadLink);
-              cipherIds.forEach(async function (cipherId, cipherIndex) {
+              cipherIds.forEach(function (cipherId, cipherIndex) {
                 let cache = caches.match(procURLs[cipherIndex]);
                 cache.then(async function (response) {
                   response.json()

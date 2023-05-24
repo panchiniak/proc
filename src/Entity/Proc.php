@@ -122,28 +122,28 @@ class Proc extends ContentEntityBase implements ProcInterface {
   }
 
   /**
-   * Get public key cipher
+   * Get proc type
    */
   public function getType() {
     return $this->values["type"]["x-default"];
   }
 
   /**
-   * Get public key cipher
+   * Get status
    */
   public function getStatus() {
     return $this->values["status"]["x-default"];
   }
 
   /**
-   * Get public key cipher
+   * Get created timestamp
    */
   public function getCreated() {
     return $this->values["created"]["x-default"];
   }
 
   /**
-   * Get public key cipher
+   * Get metadata value
    */
   public function getMeta() {
     return $this->get('meta')->getValue();

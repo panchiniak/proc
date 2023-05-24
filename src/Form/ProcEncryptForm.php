@@ -60,7 +60,7 @@ class ProcEncryptForm extends FormBase {
       'data' => $query,
     ];
 
-    // Get current URL. If it has a query string standalone=FALSE, then we 
+    // Get current URL. If it has a query string standalone=FALSE, then we
     // do not use ajax submit.
     $proc_standalone_mode = FALSE;
     if (isset($query['proc_standalone_mode'])) {
@@ -71,7 +71,7 @@ class ProcEncryptForm extends FormBase {
       $form['#attached']['drupalSettings'] = [
         'proc' => [
           'proc_standalone_mode' => FALSE,
-        ] 
+        ]
       ];
 
       $form['submit-proc'] = [
@@ -81,13 +81,13 @@ class ProcEncryptForm extends FormBase {
           'callback' => '::submitFormAjax',
           'event' => 'click',
         ],
-      ];      
+      ];
     }
     else {
       $form['#attached']['drupalSettings'] = [
         'proc' => [
           'proc_standalone_mode' => TRUE,
-        ] 
+        ]
       ];
 
       $form['actions']['submit-proc'] = [
@@ -130,7 +130,7 @@ class ProcEncryptForm extends FormBase {
 
 
     return $response;
-  }  
+  }
 
   /**
    * Implements form validation.
@@ -159,17 +159,17 @@ class ProcEncryptForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     global $base_url;
-    
+
     $recipients_set_ids = $form_state->get('storage');
 
     $request = \Drupal::request();
 
     $destination = FALSE;
-    
+
     $current_url = \Drupal::request()->headers->get('referer');
 
     $parse_result = \Drupal\Component\Utility\UrlHelper::parse($current_url);
-    
+
     if (isset($parse_result['query']['destination'])) {
       $destination = $parse_result['query']['destination'];
     }
@@ -187,16 +187,16 @@ class ProcEncryptForm extends FormBase {
     ];
 
     $proc = \Drupal\proc\Entity\Proc::create();
-    
+
     $recipient_users = [];
     foreach ($recipients_set_ids as $recipient_id) {
       $recipient_users[] = ['target_id' => $recipient_id];
     }
-    
+
     $json_content = $cipher['cipher'];
     $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
     $json_filename = $fragment . '.json';
-    
+
     $config = \Drupal::config('proc.settings');
     $enable_stream_wrapper = $config->get('proc-enable-stream-wrapper');
     $stream_wrapper = $config->get('proc-stream-wrapper');
@@ -210,7 +210,7 @@ class ProcEncryptForm extends FormBase {
       if (!is_dir($json_dest)) {
         \Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
       }
-      
+
       if ($json_content) {
 
         if ($blocks_split_enabled && !empty($block_size)) {
@@ -221,13 +221,13 @@ class ProcEncryptForm extends FormBase {
 
           $lines_size_ratio = $content_lines_number / $block_size;
           $blocks = intval($lines_size_ratio);
-          
+
           $remaining = $content_lines_number % $block_size;
           if ($remaining > 0) {
             $blocks++;
           }
           $blocks_index = 0;
-          
+
           $blocks_lines = [];
           $content_line_index = 0;
           while ($blocks_index < $blocks) {
@@ -239,20 +239,20 @@ class ProcEncryptForm extends FormBase {
             }
             $blocks_index++;
           }
-          
+
           $blocks_texts = [];
           foreach ($blocks_lines as $block_index => $block_lines) {
             foreach ($block_lines as $block_line) {
               $blocks_texts[$block_index] = $blocks_texts[$block_index] . "\n" . $block_line;
             }
           }
-    
+
           $json_fids = [];
           foreach ($blocks_texts as $block_text) {
-            
+
             $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
             $json_filename = $fragment . '.json';
-            
+
             $jsonFid = \Drupal::service('file.repository')
               ->writeData(
                 $block_text,
@@ -271,14 +271,14 @@ class ProcEncryptForm extends FormBase {
               "$json_dest/$json_filename",
               FileSystemInterface::EXISTS_REPLACE
             );
-  
+
           if ($jsonFid->id()) {
             $file_id = $jsonFid->id();
           }
         }
       }
     }
-    
+
     if ($file_id) {
       $cipher = ['cipher_fid' => $file_id];
     }
@@ -309,7 +309,7 @@ class ProcEncryptForm extends FormBase {
       );
     }
     else {
-      $this->messenger()->addMessage($this->t('Error'), TYPE_ERROR);
+      $this->messenger()->addMessage($this->t('Error'), type: TYPE_ERROR);
     }
     if ($destination) {
       $url = \Drupal\Core\Url::fromUri('internal:/' . $destination);
