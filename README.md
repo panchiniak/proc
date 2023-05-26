@@ -78,5 +78,3 @@ MAINTAINERS
 Rodrigo Panchiniak Fernandes - https://www.drupal.org/user/411448
 
 Duarte Briz (duartebriz) - https://www.drupal.org/u/duartebriz
-
-https://3cddfa3ea1e444288fb17ad485dcdd74.vfs.cloud9.eu-west-1.amazonaws.com/proclab/web/my-friends?_format=xml
