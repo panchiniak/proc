@@ -89,7 +89,6 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     if (!empty($carbon_copy_recipients_field_name)) {
       $direct_fetcher_cc = '
         cc_recipients_collection = Object.values(document.querySelectorAll("input[name^=\'' . $carbon_copy_recipients_field_name . '\']"));
-        cc_recipients_collection.pop();
       ';
     }
 
@@ -99,7 +98,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
         let recipients_collection = to_recipients_collection.concat(cc_recipients_collection);
         recipients_collection.forEach(function (recipient, index) {
           if (index < recipients_length) {
-            if (recipient.value) {
+            if (recipient.value.match(/\(\d+\)/)) {
               let id_parenthesis = recipient.value.match(/\(\d+\)/)[0];
               recipients.push(id_parenthesis.substring(1, id_parenthesis.length - 1));
             }
