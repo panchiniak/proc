@@ -82,7 +82,6 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     if (!empty($to_recipients_field_name)) {
       $direct_fetcher_to = '
         to_recipients_collection = Object.values(document.querySelectorAll("input[name^=\'' . $to_recipients_field_name . '\']"));
-        to_recipients_collection.pop();
       ';
     }
     $direct_fetcher_cc = '';
