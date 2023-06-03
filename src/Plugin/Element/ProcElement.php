@@ -2,20 +2,23 @@
 
 namespace Drupal\proc\Plugin\Element;
 
+use Element\FormElement;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Datetime\Entity\DateFormat;
 use Drupal\Component\Utility\NestedArray;
-use Exception;
 
 /**
  * Provides a custom form element.
  *
  * @FormElement("proc_element")
  */
-class ProcElement extends Element\FormElement {
+class ProcElement extends FormElement {
 
+  /**
+   *
+   */
   public static function processTime(&$element, FormStateInterface $form_state, &$complete_form) {
     $element['time'] = [
       '#name' => $element['#name'],
@@ -31,15 +34,21 @@ class ProcElement extends Element\FormElement {
     return $element;
   }
 
+  /**
+   *
+   */
   public static function preRenderTime($element) {
     $element['#attributes']['type'] = 'time';
     Element::setAttributes($element, ['id', 'name', 'value', 'size', 'step']);
     // Sets the necessary attributes, such as the error class for validation.
-    // Without this line the field will not be hightlighted, if an error occurred
+    // Without this line the field will not be hightlighted, if an error occurred.
     static::setAttributes($element, ['form-text']);
     return $element;
   }
 
+  /**
+   *
+   */
   public static function valueCallback(&$element, $input, FormStateInterface $form_state) {
     if ($input !== FALSE) {
       $format = isset($element['#time_format']) && $element['#time_format'] ? $element['#time_format'] : 'html_time';
@@ -48,7 +57,7 @@ class ProcElement extends Element\FormElement {
       try {
         DrupalDateTime::createFromFormat($time_format, $input, NULL);
       }
-      catch (Exception $e) {
+      catch (\Exception $e) {
         $input = NULL;
       }
     }
@@ -58,6 +67,9 @@ class ProcElement extends Element\FormElement {
     return $input;
   }
 
+  /**
+   *
+   */
   public static function validateTime(&$element, FormStateInterface $form_state, &$complete_form) {
     $format = isset($element['#time_format']) && $element['#time_format'] ? $element['#time_format'] : 'html_time';
     $time_format = DateFormat::load($format)->getPattern();
@@ -81,7 +93,7 @@ class ProcElement extends Element\FormElement {
           DrupalDateTime::createFromFormat($time_format, $input, NULL);
           $form_state->setValueForElement($element, $input);
         }
-        catch (Exception $e) {
+        catch (\Exception $e) {
           $form_state->setError($element, t('The %field is required. Please enter time in the format %format.', [
             '%field' => $title,
             '%format' => $time_format,
@@ -91,6 +103,9 @@ class ProcElement extends Element\FormElement {
     }
   }
 
+  /**
+   *
+   */
   public function getInfo() {
     $time_format = '';
     if (!defined('MAINTENANCE_MODE')) {
@@ -124,15 +139,13 @@ class ProcElement extends Element\FormElement {
 }
 
 
-// class ProcElement extends EntityAutocomplete {
-
-//   public static function process(&$element, &$form_state, &$complete_form) {
+// Class ProcElement extends EntityAutocomplete {
+// public static function process(&$element, &$form_state, &$complete_form) {
 //     // Render the element.
 //     return [
 //       '#type' => 'button',
 //       '#value' => $this->t('Encrypt'),
 //       // '#markup' => '<div>This is my custom form element!</div>',
 //     ];
-//   }
-
-// }
+//   }.
+// }.

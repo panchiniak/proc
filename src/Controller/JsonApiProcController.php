@@ -2,19 +2,18 @@
 
 namespace Drupal\proc\Controller;
 
-use Drupal;
 use Drupal\proc\Entity\Proc;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * Class JsonApiProcController
+ * Class JsonApiProcController.
  *
  * @package Drupal\proc\Controller
  */
 class JsonApiProcController {
 
   /**
-   * @return JsonResponse
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
   public function index() {
     return new JsonResponse(['pubkey' => $this->getData()]);
@@ -24,7 +23,7 @@ class JsonApiProcController {
    * @return array
    */
   public function getData() {
-    $current_path = Drupal::service('path.current')->getPath();
+    $current_path = \Drupal::service('path.current')->getPath();
     $path_array = explode('/', $current_path);
     $user_ids_string = $path_array[4];
     $user_ids = explode(',', $user_ids_string);
@@ -33,7 +32,7 @@ class JsonApiProcController {
 
     $proc_ids = [];
     foreach ($user_ids as $user_id) {
-      $query = Drupal::entityQuery('proc')
+      $query = \Drupal::entityQuery('proc')
         ->accessCheck(TRUE)
         ->condition($search_by, $user_id)
         ->condition('type', 'keyring')
@@ -56,7 +55,7 @@ class JsonApiProcController {
   }
 
   /**
-   * @return JsonResponse
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
   public function cipher() {
     return new JsonResponse(['pubkey' => $this->getCihper()]);
@@ -66,7 +65,7 @@ class JsonApiProcController {
    * @return array
    */
   public function getCihper() {
-    $current_path = Drupal::service('path.current')->getPath();
+    $current_path = \Drupal::service('path.current')->getPath();
     $path_array = explode('/', $current_path);
 
     $cipher_ids_string = $path_array[4];
@@ -77,12 +76,12 @@ class JsonApiProcController {
       $proc = Proc::load($proc_id);
 
       if (
-        // If cipher_fid is key in armored field, proc is using stream
+        // If cipher_fid is key in armored field, proc is using stream.
         isset($proc->get('armored')->getValue()[0]['cipher_fid']) &&
         // If cipher_fid is not an array, there is one single file:
         !is_array($proc->get('armored')->getValue()[0]['cipher_fid'])
       ) {
-        $storage = Drupal::entityTypeManager()->getStorage('file');
+        $storage = \Drupal::entityTypeManager()->getStorage('file');
         $file = $storage->load($proc->get('armored')
           ->getValue()[0]['cipher_fid']);
         $armored = file_get_contents($file->getFileUri());
@@ -96,13 +95,13 @@ class JsonApiProcController {
       // If cipher_fid key is an array, there are multiple files for the
       // storage of the cipher:
       if (isset($proc->get('armored')
-            ->getValue()[0]['cipher_fid']) && is_array($proc->get('armored')
-          ->getValue()[0]['cipher_fid'])) {
+        ->getValue()[0]['cipher_fid']) && is_array($proc->get('armored')
+        ->getValue()[0]['cipher_fid'])) {
         // Concatenate the pieces of the cipher in a single variable:
         $armored = '';
         foreach ($proc->get('armored')->getValue()[0]['cipher_fid'] as $fid) {
           // $armored = $armored . $fid;
-          $storage = Drupal::entityTypeManager()->getStorage('file');
+          $storage = \Drupal::entityTypeManager()->getStorage('file');
           $file = $storage->load($fid);
           $armored = $armored . file_get_contents($file->getFileUri());
         }
@@ -124,7 +123,7 @@ class JsonApiProcController {
         ->getValue();
       $cipher_data[$proc_index]['changed'] = $proc->get('changed')
         ->getValue()[0]['value'];
-      // @todo: add signed field
+      // @todo add signed field
     }
     return $cipher_data;
   }

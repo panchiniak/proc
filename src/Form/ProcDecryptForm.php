@@ -2,11 +2,8 @@
 
 namespace Drupal\proc\Form;
 
-use Drupal;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\proc;
-use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Drupal\Component\Utility\Crypt;
@@ -45,7 +42,7 @@ class ProcDecryptForm extends FormBase {
       'button--primary',
       'button',
     ];
-    Drupal::moduleHandler()
+    \Drupal::moduleHandler()
       ->alter('decryption_link_classes', $decryption_link_classes);
 
     $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));

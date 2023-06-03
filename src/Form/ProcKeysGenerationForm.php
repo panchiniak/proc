@@ -2,13 +2,11 @@
 
 namespace Drupal\proc\Form;
 
-use Drupal;
+use proc\Entity\Proc;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\proc;
-use Drupal\Component\Serialization\Json;
-use Drupal\Core\Routing;
 use Drupal\Component\Utility\UrlHelper;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -40,10 +38,10 @@ class ProcKeysGenerationForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $proc_hidden_fields_key_generation = [
-      // @todo: move this to static property of ProcKeys class
+      // @todo move this to static property of ProcKeys class
       'public_key',
       'encrypted_private_key',
-      // @todo: move this to static property of Proc class
+      // @todo move this to static property of Proc class
       'generation_timestamp',
       'generation_timespan',
       'browser_fingerprint',
@@ -83,7 +81,7 @@ class ProcKeysGenerationForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    // @todo: add validation to be sure the cipher text is not empty
+    // @todo add validation to be sure the cipher text is not empty
     // Check if the generated keys look like as PGP keys
     // $title = $form_state->getValue('title');
     // if (strlen($title) < 5) {
@@ -107,7 +105,7 @@ class ProcKeysGenerationForm extends FormBase {
     $key_created = FALSE;
     $success_message = 'Your key is saved.';
 
-    $current_url = Drupal::request()->headers->get('referer');
+    $current_url = \Drupal::request()->headers->get('referer');
     $parse_result = UrlHelper::parse($current_url);
     if (isset($parse_result['query']['destination'])) {
       $destination = $parse_result['query']['destination'];
@@ -119,7 +117,7 @@ class ProcKeysGenerationForm extends FormBase {
         'pubkey' => $form_state->getValue('public_key'),
       ];
 
-      $config = Drupal::config('proc.settings');
+      $config = \Drupal::config('proc.settings');
       $key_size = $config->get('proc-rsa-key-size');
 
       $meta = [
@@ -130,7 +128,7 @@ class ProcKeysGenerationForm extends FormBase {
         'key_size' => $key_size,
       ];
 
-      $proc = proc\Entity\Proc::create();
+      $proc = Proc::create();
       $proc->set('armored', $keyring)
         ->set('meta', $meta)
         ->set('label', $meta['proc_email'])
@@ -150,7 +148,7 @@ class ProcKeysGenerationForm extends FormBase {
       $url = Url::fromUri('internal:/' . $destination);
       $response = new RedirectResponse($url->toString());
       $response->send();
-      Drupal::messenger()->addStatus($this->t($success_message));
+      \Drupal::messenger()->addStatus($this->t($success_message));
     }
   }
 

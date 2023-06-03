@@ -2,11 +2,9 @@
 
 namespace Drupal\proc\Plugin\Field\FieldWidget;
 
-use Drupal;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldWidget\EntityReferenceAutocompleteWidget;
-use Drupal\proc\Entity\Element\ProcEntityAutocomplete;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
 
@@ -26,7 +24,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $entity = $items->getEntity();
-    // @todo: load the direct fetcher by field field name
+    // @todo load the direct fetcher by field field name
     // from proc entity reference field settings.
     $proc_field_name = $items->getName();
 
@@ -34,9 +32,9 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     $referenced_entities = $items->referencedEntities();
     // Append the match operation to the selection settings.
     $selection_settings = $this->getFieldSetting('handler_settings') + [
-        'match_operator' => $this->getSetting('match_operator'),
-        'match_limit' => $this->getSetting('match_limit'),
-      ];
+      'match_operator' => $this->getSetting('match_operator'),
+      'match_limit' => $this->getSetting('match_limit'),
+    ];
     // Add extra javascript library.
     $library = [
       'library' => [
@@ -59,7 +57,7 @@ class ProcEntityReferenceWidget extends EntityReferenceAutocompleteWidget {
     if ($bundle = $this->getAutocreateBundle()) {
       $element['#autocreate'] = [
         'bundle' => $bundle,
-        'uid' => ($entity instanceof EntityOwnerInterface) ? $entity->getOwnerId() : Drupal::currentUser()
+        'uid' => ($entity instanceof EntityOwnerInterface) ? $entity->getOwnerId() : \Drupal::currentUser()
           ->id(),
       ];
     }

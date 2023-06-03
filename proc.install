@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Install, update and uninstall functions for the Protected Content module.
@@ -83,7 +84,7 @@ function proc_install() {
  * Implements hook_uninstall().
  */
 function proc_uninstall() {
-  // @TODO: remove leftovers from database
+  // @todo remove leftovers from database
   Drupal::messenger()->addStatus(__FUNCTION__);
 }
 

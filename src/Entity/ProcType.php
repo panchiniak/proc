@@ -3,8 +3,6 @@
 namespace Drupal\proc\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
-use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\proc\ProcTypeInterface;
 
 /**
  * Defines the proc type entity type.

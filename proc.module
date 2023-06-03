@@ -1,11 +1,11 @@
 <?php
+
 /**
  * @file
  * Primary module hooks for Protected Content module.
  */
 
 use Drupal\Component\Serialization\Json;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\proc\Entity\Bundle\ProcCipherTextBundle;
@@ -104,7 +104,7 @@ function proc_form_proc_encrypt_form_alter(&$form, FormStateInterface $form_stat
   $settings = [
     'proc_labels' => _proc_js_labels(),
     'proc_data' => $proc_data,
-    // @todo: turn this into a configuration:
+    // @todo turn this into a configuration:
     'proc_file_entity_max_filesize' => $max_file_size,
     'proc_post_max_size_bytes' => _proc_get_post_max_size_bytes(),
     'proc_recipients_pubkeys_changed' => json_encode($created),
@@ -147,7 +147,7 @@ function proc_form_proc_decrypt_form_alter(&$form, FormStateInterface $form_stat
   $path_array = explode('/', $current_path);
   $cipher_ids_csv = $path_array[2];
   $cids = _proc_get_csv_argument($cipher_ids_csv);
-  // Get
+  // Get.
   $ciphers_data = _proc_common_get_ciphers($cids, FALSE);
 
   // Decryption requires a keyring:
@@ -190,11 +190,11 @@ function proc_form_proc_decrypt_form_alter(&$form, FormStateInterface $form_stat
         // Also used for labels on text area encryption:
         'proc_sources_file_names' => $files_names,
         'proc_sources_file_sizes' => $files_sizes,
-        // @todo: implement this:
+        // @todo implement this:
         'proc_sources_input_modes' => $sources_input_mode,
-        // @todo: implement this:
+        // @todo implement this:
         'proc_sources_signed' => $sources_signed,
-        // @TODO: get this from configuration:
+        // @todo get this from configuration:
         'proc_skip_size_mismatch' => 'TRUE',
         'base_path' => base_path(),
         'proc_signed' => $sources_signed,
@@ -254,7 +254,6 @@ function proc_form_proc_update_form_alter(&$form, FormStateInterface $form_state
       //   'unalterable_recipient_uids' => $uids,
       // ];
       // drupal_alter('cipher_update_owner_check', $all_current_recipients, $context);
-
       if (array_diff($all_current_recipients, $uids)) {
         ProcDecryptForm::denyAccess();
       }

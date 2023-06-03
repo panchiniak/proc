@@ -2,15 +2,10 @@
 
 namespace Drupal\proc\Form;
 
-use Drupal;
+use proc\Entity\Proc;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\proc;
-use Drupal\Core\Link;
-use Drupal\Core\Url;
-use Drupal\Core\Render\Markup;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\File\FileSystemInterface;
 
 /**
@@ -86,7 +81,7 @@ class ProcUpdateForm extends FormBase {
     // if (strlen($title) < 5) {
     //   // Set an error for the form element with a key of "title".
     //   $form_state->setErrorByName('title', $this->t('The title must be at least 5 characters long.'));
-    // }
+    // }.
   }
 
   /**
@@ -100,7 +95,7 @@ class ProcUpdateForm extends FormBase {
    *   Object describing the current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $current_path = Drupal::service('path.current')->getPath();
+    $current_path = \Drupal::service('path.current')->getPath();
     $path_array = explode('/', $current_path);
 
     // Sanitize and preprocess arguments:
@@ -111,7 +106,7 @@ class ProcUpdateForm extends FormBase {
 
     // If there is at least one selected uid:
     if (is_numeric($csvs['uids_csv']['array'][0])) {
-      $time_value = Drupal::time()->getCurrentTime();
+      $time_value = \Drupal::time()->getCurrentTime();
 
       // Get the data of cihpers for updating their proc entities:
       $procs_data = [];
@@ -131,7 +126,7 @@ class ProcUpdateForm extends FormBase {
         $recipient_users[] = ['target_id' => $recipient_id];
       }
       foreach ($procs_data as $proc_data) {
-        $proc = $proc = proc\Entity\Proc::load($proc_data['proc_id']);
+        $proc = $proc = Proc::load($proc_data['proc_id']);
         $meta = $proc->get('meta')->getValue()[0];
         $meta['browser_fingerprint'] = $proc_data['browser_fingerprint'];
         $meta['generation_timestamp'] = $proc_data['generation_timestamp'];
@@ -140,7 +135,7 @@ class ProcUpdateForm extends FormBase {
         $proc->set('meta', $meta);
 
         // If file storage is set:
-        $config = Drupal::config('proc.settings');
+        $config = \Drupal::config('proc.settings');
         $enable_stream_wrapper = $config->get('proc-enable-stream-wrapper');
         $stream_wrapper = $config->get('proc-stream-wrapper');
         $block_size = $config->get('proc-file-block-size');
@@ -150,11 +145,11 @@ class ProcUpdateForm extends FormBase {
         if ($enable_stream_wrapper === 1 && !empty($stream_wrapper) && !($blocks_split_enabled)) {
           $json_dest = $stream_wrapper;
           if (!is_dir($json_dest)) {
-            Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
+            \Drupal::service('file_system')->mkdir($json_dest, NULL, TRUE);
           }
 
           if ($proc_data['cipher_text']) {
-            $jsonFid = Drupal::service('file.repository')
+            $jsonFid = \Drupal::service('file.repository')
               ->writeData(
                 $proc_data['cipher_text'],
                 "$json_dest/$json_filename",
@@ -168,7 +163,7 @@ class ProcUpdateForm extends FormBase {
         }
 
         if ($enable_stream_wrapper === 1 && !empty($stream_wrapper) && !($blocks_split_enabled) && !empty($block_size)) {
-          // @todo: add split storage mode for update.
+          // @todo add split storage mode for update.
           // @todo implement this:
           $lines = explode("\n", $json_content);
           $content_lines_number = count($lines);
@@ -206,7 +201,7 @@ class ProcUpdateForm extends FormBase {
             $fragment = Crypt::hashBase64(Crypt::randomBytesBase64(32));
             $json_filename = $fragment . '.json';
 
-            $jsonFid = Drupal::service('file.repository')
+            $jsonFid = \Drupal::service('file.repository')
               ->writeData(
                 $block_text,
                 "$json_dest/$json_filename",

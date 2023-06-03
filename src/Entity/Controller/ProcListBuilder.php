@@ -100,8 +100,7 @@ class ProcListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    //    ksm($entity->getMeta());
-
+    // ksm($entity->getMeta());
     $flag = '';
     // Proc entities less than 30 days old are considered new:
     if ($entity->getCreated() > HISTORY_READ_LIMIT) {

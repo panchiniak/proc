@@ -6,7 +6,6 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Protected Content event subscriber.
@@ -36,7 +35,7 @@ class ProcSubscriber implements EventSubscriberInterface {
   public static function getSubscribedEvents() {
     return [
       // KernelEvents::REQUEST => ['onKernelRequest'],
-      // KernelEvents::RESPONSE => ['onKernelResponse'],
+      // KernelEvents::RESPONSE => ['onKernelResponse'],.
     ];
   }
 

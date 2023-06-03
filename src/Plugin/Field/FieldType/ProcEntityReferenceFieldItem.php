@@ -28,8 +28,8 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
     return [
         // The default target type is 'proc' because the default widget is
         // 'proc_entity_reference_widget'.
-        'target_type' => 'proc',
-      ] + parent::defaultStorageSettings();
+      'target_type' => 'proc',
+    ] + parent::defaultStorageSettings();
   }
 
   /**
@@ -37,13 +37,13 @@ class ProcEntityReferenceFieldItem extends EntityReferenceItem {
    */
   public static function defaultFieldSettings() {
     return [
-        'proc_field_recipients_fetcher_endpoint' => '',
-        'proc_field_recipients_manual_fetcher' => '',
-        'proc_field_recipients_to_field' => '',
-        'proc_field_recipients_cc_field' => '',
-        'proc_field_mode' => 1,
-        'proc_field_input_mode' => 0,
-      ] + parent::defaultFieldSettings();
+      'proc_field_recipients_fetcher_endpoint' => '',
+      'proc_field_recipients_manual_fetcher' => '',
+      'proc_field_recipients_to_field' => '',
+      'proc_field_recipients_cc_field' => '',
+      'proc_field_mode' => 1,
+      'proc_field_input_mode' => 0,
+    ] + parent::defaultFieldSettings();
   }
 
   /**

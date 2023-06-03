@@ -24,7 +24,7 @@ function _proc_js_labels() {
     'proc_size' => t('Size:'),
     'proc_type' => t('Type:'),
     'proc_last_modified' => t('Last modified:'),
-    // Visible as data-drupal-selector=password-strength-text
+    // Visible as data-drupal-selector=password-strength-text.
     'proc_minimal_password_strenght' => t('Strong'),
     'proc_generate_keys_submit_label' => t('Generate encryption keys'),
     'proc_submit_saving_state' => t('Saving...'),
@@ -185,12 +185,12 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
   $user_id = $user->id();
 
   if ($metadata_only != TRUE && (isset($entity->get('armored')
-        ->getValue()[0]['cipher']))) {
+    ->getValue()[0]['cipher']))) {
     $cipher_text_data['cipher_text'] = $entity->get('armored')
       ->getValue()[0]['cipher'];
     if (isset($entity->get('armored')
-          ->getValue()[0]['cipher_fid']) && !is_array($entity->get('armored')
-        ->getValue()[0]['cipher_fid'])) {
+      ->getValue()[0]['cipher_fid']) && !is_array($entity->get('armored')
+      ->getValue()[0]['cipher_fid'])) {
       // Stream wrapper storage in a single file:
       $storage = Drupal::entityTypeManager()->getStorage('file');
       $file = $storage->load($entity->get('armored')
@@ -204,12 +204,12 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
         ->getValue()[0]['cipher'];
     }
 
-    // @todo: use cache first policy also for the update operation
+    // @todo use cache first policy also for the update operation
     // If cipher_fid key is an array, there are multiple files for the
     // storage of the cipher:
     if (isset($entity->get('armored')
-          ->getValue()[0]['cipher_fid']) && is_array($entity->get('armored')
-        ->getValue()[0]['cipher_fid'])) {
+      ->getValue()[0]['cipher_fid']) && is_array($entity->get('armored')
+      ->getValue()[0]['cipher_fid'])) {
       // Concatenate the pieces of the cipher in a single variable:
       $armored = '';
       foreach ($entity->get('armored')->getValue()[0]['cipher_fid'] as $fid) {

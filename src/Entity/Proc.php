@@ -1,12 +1,7 @@
 <?php
-/**
- * @file
- * Contains \Drupal\proc\Entity\Proc.
- */
 
 namespace Drupal\proc\Entity;
 
-use Drupal;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -66,7 +61,6 @@ use Drupal\user\UserInterface;
  *   field_ui_base_route = "entity.proc.edit_form",
  *   bundle_entity_type = "proc_type"
  * )
- *
  */
 class Proc extends ContentEntityBase implements ProcInterface {
 
@@ -81,7 +75,7 @@ class Proc extends ContentEntityBase implements ProcInterface {
   public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
     parent::preCreate($storage_controller, $values);
     $values += [
-      'user_id' => Drupal::currentUser()->id(),
+      'user_id' => \Drupal::currentUser()->id(),
     ];
   }
 
@@ -291,35 +285,35 @@ class Proc extends ContentEntityBase implements ProcInterface {
   }
 
   /**
-   * Get public key cipher
+   * Get public key cipher.
    */
   public function getPubkey() {
     return $this->get('armored')->target_id;
   }
 
   /**
-   * Get proc type
+   * Get proc type.
    */
   public function getType() {
     return $this->values["type"]["x-default"];
   }
 
   /**
-   * Get status
+   * Get status.
    */
   public function getStatus() {
     return $this->values["status"]["x-default"];
   }
 
   /**
-   * Get created timestamp
+   * Get created timestamp.
    */
   public function getCreated() {
     return $this->values["created"]["x-default"];
   }
 
   /**
-   * Get metadata value
+   * Get metadata value.
    */
   public function getMeta() {
     return $this->get('meta')->getValue();
