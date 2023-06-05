@@ -2,11 +2,10 @@
 
 namespace Drupal\proc\Form;
 
-use proc\Entity\Proc;
+use Drupal\proc\Entity\Proc;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\proc;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Render\Markup;

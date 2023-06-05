@@ -184,7 +184,7 @@ function _proc_get_cipher($cid, $form = NULL, $form_state = NULL, $metadata_only
   $user = Drupal::currentUser();
   $user_id = $user->id();
 
-  if ($metadata_only != TRUE && (isset($entity->get('armored')
+  if (!$metadata_only && (isset($entity->get('armored')
     ->getValue()[0]['cipher']))) {
     $cipher_text_data['cipher_text'] = $entity->get('armored')
       ->getValue()[0]['cipher'];
